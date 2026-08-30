@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Kobe & Osaka Trip - 動森手帳風行程表 (多人協作版)</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&family=Varela+Round&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Firebase SDK (Modular v10) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getFirestore, collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyD_Ivq8hdwSNOxogB8QuedFEn5nB_kVYvI",
+            authDomain: "osakap-b4c68.firebaseapp.com",
+            projectId: "osakap-b4c68",
+            storageBucket: "osakap-b4c68.firebasestorage.app",
+            messagingSenderId: "520160530827",
+            appId: "1:520160530827:web:28492385441ddad4581f8e",
+            measurementId: "G-SPG57Z5DBZ"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // 將 Firebase 工具與實體掛載到 window，供 Vue 使用
+        window.db = db;
+        window.fb = { collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc };
+    </script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'ac-bg': '#F7F4EB',       
+                        'ac-green': '#8BBF9F',    
+                        'ac-earth': '#B89B72',    
+                        'ac-text': '#5A4E45',     
+                        'ac-shadow': '#E0E5D5',   
+                    },
+                    boxShadow: {
+                        'soft': '4px 4px 0px #E0E5D5',
+                        'soft-active': '2px 2px 0px #E0E5D5',
+                        'soft-header': '0px 4px 15px rgba(224,229,213,0.5)',
+                    },
+                    fontFamily: {
+                        'rounded': ['"Nunito"', '"Varela Round"', '"Noto Sans TC"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            background-color: #F7F4EB;
+            color: #5A4E45;
+            -webkit-tap-highlight-color: transparent;
+            font-family: 'Nunito', 'Varela Round', 'Noto Sans TC', sans-serif;
+            background-image: radial-gradient(#E0E5D5 1.5px, transparent 1.5px);
+            background-size: 20px 20px;
+        }
+        .app-container {
+            max-width: 480px;
+            margin: 0 auto;
+            min-height: 100vh;
+            position: relative;
+            padding-bottom: 90px; 
+        }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        .animate-fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 480px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-top-left-radius: 30px;
+            border-top-right-radius: 30px;
+            box-shadow: 0 -4px 20px rgba(224,229,213,0.6);
+            z-index: 50;
+            padding: 10px 5px 25px 5px;
+            display: flex;
+            justify-content: space-around;
+        }
+        .nav-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #B89B72;
+            transition: all 0.2s ease;
+            width: 16.66%;
+        }
+        .nav-btn.active {
+            color: #8BBF9F;
+            transform: scale(1.1);
+        }
+        .note-content {
+            max-height: 2.5rem;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        .note-content.expanded { max-height: 500px; }
+        
+        .ac-input {
+            width: 100%;
+            background-color: #F9F6F0;
+            border: 2px solid #E0E5D5;
+            border-radius: 0.75rem;
+            padding: 0.75rem;
+            font-size: 0.875rem;
+            outline: none;
+            color: #5A4E45;
+            transition: all 0.2s;
+        }
+        .ac-input:focus {
+            border-color: #8BBF9F;
+            background-color: #ffffff;
+        }
+
+        .ac-checkbox {
+            appearance: none;
+            width: 1.25rem;
+            height: 1.25rem;
+            border: 2px solid #B89B72;
+            border-radius: 0.375rem;
+            outline: none;
+            cursor: pointer;
+            position: relative;
+            background-color: white;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        .ac-checkbox:checked {
+            background-color: #8BBF9F;
+            border-color: #8BBF9F;
+        }
+        .ac-checkbox:checked::after {
+            content: '\f00c';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            color: white;
+            font-size: 0.75rem;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+    </style>
+</head>
+<body>
+
+<div id="app" class="app-container">
+
+    <header class="pt-10 pb-6 px-6 bg-white rounded-b-[40px] shadow-soft-header mb-6 sticky top-0 z-30">
+        <h1 class="text-2xl font-extrabold mb-2 tracking-wide text-ac-text">✈️ 台中大阪6天5夜</h1>
+        <div class="flex justify-between items-center">
+            <div class="text-ac-earth text-sm font-bold bg-[#F9F6F0] px-3 py-1.5 rounded-xl border border-[#F0EBE1]">
+                <i class="fa-regular fa-calendar-check mr-1.5 text-ac-green"></i> 2026/9/4 - 9/9
+            </div>
+            <div class="text-ac-green text-sm font-bold flex items-center">
+                <i class="fa-solid fa-plane-departure mr-1.5"></i> 6天5夜 (雲端同步版)
+            </div>
+        </div>
+    </header>
+
+    <main class="px-5 relative z-10">
+        
+        <!-- ================= 行程 ================= -->
+        <div v-if="currentTab === 'schedule'" class="animate-fade-in">
+            <div class="flex overflow-x-auto space-x-3 pb-4 mb-2 -mx-5 px-5 scrollbar-hide sticky top-[110px] z-20">
+                <button v-for="(day, index) in dates" :key="index" @click="selectedDateIndex = index" class="flex-shrink-0 w-[70px] h-[80px] rounded-2xl flex flex-col items-center justify-center transition-all duration-200 font-bold border-2 border-transparent" :class="selectedDateIndex === index ? 'bg-ac-green text-white shadow-soft-active scale-95 border-ac-green' : 'bg-white text-ac-text shadow-soft border-ac-shadow hover:bg-[#F9F6F0]'">
+                    <span class="text-sm uppercase mb-1">{{ day.day }}</span>
+                    <span class="text-[11px] opacity-80" :class="selectedDateIndex === index ? 'text-white' : 'text-ac-earth'">{{ day.date }}</span>
+                </button>
+            </div>
+
+            <div v-if="weatherData[selectedDateIndex]" class="bg-white rounded-3xl border-2 border-ac-shadow shadow-soft mb-8 flex justify-between items-center py-3 px-5">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center" :class="weatherData[selectedDateIndex].bg"><i :class="weatherData[selectedDateIndex].icon" class="text-xl"></i></div>
+                    <span class="font-extrabold text-xl">{{ weatherData[selectedDateIndex].temp }}</span>
+                </div>
+                <span class="text-[11px] text-ac-green font-bold bg-[#E8F2EC] px-3 py-1.5 rounded-full border border-[#D5E8DD]">{{ weatherData[selectedDateIndex].desc }}</span>
+            </div>
+
+            <div class="space-y-5 relative pb-10">
+                <div class="absolute left-[35px] top-6 bottom-10 w-[3px] bg-ac-shadow rounded-full z-0"></div>
+                <div v-for="(item, idx) in currentItinerary" :key="item.id" class="relative z-10 flex items-stretch group">
+                    <div class="flex flex-col items-center mr-4 w-[70px] flex-shrink-0 pt-1">
+                        <div class="w-12 h-12 rounded-[18px] text-white flex items-center justify-center text-lg shadow-sm mb-1.5 z-10 border-2 border-white" :class="getCategoryColor(item.category)"><i :class="getCategoryIcon(item.category)"></i></div>
+                        <span class="text-[13px] font-extrabold text-ac-earth bg-ac-bg px-1">{{ item.startTime || '全天' }}</span>
+                    </div>
+                    <div class="flex-1 bg-white rounded-3xl border-2 border-ac-shadow shadow-soft p-4.5 mb-2 transition-transform duration-200 active:scale-[0.98] active:shadow-soft-active relative overflow-hidden">
+                        <div class="absolute -right-6 -top-6 w-16 h-16 rounded-full opacity-10" :class="getCategoryColor(item.category)"></div>
+                        <div class="p-1">
+                            <div v-if="getTransportBadgeInfo(item.transportType)" class="mb-2.5">
+                                <span class="inline-flex items-center px-2 py-1 rounded-lg text-[10px] font-bold tracking-wide shadow-sm border bg-white cursor-pointer" :class="getTransportBadgeInfo(item.transportType).class" @click="openMapDirections(currentItinerary[idx - 1], item)">
+                                    <img v-if="getTransportBadgeInfo(item.transportType).logo" :src="getTransportBadgeInfo(item.transportType).logo" class="h-3.5 mr-1.5 inline-block object-contain" alt="logo">
+                                    <span v-else-if="item.transportType === 'portliner'" class="font-serif italic font-extrabold text-[14px] leading-none mr-1.5 text-[#005a9c]">P</span>
+                                    {{ getTransportBadgeInfo(item.transportType).text }}
+                                    <i class="fa-solid fa-chevron-right ml-1.5 opacity-50 text-[8px]"></i>
+                                </span>
+                            </div>
+                            <h3 class="text-[16px] font-extrabold mb-1.5 text-ac-text leading-snug whitespace-pre-line">{{ item.name }}</h3>
+                            <div class="text-[12px] text-ac-earth space-y-1.5 mt-2.5 font-bold">
+                                <p v-if="item.travelTime && !getTransportBadgeInfo(item.transportType)" class="flex items-center"><i class="fa-solid fa-route w-4 text-center mr-1.5 opacity-70"></i> 交通: {{ item.travelTime }}</p>
+                                <p v-if="item.hours" class="flex items-center"><i class="fa-regular fa-clock w-4 text-center mr-1.5 opacity-70"></i> 停留/營業: {{ item.hours }}</p>
+                                <p v-if="item.price" class="flex items-center"><i class="fa-solid fa-ticket w-4 text-center mr-1.5 opacity-70"></i> 備註/費用: {{ item.price }}</p>
+                                <p v-if="item.address" class="flex items-start" @click="openMap(item.address)"><i class="fa-solid fa-location-dot w-4 text-center mr-1.5 mt-0.5 opacity-70 text-[#D2691E]"></i> <span class="underline decoration-dotted underline-offset-2 cursor-pointer">{{ item.address }}</span></p>
+                            </div>
+                            <div v-if="item.note" class="mt-3.5 pt-3 border-t border-dashed border-ac-shadow">
+                                <div class="note-content whitespace-pre-line text-[13px] text-[#8C7A6B] font-medium leading-relaxed" :class="{'expanded': item.isNoteExpanded}"><i class="fa-solid fa-seedling text-ac-green mr-1 text-[10px]"></i> {{ item.note }}</div>
+                                <button v-if="item.note.length > 30 || item.note.includes('\n')" @click="item.isNoteExpanded = !item.isNoteExpanded" class="text-ac-earth font-bold mt-1 text-[11px] bg-[#F9F6F0] px-2 py-0.5 rounded-md">{{ item.isNoteExpanded ? '收合筆記' : '翻開筆記...' }}</button>
+                            </div>
+                        </div>
+                        <div class="absolute top-3 right-3 flex flex-col space-y-1">
+                            <button @click.stop="openMap(item.address || item.name)" class="w-7 h-7 bg-[#E8F2EC] text-ac-green rounded-full flex items-center justify-center text-xs hover:bg-ac-green hover:text-white" title="導航"><i class="fa-solid fa-location-arrow"></i></button>
+                            <button @click.stop="editItem(item)" class="w-7 h-7 bg-[#F9F6F0] text-ac-text rounded-full flex items-center justify-center text-xs hover:bg-[#E0E5D5]" title="編輯"><i class="fa-solid fa-pencil"></i></button>
+                        </div>
+                    </div>
+                </div>
+                <div v-if="currentItinerary.length === 0" class="text-center py-16 text-ac-earth font-bold">
+                    <i class="fa-solid fa-leaf text-4xl mb-3 text-ac-green opacity-50"></i><p class="text-sm">這天還沒有安排行程唷！</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= 準備區 ================= -->
+        <div v-if="currentTab === 'prep'" class="animate-fade-in pb-10">
+            <div class="flex overflow-x-auto space-x-2 mb-6 bg-white p-2 rounded-2xl border-2 border-ac-shadow shadow-sm sticky top-[110px] z-20 scrollbar-hide">
+                <button @click="prepTab = 'todo'" class="flex-shrink-0 px-4 py-2 rounded-xl text-sm font-bold transition-all" :class="prepTab === 'todo' ? 'bg-[#FFF0F0] text-[#F2A6A6]' : 'text-ac-earth hover:bg-[#F9F6F0]'">待辦</button>
+                <button @click="prepTab = 'wish'" class="flex-shrink-0 px-4 py-2 rounded-xl text-sm font-bold transition-all" :class="prepTab === 'wish' ? 'bg-[#E3F2FD] text-[#2196F3]' : 'text-ac-earth hover:bg-[#F9F6F0]'">想去</button>
+                <button @click="prepTab = 'luggage'" class="flex-shrink-0 px-4 py-2 rounded-xl text-sm font-bold transition-all" :class="prepTab === 'luggage' ? 'bg-[#E8F2EC] text-ac-green' : 'text-ac-earth hover:bg-[#F9F6F0]'">行李</button>
+            </div>
+
+            <!-- 待辦 -->
+            <div v-if="prepTab === 'todo'" class="bg-white rounded-3xl border-2 border-ac-shadow shadow-soft p-5">
+                <h3 class="font-extrabold text-ac-text mb-4 text-lg border-b-2 border-dashed border-ac-shadow pb-3"><i class="fa-solid fa-list-check text-[#F2A6A6] mr-2"></i> 行前待辦事項 (即時同步)</h3>
+                <div class="space-y-3 mb-4">
+                    <div v-for="(item) in todoList" :key="item.id" class="flex items-center bg-[#F9F6F0] p-3 rounded-2xl border border-[#E0E5D5] transition-all" :class="{'opacity-50': item.done}">
+                        <input type="checkbox" v-model="item.done" @change="updateTodoStatus(item)" class="ac-checkbox mr-3">
+                        <span class="font-bold flex-1 text-ac-text" :class="{'line-through': item.done}">{{ item.text }}</span>
+                        <button @click="removeTodo(item.id)" class="text-[#F2A6A6] w-6 h-6 flex items-center justify-center rounded-full hover:bg-white"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <input v-model="newTodoText" @keyup.enter="addTodo" type="text" placeholder="新增待辦事項..." class="ac-input flex-1 !py-2">
+                    <button @click="addTodo" class="bg-[#F2A6A6] text-white w-10 h-10 rounded-xl shadow-sm"><i class="fa-solid fa-plus"></i></button>
+                </div>
+            </div>
+
+            <!-- 想去 -->
+            <div v-if="prepTab === 'wish'" class="bg-white rounded-3xl border-2 border-ac-shadow shadow-soft p-5">
+                <h3 class="font-extrabold text-ac-text mb-4 text-lg border-b-2 border-dashed border-ac-shadow pb-3"><i class="fa-solid fa-heart text-[#2196F3] mr-2"></i> 想去的願望清單</h3>
+                <div class="space-y-4 mb-4">
+                    <div v-for="(item) in wishList" :key="item.id" class="bg-[#F9F6F0] p-4 rounded-2xl border border-[#E0E5D5] relative group">
+                        <p class="font-extrabold text-ac-text">{{ item.name }}</p>
+                        <p v-if="item.note" class="text-xs text-ac-earth font-bold mt-1">{{ item.note }}</p>
+                        <button @click="removeWish(item.id)" class="absolute top-2 right-2 text-[#F2A6A6] w-6 h-6 flex items-center justify-center rounded-full hover:bg-white"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 行李 -->
+            <div v-if="prepTab === 'luggage'" class="bg-white rounded-3xl border-2 border-ac-shadow shadow-soft p-5">
+                <h3 class="font-extrabold text-ac-text mb-4 text-lg border-b-2 border-dashed border-ac-shadow pb-3"><i class="fa-solid fa-suitcase-rolling text-ac-green mr-2"></i> 行李打包確認</h3>
+                <div v-for="(group, category) in groupedLuggage" :key="category" class="mb-5">
+                    <h4 class="font-extrabold text-sm text-ac-earth mb-2 bg-[#F9F6F0] px-3 py-1 rounded-lg inline-block">{{ category }}</h4>
+                    <div class="grid grid-cols-2 gap-2">
+                        <label v-for="item in group" :key="item.id" class="flex items-center p-2 rounded-xl border border-transparent hover:border-ac-shadow cursor-pointer transition-all" :class="{'opacity-50': item.done}">
+                            <input type="checkbox" v-model="item.done" @change="updateLuggageStatus(item)" class="ac-checkbox mr-2 shrink-0">
+                            <span class="font-bold text-sm text-ac-text truncate" :class="{'line-through': item.done}">{{ item.text }}</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= 記帳 ================= -->
+        <div v-if="currentTab === 'expenses'" class="animate-fade-in pb-10">
+            <div class="bg-white rounded-3xl border-2 border-ac-shadow shadow-soft p-6 mb-6 text-center">
+                <p class="text-sm text-ac-earth font-extrabold mb-1">公費 / 總支出 (JPY)</p>
+                <h2 class="text-4xl font-extrabold text-ac-text tracking-tight mb-2">¥ {{ formatNumber(totalExpensesJPY) }}</h2>
+                <p class="text-xs text-ac-green font-bold bg-[#E8F2EC] px-3 py-1 rounded-full inline-block">約 NT$ {{ formatNumber(totalExpensesTWD) }}</p>
+            </div>
+
+            <div class="bg-white rounded-3xl border-2 border-ac-shadow shadow-soft p-6">
+                <h3 class="font-extrabold text-ac-text mb-4 flex items-center border-b-2 border-dashed border-ac-shadow pb-3">
+                    <i class="fa-solid fa-receipt text-ac-earth mr-2"></i> 雲端支出紀錄
+                </h3>
+                <div class="space-y-4">
+                    <div v-for="(exp) in expenses" :key="exp.id" class="bg-[#F9F6F0] rounded-2xl border border-[#E0E5D5] p-4 flex items-center justify-between">
+                        <div>
+                            <p class="font-extrabold text-ac-text text-[13px]">{{ exp.name }}</p>
+                            <p class="text-[10px] text-ac-earth font-bold mt-0.5">{{ exp.date }} · 墊款: {{ exp.payer }}</p>
+                        </div>
+                        <div class="text-right flex items-center">
+                            <p class="font-extrabold text-ac-text text-sm mr-3">¥{{ formatNumber(exp.amount) }}</p>
+                            <button @click="removeExpense(exp.id)" class="text-[#F2A6A6] hover:text-red-500"><i class="fa-solid fa-trash text-xs"></i></button>
+                        </div>
+                    </div>
+                    <div v-if="expenses.length === 0" class="text-center py-6 text-ac-earth opacity-50 text-sm font-bold">尚未新增支出</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= 旅伴 ================= -->
+        <div v-if="currentTab === 'members'" class="animate-fade-in pb-10">
+            <div class="grid grid-cols-2 gap-4">
+                <div v-for="(member) in members" :key="member.id" class="bg-white rounded-3xl border-2 border-ac-shadow shadow-soft p-4 relative flex flex-col items-center">
+                    <div class="w-20 h-20 rounded-full border-4 border-[#F9F6F0] shadow-sm overflow-hidden mb-3 bg-[#E8F2EC] flex items-center justify-center text-ac-green text-3xl">
+                        <i class="fa-solid fa-user-astronaut"></i>
+                    </div>
+                    <span class="bg-[#FFF0F0] text-[#F2A6A6] border border-[#F9DADA] text-[10px] px-2 py-0.5 rounded-md font-bold mb-1.5">{{ member.role }}</span>
+                    <p class="font-extrabold text-[14px] text-ac-text text-center">{{ member.name }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= 預訂/資訊 ================= -->
+        <div v-if="currentTab === 'info'" class="animate-fade-in space-y-5 pb-10">
+            <div class="bg-ac-green rounded-3xl shadow-soft p-6 text-white mb-6 relative overflow-hidden">
+                <h3 class="font-extrabold text-lg mb-4 flex items-center relative z-10"><i class="fa-solid fa-calculator mr-2"></i> 快速匯率換算</h3>
+                <div class="flex items-center justify-between space-x-3 relative z-10">
+                    <div class="flex-1">
+                        <label class="text-[10px] text-[#E8F2EC] block mb-1 uppercase tracking-wider font-bold">JPY (日幣)</label>
+                        <input type="number" v-model="currencyInput" @input="calculateCurrency" class="w-full bg-white/20 border-2 border-white/30 rounded-xl px-3 py-2 text-white placeholder-white/50 focus:outline-none focus:bg-white/30 text-lg font-bold" placeholder="¥">
+                    </div>
+                    <i class="fa-solid fa-arrow-right-arrow-left text-[#D5E8DD] mt-5"></i>
+                    <div class="flex-1">
+                        <label class="text-[10px] text-[#E8F2EC] block mb-1 uppercase tracking-wider font-bold">TWD (台幣)</label>
+                        <div class="w-full bg-white/10 rounded-xl px-3 py-2 text-white text-lg font-bold border-2 border-transparent">
+                            $ {{ currencyResult }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ================= FAB (懸浮新增按鈕) ================= -->
+    <button v-if="['schedule', 'prep', 'expenses'].includes(currentTab)" 
+            @click="handleAddClick" 
+            class="fixed bottom-24 right-6 w-14 h-14 bg-ac-green rounded-full shadow-soft text-white text-2xl flex items-center justify-center hover:scale-105 active:scale-95 active:shadow-soft-active transition-all z-40 border-2 border-white">
+        <i class="fa-solid fa-plus"></i>
+    </button>
+
+    <!-- ================= 底部導航 ================= -->
+    <nav class="bottom-nav">
+        <button @click="currentTab = 'schedule'" class="nav-btn" :class="{'active': currentTab === 'schedule'}"><i class="fa-solid fa-book-open text-xl mb-1"></i><span class="text-[10px] font-extrabold">手帳</span></button>
+        <button @click="currentTab = 'prep'" class="nav-btn" :class="{'active': currentTab === 'prep'}"><i class="fa-solid fa-suitcase-rolling text-xl mb-1"></i><span class="text-[10px] font-extrabold">準備</span></button>
+        <button @click="currentTab = 'expenses'" class="nav-btn" :class="{'active': currentTab === 'expenses'}"><i class="fa-solid fa-piggy-bank text-xl mb-1"></i><span class="text-[10px] font-extrabold">記帳</span></button>
+        <button @click="currentTab = 'members'" class="nav-btn" :class="{'active': currentTab === 'members'}"><i class="fa-solid fa-users text-xl mb-1"></i><span class="text-[10px] font-extrabold">旅伴</span></button>
+        <button @click="currentTab = 'info'" class="nav-btn" :class="{'active': currentTab === 'info'}"><i class="fa-solid fa-ticket text-xl mb-1"></i><span class="text-[10px] font-extrabold">預訂</span></button>
+    </nav>
+
+</div>
+
+<script>
+    const { createApp, ref, computed, onMounted } = Vue
+
+    createApp({
+        setup() {
+            const EXCHANGE_RATE = 0.215; 
+            const CATEGORY_MAP = {
+                sightseeing: { color: 'bg-[#8BBF9F]', icon: 'fa-solid fa-camera', label: '景點' },       
+                food: { color: 'bg-[#F2A6A6]', icon: 'fa-solid fa-utensils', label: '飲食' },            
+                shopping: { color: 'bg-[#F2C879]', icon: 'fa-solid fa-bag-shopping', label: '購物' },    
+                accommodation: { color: 'bg-[#B89B72]', icon: 'fa-solid fa-bed', label: '住宿' },        
+                transport: { color: 'bg-[#A3C4D9]', icon: 'fa-solid fa-train-subway', label: '交通' },    
+                flight: { color: 'bg-[#B4A0E5]', icon: 'fa-solid fa-plane', label: '航班' },             
+                other: { color: 'bg-[#D1D5DB]', icon: 'fa-solid fa-leaf', label: '其他' },               
+            };
+
+            const currentTab = ref('schedule');
+            const selectedDateIndex = ref(0);
+            const prepTab = ref('todo'); 
+
+            const currencyInput = ref(10000);
+            const currencyResult = ref(0);
+
+            const members = ref([
+                { id: '1', name: '黃一傑', role: '總召 / 導遊' },
+                { id: '2', name: '旅伴A', role: '財務' }
+            ]);
+
+            const dates = ref([
+                { day: 'Day 1', date: '9/4 (五)' }, { day: 'Day 2', date: '9/5 (六)' },
+                { day: 'Day 3', date: '9/6 (日)' }, { day: 'Day 4', date: '9/7 (一)' },
+                { day: 'Day 5', date: '9/8 (二)' }, { day: 'Day 6', date: '9/9 (三)' }
+            ]);
+
+            const weatherData = ref([
+                { temp: '24/31°C', icon: 'fa-solid fa-sun text-[#F2C879]', bg: 'bg-[#FFF9E6]', desc: '適合拍照的好天氣' },
+                { temp: '25/32°C', icon: 'fa-solid fa-sun text-[#F2C879]', bg: 'bg-[#FFF9E6]', desc: '適合拍照的好天氣' },
+                { temp: '25/30°C', icon: 'fa-solid fa-cloud text-[#A3C4D9]', bg: 'bg-[#F0F8FF]', desc: '涼爽微風' },
+                { temp: '24/29°C', icon: 'fa-solid fa-cloud-rain text-[#A3C4D9]', bg: 'bg-[#F0F8FF]', desc: '記得帶把傘喔' },
+                { temp: '23/31°C', icon: 'fa-solid fa-sun text-[#F2C879]', bg: 'bg-[#FFF9E6]', desc: '陽光明媚' },
+                { temp: '22/30°C', icon: 'fa-solid fa-sun text-[#F2C879]', bg: 'bg-[#FFF9E6]', desc: '平安賦歸' },
+            ]);
+
+            const itineraryData = ref([
+                [
+                    { id: 101, name: '潭子/大里家門口出發', category: 'transport', startTime: '05:30', address: '台中市', note: '揪車機場接送出發', transportType: 'car' },
+                    { id: 102, name: '臺中清泉崗機場 (RMQ)', category: 'flight', startTime: '06:45', address: '臺中清泉崗機場', note: '辦理星宇JX306報到', transportType: 'walk' },
+                    { id: 103, name: '台中機場起飛 (JX306)', category: 'flight', startTime: '08:45', address: '神戶機場 (UKB)', note: '直飛神戶', transportType: 'flight', travelTime: '2h 45m' },
+                    { id: 104, name: '抵達神戶三宮', category: 'transport', startTime: '13:00', address: '神戶三宮站', note: '乘輕軌 Port Liner 抵達市區', transportType: 'portliner', travelTime: '約 18 分鐘' },
+                    { id: 105, name: 'グリル一平 (Grill Ippei)', category: 'food', startTime: '13:30', address: 'グリル一平 三宮店', note: '午餐：70年傳奇洋食屋', transportType: 'walk' },
+                    { id: 106, name: '前往大阪', category: 'transport', startTime: '15:00', address: 'JR 三宮站', note: '搭乘 JR 新快速', transportType: 'jr', travelTime: '約 21-25 分鐘' },
+                    { id: 107, name: 'Lucua & Lucua 1100', category: 'shopping', startTime: '15:25', address: 'Lucua 大阪', note: '採購行程', transportType: 'walk' },
+                    { id: 108, name: '前往難波飯店', category: 'transport', startTime: '16:40', address: '難波站', note: '搭地鐵御堂筋線', transportType: 'metro', travelTime: '約 10 分鐘' },
+                    { id: 109, name: '住一難波南 3 號店 Check-in', category: 'accommodation', startTime: '17:15', address: '住一難波南 3 號店', note: '入住放行李', transportType: 'walk' },
+                    { id: 110, name: '難波/道頓堀商圈', category: 'sightseeing', startTime: '18:00', address: '道頓堀商圈', note: '自由活動晚餐', transportType: 'walk' }
+                ],
+                [], [], [], [], []
+            ]);
+
+            const todoList = ref([]);
+            const wishList = ref([]);
+            const luggageData = ref([
+                { id: 'l1', category: '證件與錢財', text: '護照', done: false },
+                { id: 'l2', category: '證件與錢財', text: '日幣現金與信用卡', done: false },
+                { id: 'l3', category: '電子產品', text: '行動電源與充電線', done: false }
+            ]);
+            const expenses = ref([]);
+            const newTodoText = ref('');
+
+            // 雲端資料即時同步
+            onMounted(() => {
+                calculateCurrency();
+                
+                // 檢查 window.db 是否就緒
+                const checkDbInterval = setInterval(() => {
+                    if (window.db && window.fb) {
+                        clearInterval(checkDbInterval);
+                        const { collection, onSnapshot } = window.fb;
+
+                        // 1. 待辦事項監聽
+                        onSnapshot(collection(window.db, "todos"), (snapshot) => {
+                            const list = [];
+                            snapshot.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
+                            todoList.value = list;
+                        }, (error) => {
+                            console.error("待辦監聽失敗: ", error);
+                        });
+
+                        // 2. 願望清單監聽
+                        onSnapshot(collection(window.db, "wishes"), (snapshot) => {
+                            const list = [];
+                            snapshot.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
+                            wishList.value = list;
+                        });
+
+                        // 3. 記帳監聽
+                        onSnapshot(collection(window.db, "expenses"), (snapshot) => {
+                            const list = [];
+                            snapshot.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
+                            expenses.value = list;
+                        });
+                    }
+                }, 200);
+            });
+
+            // 寫入方法 (具備錯誤攔截提示)
+            const addTodo = async () => {
+                if (!newTodoText.value.trim()) return;
+                try {
+                    if (!window.db) {
+                        alert("資料庫尚未初始化，請稍候再試");
+                        return;
+                    }
+                    const { collection, addDoc } = window.fb;
+                    await addDoc(collection(window.db, "todos"), { text: newTodoText.value.trim(), done: false });
+                    newTodoText.value = '';
+                } catch (err) {
+                    alert("新增失敗: " + err.message);
+                }
+            };
+
+            const updateTodoStatus = async (item) => {
+                try {
+                    const { doc, updateDoc } = window.fb;
+                    await updateDoc(doc(window.db, "todos", item.id), { done: item.done });
+                } catch (err) {
+                    console.error(err);
+                }
+            };
+
+            const removeTodo = async (id) => {
+                try {
+                    const { doc, deleteDoc } = window.fb;
+                    await deleteDoc(doc(window.db, "todos", id));
+                } catch (err) {
+                    console.error(err);
+                }
+            };
+
+            const removeWish = async (id) => {
+                try {
+                    const { doc, deleteDoc } = window.fb;
+                    await deleteDoc(doc(window.db, "wishes", id));
+                } catch (err) {
+                    console.error(err);
+                }
+            };
+
+            const removeExpense = async (id) => {
+                try {
+                    const { doc, deleteDoc } = window.fb;
+                    await deleteDoc(doc(window.db, "expenses", id));
+                } catch (err) {
+                    console.error(err);
+                }
+            };
+
+            const updateLuggageStatus = (item) => {};
+
+            const handleAddClick = async () => {
+                try {
+                    if (!window.db) {
+                        alert("資料庫尚未連線，請重新整理網頁");
+                        return;
+                    }
+                    const { collection, addDoc } = window.fb;
+
+                    if (currentTab.value === 'prep') {
+                        if (prepTab.value === 'todo') {
+                            const text = prompt("請輸入新增的待辦事項:");
+                            if (text) {
+                                await addDoc(collection(window.db, "todos"), { text, done: false });
+                            }
+                        } else if (prepTab.value === 'wish') {
+                            const name = prompt("請輸入想去的景點或願望:");
+                            if (name) {
+                                await addDoc(collection(window.db, "wishes"), { name, note: '' });
+                            }
+                        } else {
+                            alert("請先切換至「待辦」或「想去」分頁再點擊新增！");
+                        }
+                    } else if (currentTab.value === 'expenses') {
+                        const name = prompt("請輸入記帳項目名稱 (例: 晚餐燒肉):");
+                        const amount = prompt("請輸入日幣金額 (JPY):");
+                        if (name && amount) {
+                            await addDoc(collection(window.db, "expenses"), {
+                                name,
+                                amount: Number(amount),
+                                date: new Date().toISOString().substring(0, 10),
+                                payer: '黃一傑'
+                            });
+                        }
+                    } else {
+                        alert("目前頁面無法直接新增，請切換至「準備」或「記帳」分頁！");
+                    }
+                } catch (err) {
+                    alert("寫入發生錯誤: " + err.message);
+                }
+            };
+
+            const currentItinerary = computed(() => itineraryData.value[selectedDateIndex.value] || []);
+            const totalExpensesJPY = computed(() => expenses.value.reduce((sum, exp) => sum + (exp.amount || 0), 0));
+            const totalExpensesTWD = computed(() => Math.round(totalExpensesJPY.value * EXCHANGE_RATE));
+
+            const groupedLuggage = computed(() => {
+                const groups = {};
+                luggageData.value.forEach(item => {
+                    if(!groups[item.category]) groups[item.category] = [];
+                    groups[item.category].push(item);
+                });
+                return groups;
+            });
+
+            const formatNumber = (num) => num ? num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") : '0';
+            const calculateCurrency = () => { currencyResult.value = Math.round(currencyInput.value * EXCHANGE_RATE); };
+            const getCategoryColor = (cat) => CATEGORY_MAP[cat]?.color || CATEGORY_MAP.other.color;
+            const getCategoryIcon = (cat) => CATEGORY_MAP[cat]?.icon || CATEGORY_MAP.other.icon;
+            
+            const getTransportBadgeInfo = (type) => {
+                const badges = {
+                    jr: { text: 'JR 西日本', class: 'text-[#0072bc] border-[#0072bc]/30', logo: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 50'%3E%3Ctext x='5' y='40' font-family='Arial' font-size='45' font-weight='bold' font-style='italic' fill='%230072bc' letter-spacing='-3'%3EJR%3C/text%3E%3C/svg%3E" },
+                    metro: { text: 'Osaka Metro', class: 'text-[#1a1464] border-[#1a1464]/30', logo: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%231a1464'/%3E%3Cpath d='M25 75V40c0-15 15-15 25 0c10-15 25-15 25 0v35' stroke='%23fff' stroke-width='10' fill='none' stroke-linejoin='round' stroke-linecap='round'/%3E%3C/svg%3E" },
+                    nankai: { text: '南海電鐵', class: 'text-[#fe5000] border-[#fe5000]/30', logo: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50 10L10 90h80z' fill='%23fe5000'/%3E%3Cpath d='M50 45L35 90h30z' fill='%23fff'/%3E%3C/svg%3E" },
+                    portliner: { text: 'Port Liner', class: 'text-[#005a9c] border-[#005a9c]/30', logo: null }
+                };
+                return badges[type] || null;
+            };
+
+            const openMap = (query) => { if (query) window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`, '_blank'); };
+            const openMapDirections = (startItem, endItem) => {
+                const origin = startItem?.address || startItem?.name;
+                const destination = endItem?.address || endItem?.name;
+                if (origin && destination) window.open(`https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}`, '_blank');
+            };
+            const editItem = (item) => { alert('編輯功能可在後續版本完整保留'); };
+
+            return {
+                currentTab, dates, selectedDateIndex, weatherData, currentItinerary,
+                prepTab, todoList, wishList, luggageData, groupedLuggage, newTodoText,
+                expenses, members, totalExpensesJPY, totalExpensesTWD, currencyInput, currencyResult,
+                formatNumber, calculateCurrency, getCategoryColor, getCategoryIcon, getTransportBadgeInfo,
+                openMap, openMapDirections, handleAddClick, editItem,
+                addTodo, updateTodoStatus, removeTodo, removeWish, updateLuggageStatus, removeExpense
+            };
+        }
+    }).mount('#app');
+</script>
+</body>
+</html>
