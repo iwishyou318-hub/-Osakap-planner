@@ -65,24 +65,6 @@
             to { transform: translateY(0); opacity: 1; }
         }
 
-        .scan-line {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 4px;
-            background: rgba(139, 191, 159, 0.8);
-            box-shadow: 0 0 10px rgba(139, 191, 159, 1);
-            animation: scan 2s infinite linear;
-            z-index: 10;
-        }
-        @keyframes scan {
-            0% { top: 0%; opacity: 0; }
-            10% { opacity: 1; }
-            90% { opacity: 1; }
-            100% { top: 100%; opacity: 0; }
-        }
-
         .bottom-nav {
             position: fixed;
             bottom: 0;
@@ -203,7 +185,6 @@
                 <span class="text-[11px] text-ac-green font-bold bg-[#E8F2EC] px-3 py-1.5 rounded-full border border-[#D5E8DD]">{{ weatherData[selectedDateIndex].desc }}</span>
             </div>
 
-            <!-- ★ 新增：本日 Google 地圖多停靠點路線串聯按鈕 -->
             <button v-if="currentItinerary.length > 0" @click="openDayRoute" class="w-full py-3 mb-6 bg-white text-ac-earth rounded-2xl font-extrabold border-2 border-ac-shadow shadow-sm flex items-center justify-center hover:bg-[#F9F6F0] active:scale-95 transition-all">
                 <div class="w-7 h-7 rounded-full bg-[#E3F2FD] text-[#2196F3] flex items-center justify-center mr-2"><i class="fa-solid fa-map-location-dot"></i></div>
                 將本日景點串聯至 Google 地圖路線
@@ -302,7 +283,6 @@
                 </div>
             </div>
 
-            <!-- Google Map 備用地圖 -->
             <div class="bg-white rounded-3xl border-2 border-ac-shadow shadow-soft p-3 mb-8" v-if="currentAreaEmbedUrl && (!areaData[selectedAreaId]?.routeImage || areaData[selectedAreaId]?.hideImage)">
                 <div class="flex justify-between items-center px-1 mb-2">
                     <h3 class="font-extrabold text-ac-earth text-sm flex items-center">
@@ -326,7 +306,6 @@
                     <button @click="openAreaModal('routeSpots')" class="text-xs text-ac-green bg-[#E8F2EC] px-3 py-1.5 rounded-xl font-bold hover:bg-[#D5E8DD] transition-colors"><i class="fa-solid fa-plus mr-1"></i>新增</button>
                 </div>
 
-                <!-- ★ 新增：本區 Google 地圖多停靠點路線串聯按鈕 -->
                 <button v-if="areaData[selectedAreaId]?.routeSpots?.length > 0" @click="openAreaRoute" class="w-full py-3 mb-5 bg-white text-ac-earth rounded-2xl font-extrabold border-2 border-ac-shadow shadow-sm flex items-center justify-center hover:bg-[#F9F6F0] active:scale-95 transition-all">
                     <div class="w-7 h-7 rounded-full bg-[#FFF0F0] text-[#F2A6A6] flex items-center justify-center mr-2"><i class="fa-solid fa-route"></i></div>
                     將本區景點串聯至 Google 地圖路線
@@ -460,6 +439,22 @@
 
             <!-- 採購清單 -->
             <div v-if="prepTab === 'shopping'" class="space-y-6">
+                <!-- 頂部智慧管家提示卡 -->
+                <div class="bg-[#E8F2EC] rounded-3xl border-2 border-[#D5E8DD] p-4 flex items-center justify-between shadow-sm">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-2xl bg-ac-green text-white flex items-center justify-center text-lg shadow-sm">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-extrabold text-sm text-ac-text">AI 智慧採購管家已啟動</h4>
+                            <p class="text-[11px] text-[#558068] font-bold">自動規劃最佳商店、樓層與行程天數</p>
+                        </div>
+                    </div>
+                    <span class="bg-white text-ac-green font-extrabold text-xs px-2.5 py-1 rounded-xl shadow-sm border border-[#D5E8DD]">
+                        共 {{ shoppingList.length }} 項
+                    </span>
+                </div>
+
                 <div v-for="area in sortedShoppingAreas" :key="area.name" class="bg-white rounded-3xl border-2 border-ac-shadow shadow-soft p-5 relative">
                     <h4 class="font-extrabold text-[13px] text-white mb-4 bg-ac-earth px-3 py-1.5 rounded-lg inline-block shadow-sm">{{ area.name }}</h4>
                     
@@ -485,14 +480,14 @@
                                     </div>
                                     
                                     <div class="flex flex-wrap gap-1.5">
-                                        <span v-for="tag in item.tags" :key="tag" class="bg-[#FFF9E6] text-[#F2C879] text-[10px] px-2 py-0.5 rounded-md font-bold border border-[#FDEBBA]">{{ tag }}</span>
+                                        <span v-for="tag in (item.tags || getItemRec(item.name).tags)" :key="tag" class="bg-[#FFF9E6] text-[#F2C879] text-[10px] px-2 py-0.5 rounded-md font-bold border border-[#FDEBBA]">{{ tag }}</span>
                                     </div>
                                 </div>
                             </div>
                             
                             <div class="bg-white rounded-lg p-2 border border-[#E0E5D5]">
-                                <p class="text-[11px] text-ac-green font-extrabold mb-1"><i class="fa-solid fa-wand-magic-sparkles mr-1"></i> AI 建議地點</p>
-                                <p class="text-[11px] text-ac-text font-bold whitespace-pre-line leading-relaxed">{{ item.advice }}</p>
+                                <p class="text-[11px] text-ac-green font-extrabold mb-1"><i class="fa-solid fa-wand-magic-sparkles mr-1"></i> AI 建議購買地點與商店</p>
+                                <p class="text-[11px] text-ac-text font-bold whitespace-pre-line leading-relaxed">{{ item.advice || getItemRec(item.name).advice }}</p>
                             </div>
                         </div>
                     </div>
@@ -544,7 +539,7 @@
 
             <div class="bg-[#F9F6F0] rounded-3xl border-2 border-ac-shadow shadow-soft p-5 mb-6">
                 <h3 class="font-extrabold text-ac-text mb-3 flex items-center border-b-2 border-dashed border-[#E0E5D5] pb-2">
-                    <i class="fa-solid fa-scale-balanced text-ac-earth mr-2"></i> 結算小管家 (即時計算)
+                    <i class="fa-solid fa-scale-balanced text-ac-earth mr-2"></i> 結算小管家
                 </h3>
                 <div class="space-y-3 mb-3">
                     <div v-for="(balance, person) in memberBalances" :key="person" class="flex justify-between items-center bg-white p-3 rounded-2xl border border-[#E0E5D5]">
@@ -563,7 +558,7 @@
 
             <div class="bg-white rounded-3xl border-2 border-ac-shadow shadow-soft p-6">
                 <h3 class="font-extrabold text-ac-text mb-4 flex items-center border-b-2 border-dashed border-ac-shadow pb-3">
-                    <i class="fa-solid fa-receipt text-ac-earth mr-2"></i> 雲端支出紀錄 (即時同步)
+                    <i class="fa-solid fa-receipt text-ac-earth mr-2"></i> 雲端支出紀錄
                 </h3>
                 <div class="space-y-4">
                     <div v-for="(exp) in expenses" :key="exp.id" class="bg-[#F9F6F0] rounded-2xl border border-[#E0E5D5] overflow-hidden transition-all">
@@ -647,10 +642,9 @@
             </div>
         </div>
 
-        <!-- ================= 預訂/資訊 ================= -->
+        <!-- ================= 預訂資訊專區 (可編輯/可排序) ================= -->
         <div v-if="currentTab === 'info'" class="animate-fade-in space-y-5 pb-10">
             
-            <!-- ★ 預訂資訊專區 (可編輯/可排序) -->
             <div v-for="(item, idx) in bookings" :key="item.id" class="bg-white rounded-3xl border-2 border-ac-shadow shadow-soft p-5 relative group">
                 <div class="absolute top-3 right-3 flex space-x-1.5 opacity-100 transition-opacity z-10">
                     <button v-if="idx > 0" @click="moveBooking(idx, -1)" class="w-7 h-7 bg-white border border-ac-shadow text-ac-earth rounded-full flex items-center justify-center text-[10px] shadow-sm hover:bg-[#F9F6F0]"><i class="fa-solid fa-arrow-up"></i></button>
@@ -674,7 +668,6 @@
                 </div>
             </div>
 
-            <!-- 常駐功能區塊放在最下方 -->
             <div class="bg-ac-green rounded-3xl shadow-soft p-6 text-white relative overflow-hidden mt-8">
                 <div class="absolute -right-4 -top-4 w-24 h-24 bg-white/20 rounded-full blur-xl"></div>
                 <h3 class="font-extrabold text-lg mb-4 flex items-center relative z-10"><i class="fa-solid fa-calculator mr-2"></i> 快速匯率換算</h3>
@@ -713,7 +706,7 @@
 
     <!-- ================= 彈出視窗 Modals ================= -->
     
-    <!-- ★ 預訂資訊 Modal -->
+    <!-- 預訂資訊 Modal -->
     <div v-if="showBookingModal" class="fixed inset-0 bg-[#5A4E45]/60 z-50 flex items-center justify-center p-5 backdrop-blur-sm animate-fade-in">
         <div class="bg-white rounded-[32px] border-2 border-ac-shadow shadow-soft w-full max-w-sm p-6 relative">
             <h3 class="font-extrabold text-lg mb-5 text-center text-ac-text">{{ isEditBookingMode ? '編輯預訂資訊' : '新增預訂資訊' }}</h3>
@@ -780,7 +773,7 @@
                             <span class="bg-white text-ac-earth text-[9px] px-1.5 py-0.5 rounded border border-[#E0E5D5] font-bold">數量: {{ item.quantity || 1 }}</span>
                         </div>
 
-                        <p class="text-[10px] text-[#8C7A6B] font-bold leading-relaxed line-clamp-2"><i class="fa-regular fa-comment-dots mr-1"></i>{{ item.advice }}</p>
+                        <p class="text-[10px] text-[#8C7A6B] font-bold leading-relaxed line-clamp-2"><i class="fa-regular fa-comment-dots mr-1"></i>{{ item.advice || getItemRec(item.name).advice }}</p>
                     </div>
                 </div>
             </div>
@@ -791,7 +784,7 @@
         </div>
     </div>
 
-    <!-- 1. 全季節行李收納庫 Modal -->
+    <!-- 全季節行李收納庫 Modal -->
     <div v-if="showLuggageModal" class="fixed inset-0 bg-[#5A4E45]/60 z-50 flex items-center justify-center p-5 backdrop-blur-sm animate-fade-in">
         <div class="bg-white rounded-[32px] border-2 border-ac-shadow shadow-soft w-full max-w-md p-6 max-h-[90vh] flex flex-col relative">
             <h3 class="font-extrabold text-xl mb-1 text-center text-ac-text"><i class="fa-solid fa-box-archive text-ac-green mr-2"></i> 行李收納庫</h3>
@@ -816,7 +809,7 @@
         </div>
     </div>
 
-    <!-- 2. 行程 Modal -->
+    <!-- 行程 Modal -->
     <div v-if="showItineraryModal" class="fixed inset-0 bg-[#5A4E45]/40 z-50 flex items-center justify-center p-5 backdrop-blur-sm animate-fade-in">
         <div class="bg-white rounded-[32px] border-2 border-ac-shadow shadow-soft w-full max-w-sm p-6 max-h-[85vh] overflow-y-auto scrollbar-hide">
             <h3 class="font-extrabold text-lg mb-5 text-center text-ac-text">{{ isEditMode ? '編輯行程筆記' : '新增行程筆記' }}</h3>
@@ -859,7 +852,7 @@
         </div>
     </div>
 
-    <!-- 3. 區域地圖點 Modal -->
+    <!-- 區域地圖點 Modal -->
     <div v-if="showAreaModal" class="fixed inset-0 bg-[#5A4E45]/40 z-50 flex items-center justify-center p-5 backdrop-blur-sm animate-fade-in">
         <div class="bg-white rounded-[32px] border-2 border-ac-shadow shadow-soft w-full max-w-sm p-6 max-h-[95vh] overflow-y-auto scrollbar-hide">
             <h3 class="font-extrabold text-lg mb-5 text-center text-ac-text">新增沿途吃買點</h3>
@@ -912,7 +905,7 @@
         </div>
     </div>
 
-    <!-- 4. 記帳 Modal -->
+    <!-- 記帳 Modal -->
     <div v-if="showExpenseModal" class="fixed inset-0 bg-[#5A4E45]/60 z-50 flex items-center justify-center p-5 backdrop-blur-sm animate-fade-in">
         <div class="bg-white rounded-[32px] border-2 border-ac-shadow shadow-soft w-full max-w-sm p-6 max-h-[90vh] overflow-y-auto scrollbar-hide relative">
             <h3 class="font-extrabold text-lg mb-5 text-center text-ac-text">{{ isEditExpenseMode ? '編輯花費紀錄' : '新增花費紀錄' }}</h3>
@@ -934,7 +927,6 @@
 
             <div class="grid grid-cols-2 gap-3 mb-3">
                 <input v-model="newExpense.date" type="date" class="ac-input font-bold">
-                <!-- ★ 新增「還款/結清」類別 -->
                 <select v-model="newExpense.category" class="ac-input font-bold">
                     <option value="food">飲食</option>
                     <option value="shopping">購物</option>
@@ -998,35 +990,34 @@
         </div>
     </div>
 
-    <!-- 5. 準備區 Modal (支援編輯) -->
+    <!-- ★ 準備區 Modal (即時顯示 AI 管家建議預覽) -->
     <div v-if="showPrepModal" class="fixed inset-0 bg-[#5A4E45]/60 z-50 flex items-center justify-center p-5 backdrop-blur-sm animate-fade-in">
-        <div class="bg-white rounded-[32px] border-2 border-ac-shadow shadow-soft w-full max-w-sm p-6 relative">
+        <div class="bg-white rounded-[32px] border-2 border-ac-shadow shadow-soft w-full max-w-sm p-6 relative max-h-[90vh] overflow-y-auto scrollbar-hide">
             <h3 class="font-extrabold text-lg mb-5 text-center text-ac-text">
                 {{ isEditPrepMode ? (prepTab === 'wish' ? '編輯想去願望' : '編輯想買清單') : (prepTab === 'wish' ? '新增想去願望' : '新增想買清單') }}
             </h3>
             
-            <div v-if="prepTab === 'shopping'" class="relative mb-5">
+            <div v-if="prepTab === 'shopping'" class="relative mb-4">
                 <input type="file" @change="handlePrepImageUpload" accept="image/*" class="hidden" id="prepFileInput">
-                <label for="prepFileInput" class="w-full h-32 bg-[#F9F6F0] border-2 border-dashed border-[#F2C879] rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:bg-[#FFF9E6] transition-all overflow-hidden relative shadow-sm">
+                <label for="prepFileInput" class="w-full h-28 bg-[#F9F6F0] border-2 border-dashed border-[#F2C879] rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:bg-[#FFF9E6] transition-all overflow-hidden relative shadow-sm">
                     <span v-if="!newPrepItem.image" class="flex flex-col items-center text-xs font-bold text-ac-earth">
-                        <i class="fa-solid fa-camera text-3xl mb-2"></i> 加上參考圖片
+                        <i class="fa-solid fa-camera text-2xl mb-1.5"></i> 加上參考圖片
                     </span>
                     <img v-else :src="newPrepItem.image" class="h-full w-full object-cover">
                 </label>
             </div>
             
-            <div v-if="prepTab === 'wish'" class="relative mb-6 mt-3">
+            <div v-if="prepTab === 'wish'" class="relative mb-5 mt-2">
                 <input type="file" @change="handlePrepImageUpload" class="hidden" id="wishFileInput">
-                <label for="wishFileInput" class="w-full h-36 bg-[#F9F6F0] border-2 border-dashed border-ac-shadow rounded-2xl flex items-center justify-center cursor-pointer text-ac-earth hover:bg-[#F0EBE1] transition-all overflow-hidden">
+                <label for="wishFileInput" class="w-full h-32 bg-[#F9F6F0] border-2 border-dashed border-ac-shadow rounded-2xl flex items-center justify-center cursor-pointer text-ac-earth hover:bg-[#F0EBE1] transition-all overflow-hidden">
                     <span v-if="!newPrepItem.image" class="flex flex-col items-center text-xs font-bold"><i class="fa-solid fa-camera text-2xl mb-2"></i> 加上參考照片</span>
                     <img v-else :src="newPrepItem.image" class="h-full w-full object-cover">
                 </label>
             </div>
 
-            <input v-model="newPrepItem.name" type="text" placeholder="商品/地點名稱 (輸入後管家會自動分類)" class="ac-input font-bold mb-3 border-[#F2C879]/30">
+            <input v-model="newPrepItem.name" type="text" placeholder="商品/地點名稱 (例: 任天堂、合利他命)" class="ac-input font-bold mb-3 border-[#F2C879]/30">
             
-            <!-- 負責人與數量 -->
-            <div v-if="prepTab === 'shopping'" class="grid grid-cols-2 gap-3 mb-4">
+            <div v-if="prepTab === 'shopping'" class="grid grid-cols-2 gap-3 mb-3">
                 <div>
                     <label class="block text-[10px] font-extrabold text-ac-earth mb-1">負責採買人</label>
                     <select v-model="newPrepItem.buyer" class="ac-input font-bold text-sm py-1.5">
@@ -1040,6 +1031,15 @@
                 </div>
             </div>
 
+            <!-- ★ 輸入時即時顯示 AI 管家建議卡片 -->
+            <div v-if="prepTab === 'shopping' && newPrepItem.name.trim()" class="bg-[#E8F2EC] rounded-2xl p-3 border border-[#D5E8DD] mb-4">
+                <p class="text-[11px] text-ac-green font-extrabold mb-1.5 flex items-center"><i class="fa-solid fa-wand-magic-sparkles mr-1"></i> AI 購買管家分析預覽</p>
+                <div class="flex flex-wrap gap-1 mb-2">
+                    <span v-for="tag in getItemRec(newPrepItem.name).tags" :key="tag" class="bg-white text-ac-green text-[9px] px-1.5 py-0.5 rounded font-bold border border-[#D5E8DD]">{{ tag }}</span>
+                </div>
+                <p class="text-[11px] text-ac-text font-bold whitespace-pre-line leading-relaxed">{{ getItemRec(newPrepItem.name).advice }}</p>
+            </div>
+
             <textarea v-if="prepTab === 'wish'" v-model="newPrepItem.note" placeholder="筆記或備註..." rows="2" class="ac-input mb-4"></textarea>
             
             <div class="flex space-x-3 mt-4">
@@ -1049,7 +1049,7 @@
         </div>
     </div>
 
-    <!-- 6. 旅伴 Modal -->
+    <!-- 旅伴 Modal -->
     <div v-if="showMemberModal" class="fixed inset-0 bg-[#5A4E45]/40 z-50 flex items-center justify-center p-5 backdrop-blur-sm animate-fade-in">
         <div class="bg-white rounded-[32px] border-2 border-ac-shadow shadow-soft w-full max-w-sm p-6">
             <h3 class="font-extrabold text-lg mb-5 text-center text-ac-text">{{ isEditMemberMode ? '編輯旅伴資料' : '新增同行旅伴' }}</h3>
@@ -1069,16 +1069,6 @@
             </div>
         </div>
     </div>
-
-    <!-- ================= 底部導航 ================= -->
-    <nav class="bottom-nav">
-        <button @click="currentTab = 'schedule'" class="nav-btn" :class="{'active': currentTab === 'schedule'}"><i class="fa-solid fa-book-open text-xl mb-1"></i><span class="text-[10px] font-extrabold">手帳</span></button>
-        <button @click="currentTab = 'area'" class="nav-btn" :class="{'active': currentTab === 'area'}"><i class="fa-solid fa-map-location-dot text-xl mb-1"></i><span class="text-[10px] font-extrabold">攻略</span></button>
-        <button @click="currentTab = 'prep'" class="nav-btn" :class="{'active': currentTab === 'prep'}"><i class="fa-solid fa-suitcase-rolling text-xl mb-1"></i><span class="text-[10px] font-extrabold">準備</span></button>
-        <button @click="currentTab = 'expenses'" class="nav-btn" :class="{'active': currentTab === 'expenses'}"><i class="fa-solid fa-piggy-bank text-xl mb-1"></i><span class="text-[10px] font-extrabold">記帳</span></button>
-        <button @click="currentTab = 'members'" class="nav-btn" :class="{'active': currentTab === 'members'}"><i class="fa-solid fa-users text-xl mb-1"></i><span class="text-[10px] font-extrabold">旅伴</span></button>
-        <button @click="currentTab = 'info'" class="nav-btn" :class="{'active': currentTab === 'info'}"><i class="fa-solid fa-ticket text-xl mb-1"></i><span class="text-[10px] font-extrabold">預訂</span></button>
-    </nav>
 
 </div>
 
@@ -1278,7 +1268,7 @@
                         { type: 'food', name: 'とんかつニューベイブ', x: 62, y: 35, note: '百名店夢幻吉列豬排', image: null, mapUrl: '', isMustBuy: false },
                         { type: 'shopping', name: '心齋橋筋商店街', x: 53.5, y: 45, note: '大創、松本清、GU、Lululemon', image: null, mapUrl: '', isMustBuy: false },
                         { type: 'food', name: '宮がみ屋 心齋橋店', x: 45, y: 55, note: '豪華A5和牛鍋', image: null, mapUrl: '', isMustBuy: false },
-                        { type: 'shopping', name: '道頓堀唐吉訶德', x: 74, y: 57, note: '摩天輪與免稅品', image: null, mapUrl: '', isMustBuy: true },
+                        { type: 'shopping', name: '道頓堀唐吉訶德', x: 74, y: 57, note: '摩天輪與免稅品', image: null, mapUrl: '', isMustBuy: false },
                         { type: 'food', name: '鶏Soba 座銀', x: 80, y: 70, note: '濃郁雞白湯拉麵', image: null, mapUrl: '', isMustBuy: false },
                         { type: 'shopping', name: 'EDION 難波本店', x: 59, y: 72, note: '電器大採購', image: null, mapUrl: '', isMustBuy: false },
                         { type: 'shopping', name: 'Super Maruhachi', x: 35, y: 85, note: '晚間特價和牛', image: null, mapUrl: '', isMustBuy: false }
@@ -1294,7 +1284,7 @@
                         { type: 'shopping', name: '大丸 & 阪神百貨', x: 50, y: 50, note: '第二站', image: null, mapUrl: '', isMustBuy: false },
                         { type: 'shopping', name: 'Yodobashi', x: 50, y: 50, note: '第三站', image: null, mapUrl: '', isMustBuy: false },
                         { type: 'shopping', name: 'GRAND FRONT OSAKA', x: 50, y: 50, note: '第四站', image: null, mapUrl: '', isMustBuy: false },
-                        { type: 'shopping', name: '阪急百貨 B1', x: 50, y: 50, note: '伴手禮：抹茶卷與芝士蛋糕', image: null, mapUrl: '', isMustBuy: true }
+                        { type: 'shopping', name: '阪急百貨 B1', x: 50, y: 50, note: '伴手禮：抹茶卷與芝士蛋糕', image: null, mapUrl: '', isMustBuy: false }
                     ]
                 },
                 'kobe': {
@@ -1341,15 +1331,41 @@
                 }
             };
 
-            const getShoppingRecommendation = (itemName) => {
+            // ★ 核心升級：AI 智慧購買管家推薦演算法
+            const getItemRec = (itemName) => {
+                if (!itemName) return { tags: ['未分類'], advice: '' };
                 const text = itemName.toLowerCase();
-                if (text.includes('uniqlo') || text.includes('優衣庫') || text.includes('衣服')) return { tags: ['服飾', '大阪多區'], advice: '📌 Day 1：LUCUA 大阪\n📌 Day 2：心齋橋筋商店街\n📌 Day 3：難波 CITY\n📌 Day 5：Yodobashi 梅田' };
-                if (text.includes('無印') || text.includes('muji')) return { tags: ['雜貨服飾', '梅田/難波'], advice: '📌 Day 1/5：GRAND FRONT OSAKA\n📌 Day 3：難波 CITY 周邊' };
-                if (text.includes('電器') || text.includes('吹風機') || text.includes('美容') || text.includes('耳機') || text.includes('相機') || text.includes('switch') || text.includes('遊戲')) return { tags: ['3C家電', '難波/梅田'], advice: '📌 Day 3：EDION 難波本店\n📌 Day 5：Yodobashi 梅田' };
-                if (text.includes('藥妝') || text.includes('藥') || text.includes('面膜') || text.includes('化妝水') || text.includes('保養') || text.includes('休足時間')) return { tags: ['藥妝', '心齋橋/道頓堀'], advice: '📌 Day 2 下午：心齋橋大國/松本清比價\n📌 Day 2 晚上：道頓堀唐吉訶德免稅' };
-                if (text.includes('伴手禮') || text.includes('蛋糕') || text.includes('零食') || text.includes('甜點')) return { tags: ['食品伴手禮', '梅田/機場'], advice: '📌 Day 5 晚上：阪急百貨 B1\n📌 Day 6：關西機場免稅店最後掃貨' };
-                if (text.includes('風扇') || text.includes('3coins') || text.includes('雜貨') || text.includes('百元')) return { tags: ['生活雜貨', '梅田/心齋橋'], advice: '📌 Day 1：LUCUA 大阪內的 3COINS+plus 或大創\n📌 Day 2：心齋橋筋商店街沿路' };
-                return { tags: ['自由安排', '隨逛隨買'], advice: '建議可於 Day 2 心齋橋 或 Day 5 梅田商圈逛街時購買。' };
+                
+                // 服飾與鞋包
+                if (text.includes('uniqlo') || text.includes('優衣庫') || text.includes('gu')) return { tags: ['服飾', '心齋橋/梅田'], advice: '🏬 建議商店：UNIQLO / GU\n📌 Day 1：梅田 LUCUA 1100 (B1F)\n📌 Day 2：心齋橋筋商店街店\n📌 Day 5：梅田 LINKS UMEDA (西日本超大旗艦店)' };
+                if (text.includes('鞋') || text.includes('球鞋') || text.includes('abc') || text.includes('nike') || text.includes('adidas') || text.includes('nb') || text.includes('on')) return { tags: ['鞋包', '心齋橋/梅田'], advice: '🏬 建議商店：ABC-Mart Grand Stage 或 品牌直營店\n📌 Day 2：心齋橋筋商店街 或 心齋橋 PARCO\n📌 Day 5：梅田 GRAND FRONT 或 LUCUA' };
+                if (text.includes('衣服') || text.includes('服飾') || text.includes('外套') || text.includes('褲') || text.includes('裙') || text.includes('洋裝')) return { tags: ['服飾', '多區皆可'], advice: '🏬 建議商店：LUCUA、心齋橋 PARCO、梅田各大百貨\n📌 Day 1：梅田 LUCUA (年輕流行品牌)\n📌 Day 2：心齋橋筋商店街 (街邊品牌店)' };
+
+                // 生活雜貨
+                if (text.includes('無印') || text.includes('muji')) return { tags: ['雜貨服飾', '梅田/難波'], advice: '🏬 建議商店：無印良品 (MUJI)\n📌 Day 1/5：梅田 GRAND FRONT (關西最大旗艦店)\n📌 Day 3：難波無印良品旗艦店' };
+                if (text.includes('風扇') || text.includes('3coins') || text.includes('大創') || text.includes('daiso') || text.includes('百元') || text.includes('雜貨') || text.includes('文具') || text.includes('loft') || text.includes('hands')) return { tags: ['生活雜貨', '梅田/心齋橋'], advice: '🏬 建議商店：3COINS+plus, DAISO, Loft, Hands\n📌 Day 1：梅田 LUCUA (有 3COINS+plus)\n📌 Day 2：心齋橋筋商店街 (有大型 DAISO)\n📌 Day 5：梅田商圈周邊' };
+
+                // 藥妝保健
+                if (text.includes('藥') || text.includes('妝') || text.includes('面膜') || text.includes('化妝水') || text.includes('保養') || text.includes('休足時間') || text.includes('合利他命') || text.includes('eve') || text.includes('wakamoto') || text.includes('腸胃') || text.includes('眼藥水') || text.includes('維他命')) return { tags: ['藥妝', '心齋橋/道頓堀'], advice: '🏬 建議商店：大國藥妝、松本清、唐吉訶德\n📌 Day 2 下午：心齋橋筋商店街 (大國/松本清，建議比價)\n📌 Day 2 晚上：道頓堀唐吉訶德 (可開到深夜，一次買齊免稅品)' };
+
+                // 3C 電器遊戲
+                if (text.includes('電器') || text.includes('吹風機') || text.includes('美容') || text.includes('耳機') || text.includes('相機') || text.includes('apple') || text.includes('蘋果') || text.includes('dyson')) return { tags: ['3C家電', '難波/梅田'], advice: '🏬 建議商店：EDION (愛電王)、Yodobashi (友都八喜)\n📌 Day 3：EDION 難波本店 (近難波飯店，買完直接放回房間)\n📌 Day 5：Yodobashi 梅田 (貨源最齊全的3C天堂)' };
+                
+                // 動漫玩具
+                if (text.includes('任天堂') || text.includes('nintendo') || text.includes('switch') || text.includes('遊戲') || text.includes('寶可夢') || text.includes('pokemon') || text.includes('公仔') || text.includes('jump') || text.includes('動漫') || text.includes('吉卜力') || text.includes('玩具') || text.includes('扭蛋') || text.includes('模型')) return { tags: ['動漫玩具', '心齋橋/梅田'], advice: '🏬 建議商店：JUMP SHOP, 任天堂旗艦店, 寶可夢中心\n📌 Day 2：心齋橋 PARCO 6F (動漫周邊大本營，有 JUMP/吉卜力/哥吉拉)\n📌 Day 5：大丸梅田店 13F (任天堂大阪旗艦店 & 寶可夢中心)' };
+
+                // 食品伴手禮
+                if (text.includes('伴手禮') || text.includes('蛋糕') || text.includes('零食') || text.includes('甜點') || text.includes('巧克力') || text.includes('抹茶') || text.includes('餅乾') || text.includes('特產') || text.includes('生乳捲')) return { tags: ['食品伴手禮', '梅田/機場'], advice: '🏬 建議商店：各大百貨地下街 (Depachika)、機場免稅店\n📌 Day 5 晚上：梅田 阪急百貨 B1 (精緻排隊名店甜點)\n📌 Day 6 中午：關西機場免稅店 (回程最後掃貨免稅零食)' };
+                if (text.includes('超市') || text.includes('水果') || text.includes('和牛') || text.includes('泡麵') || text.includes('味噌') || text.includes('生鮮')) return { tags: ['生鮮食品', '難波'], advice: '🏬 建議商店：在地大型超市 (如 Super Maruhachi)\n📌 Day 3 晚上：Super Maruhachi 難波店 (採買和牛、在地泡麵配料，體驗在地超市折扣)' };
+
+                // 專櫃精品
+                if (text.includes('精品') || text.includes('名牌') || text.includes('專櫃') || text.includes('lv') || text.includes('chanel') || text.includes('香水') || text.includes('celine') || text.includes('dior') || text.includes('gucci')) return { tags: ['專櫃精品', '心齋橋/梅田'], advice: '🏬 建議商店：大丸百貨、高島屋、阪急百貨\n📌 Day 2：心齋橋 大丸百貨\n📌 Day 3：難波 高島屋\n📌 Day 5：梅田 阪急百貨 或 大丸百貨' };
+
+                // 預設 Fallback
+                return { 
+                    tags: ['綜合商場', '依行程順路買'], 
+                    advice: '🏬 建議商店：唐吉訶德 (綜合雜貨/零食)、各區百貨公司 (專櫃/服飾) 或 商店街\n📌 建議您可於【Day 2 心齋橋/道頓堀】的大型商場或唐吉訶德，或是【Day 5 梅田商圈】的各大百貨中尋找喔！' 
+                };
             };
 
             const getMatchedShoppingItems = (spotName) => {
@@ -1357,11 +1373,12 @@
                 const spotNameLower = spotName.toLowerCase().replace(/大阪|本店|店|商圈|百貨/g, '').trim();
                 
                 return shoppingList.value.filter(item => {
-                    const advice = (item.advice || '').toLowerCase();
+                    const rec = getItemRec(item.name);
+                    const advice = ((item.advice || rec.advice) || '').toLowerCase();
                     const name = (item.name || '').toLowerCase();
                     if (advice.includes(spotNameLower) || spotNameLower.includes(name) || name.includes(spotNameLower)) return true;
                     
-                    const keywords = ['lucua', '心齋橋', '唐吉訶德', 'edion', '阪急', 'yodobashi', 'grand front', '無印', '大國', '松本清', '3coins', '大創'];
+                    const keywords = ['lucua', '心齋橋', '唐吉訶德', 'edion', '阪急', 'yodobashi', 'grand front', '無印', '大國', '松本清', '3coins', '大創', 'parco', 'maruhachi'];
                     for (let kw of keywords) {
                         if (spotNameLower.includes(kw) && (advice.includes(kw) || name.includes(kw))) {
                             return true;
@@ -1375,7 +1392,7 @@
                 const areasMap = {
                     1: { name: '📍 Day 1 / 5：梅田商圈 (LUCUA / 阪急 / Yodobashi)', items: [] },
                     2: { name: '📍 Day 2：心齋橋 / 道頓堀 (藥妝 / 旗艦店)', items: [] },
-                    3: { name: '📍 Day 3：難波周邊 (EDION / 難波 CITY)', items: [] },
+                    3: { name: '📍 Day 3：難波周邊 (EDION / 難波 CITY / 超市)', items: [] },
                     4: { name: '📍 大阪多區皆可 (隨時可買)', items: [] },
                     5: { name: '📍 Day 6：機場免稅 / 伴手禮', items: [] },
                     6: { name: '📍 其他未分類', items: [] }
@@ -1384,13 +1401,13 @@
                 shoppingList.value.forEach(item => {
                     const text = item.name.toLowerCase();
                     let order = 6;
-                    if (text.includes('藥妝') || text.includes('藥') || text.includes('面膜') || text.includes('化妝水') || text.includes('保養') || text.includes('休足時間')) order = 2;
-                    else if (text.includes('電器') || text.includes('吹風機') || text.includes('美容') || text.includes('相機') || text.includes('耳機') || text.includes('switch') || text.includes('遊戲')) order = 3;
+                    if (text.includes('藥妝') || text.includes('藥') || text.includes('面膜') || text.includes('化妝水') || text.includes('保養') || text.includes('休足時間') || text.includes('合利他命') || text.includes('eve') || text.includes('wakamoto')) order = 2;
+                    else if (text.includes('電器') || text.includes('吹風機') || text.includes('美容') || text.includes('相機') || text.includes('耳機') || text.includes('switch') || text.includes('遊戲') || text.includes('任天堂')) order = 3;
                     else if (text.includes('免稅店') || text.includes('機場')) order = 5;
                     else if (text.includes('伴手禮') || text.includes('蛋糕') || text.includes('零食') || text.includes('甜點')) order = 1; 
                     else if (text.includes('uniqlo') || text.includes('優衣庫') || text.includes('無印') || text.includes('muji') || text.includes('衣服') || text.includes('鞋') || text.includes('包')) order = 4;
                     else if (text.includes('風扇') || text.includes('3coins') || text.includes('百元') || text.includes('雜貨') || text.includes('大創')) order = 1;
-                    else if (text.includes('和牛') || text.includes('超市')) order = 3;
+                    else if (text.includes('和牛') || text.includes('超市') || text.includes('味噌') || text.includes('泡麵')) order = 3;
                     
                     areasMap[order].items.push(item);
                 });
@@ -1398,6 +1415,7 @@
                 return Object.values(areasMap).filter(a => a.items.length > 0);
             });
 
+            // ================= 雲端即時同步核心監聽 =================
             onMounted(() => {
                 calculateCurrency();
 
@@ -1552,7 +1570,6 @@
                 if (origin && destination) window.open(`https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}`, '_blank');
             };
 
-            // ★ 新增：多停靠點路線串聯功能
             const openMultiStopRoute = (items) => {
                 const validItems = items.filter(item => item.address || item.name);
                 if (validItems.length < 2) {
@@ -1560,9 +1577,7 @@
                     return;
                 }
                 
-                // Google Maps URL 限制：起點 + 終點 + 中繼點最多約 10 個
                 const routeItems = validItems.slice(0, 10); 
-                
                 const origin = encodeURIComponent(routeItems[0].address || routeItems[0].name);
                 const destination = encodeURIComponent(routeItems[routeItems.length - 1].address || routeItems[routeItems.length - 1].name);
                 
@@ -1627,7 +1642,7 @@
                 } else if (currentTab.value === 'expenses') {
                     isEditExpenseMode.value = false;
                     newExpense.value = { 
-                        id: null, name: '', amount: null, category: 'shopping', date: new Date().toISOString().substring(0, 10), 
+                        id: null, name: '', amount: null, category: 'food', date: new Date().toISOString().substring(0, 10), 
                         payment: 'card', payer: members.value[0]?.name || '', splitAmong: members.value.map(m=>m.name), 
                         taxFree: false, note: '', receipt: null, items: [{name: '', price: null}]
                     };
@@ -1770,7 +1785,7 @@
                             await addDoc(collection(window.db, "wishes"), { name: newPrepItem.value.name, note: newPrepItem.value.note || '', image: newPrepItem.value.image });
                         }
                     } else if(prepTab.value === 'shopping') {
-                        const rec = getShoppingRecommendation(newPrepItem.value.name);
+                        const rec = getItemRec(newPrepItem.value.name);
                         const payload = {
                             name: newPrepItem.value.name, 
                             image: newPrepItem.value.image, 
@@ -1978,7 +1993,7 @@
                 showExpenseModal, showPrepModal, showItineraryModal, showAreaModal, showMemberModal, showLuggageModal, showCouponModal, showMatchedShoppingModal, showBookingModal,
                 currentSpotName, currentMatchedItems, isEditMode, isEditMemberMode, isEditPrepMode, isEditCouponMode, isEditExpenseMode, isEditBookingMode,
                 newExpense, newPrepItem, newCoupon, newAreaNote, newItinerary, newMember, newBooking, bookings, tempSelectedLuggage, LUGGAGE_TEMPLATE, sortedShoppingAreas,
-                formatNumber, calculateCurrency, getCategoryColor, getCategoryIcon, getCategoryLabel, getTransportBadgeInfo, getMatchedShoppingItems,
+                formatNumber, calculateCurrency, getCategoryColor, getCategoryIcon, getCategoryLabel, getTransportBadgeInfo, getMatchedShoppingItems, getItemRec,
                 openMap, openSpecificMap, openMapDirections, openDayRoute, openAreaRoute, openMatchedShopping, goToShoppingList, handleAddClick, handlePrepImageUpload, handleMemberAvatarUpload, handleExpenseReceiptUpload, handleAreaImageUpload,
                 editItem, saveItineraryItem, removeItineraryItem, moveItineraryUp, moveItineraryDown,
                 addTodo, editPrepItem, savePrepItem, removeShoppingItem, editCoupon, saveCoupon, removeCoupon,
