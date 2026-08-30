@@ -59,7 +59,6 @@
             to { opacity: 1; transform: translateY(0); }
         }
         
-        /* 彈出視窗由下滑入動畫 */
         .animate-slide-up { animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
         @keyframes slideUp {
             from { transform: translateY(100%); opacity: 0.5; }
@@ -256,7 +255,6 @@
                 </button>
             </div>
 
-            <!-- 滿版地圖區塊 -->
             <div class="mb-8 -mx-5 bg-white border-y-2 border-ac-shadow shadow-soft relative" v-if="areaData[selectedAreaId]?.routeImage && !areaData[selectedAreaId]?.hideImage">
                 <div class="flex justify-between items-center mb-3 px-5 pt-4">
                     <h3 class="font-extrabold text-ac-text text-lg flex items-center">
@@ -284,7 +282,6 @@
                                   :class="spot.type === 'food' ? 'bg-[#F2A6A6]' : 'bg-[#F2C879]'">
                                 {{ idx + 1 }}
                             </span>
-                            <!-- ★ 地圖上的必買紅點提示 -->
                             <span v-if="getMatchedShoppingItems(spot.name).length > 0" class="absolute -top-1 -right-1 w-3.5 h-3.5 bg-[#F2A6A6] text-white flex items-center justify-center rounded-full border border-white shadow-sm animate-pulse z-20">
                                 <i class="fa-solid fa-heart text-[6px]"></i>
                             </span>
@@ -298,7 +295,6 @@
                 </div>
             </div>
 
-            <!-- Google Map 備用地圖 -->
             <div class="bg-white rounded-3xl border-2 border-ac-shadow shadow-soft p-3 mb-8" v-if="currentAreaEmbedUrl && (!areaData[selectedAreaId]?.routeImage || areaData[selectedAreaId]?.hideImage)">
                 <div class="flex justify-between items-center px-1 mb-2">
                     <h3 class="font-extrabold text-ac-earth text-sm flex items-center">
@@ -312,7 +308,6 @@
                 <iframe :src="currentAreaEmbedUrl" width="100%" height="220" style="border:0; border-radius: 1rem;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
             </div>
 
-            <!-- 沿途吃買攻略清單 -->
             <div class="bg-white rounded-3xl border-2 border-ac-shadow shadow-soft p-5 mb-6 relative overflow-hidden">
                 <div class="flex justify-between items-center mb-4 border-b-2 border-dashed border-ac-shadow pb-3">
                     <h3 class="font-extrabold text-ac-text text-lg flex items-center">
@@ -334,14 +329,13 @@
 
                         <div class="ml-3 flex-1 bg-[#F9F6F0] rounded-2xl p-3 border border-[#E0E5D5] relative">
                             
-                            <!-- ★ AI 自動媒合顯示的「必買標籤」 -->
                             <div v-if="getMatchedShoppingItems(item.name).length > 0" 
                                  @click.stop="openMatchedShopping(item.name)"
                                  class="absolute -top-2 -right-2 bg-[#F2A6A6] text-white text-[10px] px-2.5 py-0.5 rounded-full font-bold shadow-md animate-bounce border-2 border-white cursor-pointer z-20 hover:scale-105 transition-transform flex items-center">
-                                <i class="fa-solid fa-star mr-1 text-[#FFF9E6]"></i>必買 ({{ getMatchedShoppingItems(item.name).length }})
+                                <i class="fa-solid fa-star mr-1 text-[#FFF9E6]"></i>必買清單 ({{ getMatchedShoppingItems(item.name).length }})
                             </div>
 
-                            <p class="font-extrabold text-[15px] text-ac-text mb-1 cursor-pointer hover:text-ac-green transition-colors pr-10" @click="openSpecificMap(item)">
+                            <p class="font-extrabold text-[15px] text-ac-text mb-1 cursor-pointer hover:text-ac-green transition-colors pr-12" @click="openSpecificMap(item)">
                                 {{ item.name }} <i class="fa-solid fa-location-dot text-[10px] ml-1 text-[#D2691E] opacity-80"></i>
                             </p>
                             
@@ -385,11 +379,12 @@
 
         <!-- ================= 準備區 ================= -->
         <div v-if="currentTab === 'prep'" class="animate-fade-in pb-10">
+            <!-- 導航列已移除保險，新增優惠券 -->
             <div class="flex overflow-x-auto space-x-2 mb-6 bg-white p-2 rounded-2xl border-2 border-ac-shadow shadow-sm sticky top-[110px] z-20 scrollbar-hide justify-center">
-                <button @click="prepTab = 'todo'" class="flex-shrink-0 px-4 py-2 rounded-xl text-sm font-bold transition-all" :class="prepTab === 'todo' ? 'bg-[#FFF0F0] text-[#F2A6A6]' : 'text-ac-earth hover:bg-[#F9F6F0]'">待辦</button>
-                <button @click="prepTab = 'wish'" class="flex-shrink-0 px-4 py-2 rounded-xl text-sm font-bold transition-all" :class="prepTab === 'wish' ? 'bg-[#E3F2FD] text-[#2196F3]' : 'text-ac-earth hover:bg-[#F9F6F0]'">想去</button>
-                <button @click="prepTab = 'luggage'" class="flex-shrink-0 px-4 py-2 rounded-xl text-sm font-bold transition-all" :class="prepTab === 'luggage' ? 'bg-[#E8F2EC] text-ac-green' : 'text-ac-earth hover:bg-[#F9F6F0]'">行李</button>
-                <button @click="prepTab = 'shopping'" class="flex-shrink-0 px-4 py-2 rounded-xl text-sm font-bold transition-all" :class="prepTab === 'shopping' ? 'bg-[#FFF9E6] text-[#F2C879]' : 'text-ac-earth hover:bg-[#F9F6F0]'">採購清單</button>
+                <button @click="prepTab = 'todo'" class="flex-shrink-0 px-3 py-2 rounded-xl text-[13px] font-bold transition-all w-1/4" :class="prepTab === 'todo' ? 'bg-[#FFF0F0] text-[#F2A6A6]' : 'text-ac-earth hover:bg-[#F9F6F0]'">待辦</button>
+                <button @click="prepTab = 'luggage'" class="flex-shrink-0 px-3 py-2 rounded-xl text-[13px] font-bold transition-all w-1/4" :class="prepTab === 'luggage' ? 'bg-[#E8F2EC] text-ac-green' : 'text-ac-earth hover:bg-[#F9F6F0]'">行李</button>
+                <button @click="prepTab = 'shopping'" class="flex-shrink-0 px-3 py-2 rounded-xl text-[13px] font-bold transition-all w-1/4" :class="prepTab === 'shopping' ? 'bg-[#FFF9E6] text-[#F2C879]' : 'text-ac-earth hover:bg-[#F9F6F0]'">採購</button>
+                <button @click="prepTab = 'coupon'" class="flex-shrink-0 px-3 py-2 rounded-xl text-[13px] font-bold transition-all w-1/4" :class="prepTab === 'coupon' ? 'bg-[#E3F2FD] text-[#2196F3]' : 'text-ac-earth hover:bg-[#F9F6F0]'">優惠券</button>
             </div>
 
             <!-- 待辦 -->
@@ -405,21 +400,6 @@
                 <div class="flex items-center space-x-2">
                     <input v-model="newTodoText" @keyup.enter="addTodo" type="text" placeholder="新增待辦事項..." class="ac-input flex-1 !py-2">
                     <button @click="addTodo" class="bg-[#F2A6A6] text-white w-10 h-10 rounded-xl shadow-sm"><i class="fa-solid fa-plus"></i></button>
-                </div>
-            </div>
-
-            <!-- 想去 -->
-            <div v-if="prepTab === 'wish'" class="bg-white rounded-3xl border-2 border-ac-shadow shadow-soft p-5">
-                <h3 class="font-extrabold text-ac-text mb-4 text-lg border-b-2 border-dashed border-ac-shadow pb-3"><i class="fa-solid fa-heart text-[#2196F3] mr-2"></i> 想去的願望清單</h3>
-                <div class="space-y-4 mb-4">
-                    <div v-for="(item) in wishList" :key="item.id" class="bg-[#F9F6F0] p-4 rounded-2xl border border-[#E0E5D5] relative group">
-                        <div class="absolute top-2 right-2 flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button @click="editPrepItem(item)" class="text-ac-earth bg-white w-7 h-7 flex items-center justify-center rounded-full shadow-sm border border-[#E0E5D5] hover:bg-[#F0EBE1]"><i class="fa-solid fa-pencil text-[10px]"></i></button>
-                            <button @click="removeWish(item.id)" class="text-[#F2A6A6] bg-[#FFF0F0] w-7 h-7 flex items-center justify-center rounded-full shadow-sm border border-[#F9DADA] hover:bg-[#F2A6A6] hover:text-white"><i class="fa-solid fa-trash text-[10px]"></i></button>
-                        </div>
-                        <p class="font-extrabold text-ac-text pr-16">{{ item.name }}</p>
-                        <p v-if="item.note" class="text-xs text-ac-earth font-bold mt-1">{{ item.note }}</p>
-                    </div>
                 </div>
             </div>
 
@@ -449,7 +429,7 @@
                 </div>
             </div>
 
-            <!-- 採購 -->
+            <!-- ★ 採購清單 -->
             <div v-if="prepTab === 'shopping'" class="space-y-6">
                 <div v-for="area in sortedShoppingAreas" :key="area.name" class="bg-white rounded-3xl border-2 border-ac-shadow shadow-soft p-5 relative">
                     <h4 class="font-extrabold text-[13px] text-white mb-4 bg-ac-earth px-3 py-1.5 rounded-lg inline-block shadow-sm">{{ area.name }}</h4>
@@ -457,6 +437,7 @@
                     <div class="space-y-4">
                         <div v-for="(item, idx) in area.items" :key="item.id" class="bg-[#F9F6F0] rounded-2xl border border-[#E0E5D5] p-3 relative group flex flex-col">
                             
+                            <!-- 編輯與刪除 -->
                             <div class="absolute top-3 right-3 flex space-x-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
                                 <button @click="editPrepItem(item)" class="bg-white text-ac-earth rounded-full w-8 h-8 flex items-center justify-center text-xs border border-ac-shadow shadow-sm hover:bg-[#F0EBE1]"><i class="fa-solid fa-pencil"></i></button>
                                 <button @click="removeShoppingItem(item.id)" class="bg-[#FFF0F0] text-[#F2A6A6] rounded-full w-8 h-8 flex items-center justify-center text-xs border border-[#F9DADA] shadow-sm hover:bg-[#F2A6A6] hover:text-white"><i class="fa-solid fa-trash"></i></button>
@@ -469,6 +450,13 @@
                                 </div>
                                 <div class="flex-1 pt-1 pr-16">
                                     <p class="font-extrabold text-[15px] text-ac-text leading-tight mb-2">{{ item.name }}</p>
+                                    
+                                    <!-- 新增：負責人與數量標籤 -->
+                                    <div class="flex items-center space-x-2 mb-2">
+                                        <span class="bg-[#E8F2EC] text-ac-green text-[10px] px-2 py-0.5 rounded-md font-bold flex items-center"><i class="fa-solid fa-user-tag mr-1"></i>{{ item.buyer || '大家一起買' }}</span>
+                                        <span class="bg-white text-ac-earth text-[10px] px-2 py-0.5 rounded-md border border-[#E0E5D5] font-bold">數量: {{ item.quantity || 1 }}</span>
+                                    </div>
+                                    
                                     <div class="flex flex-wrap gap-1.5">
                                         <span v-for="tag in item.tags" :key="tag" class="bg-[#FFF9E6] text-[#F2C879] text-[10px] px-2 py-0.5 rounded-md font-bold border border-[#FDEBBA]">{{ tag }}</span>
                                     </div>
@@ -488,6 +476,31 @@
                     <p class="text-sm">購物清單空空的<br>輸入名稱，我會自動幫你規劃購買日與分區！</p>
                 </div>
             </div>
+
+            <!-- ★ 新增：優惠券專區 -->
+            <div v-if="prepTab === 'coupon'" class="space-y-4">
+                <div class="bg-[#FFF9E6] rounded-3xl border-2 border-[#FDEBBA] shadow-soft p-5 mb-4 relative overflow-hidden">
+                    <i class="fa-solid fa-ticket absolute -right-4 -bottom-4 text-6xl text-[#FDEBBA] opacity-50"></i>
+                    <h3 class="font-extrabold text-ac-text text-lg flex items-center mb-1 relative z-10">
+                        <i class="fa-solid fa-tags text-[#F2C879] mr-2"></i> 專屬優惠券庫
+                    </h3>
+                    <p class="text-xs text-ac-earth font-bold relative z-10">點擊即可開啟官網條碼，免稅打折最方便！</p>
+                </div>
+                
+                <div v-for="coupon in coupons" :key="coupon.id" class="bg-white rounded-2xl border-2 border-ac-shadow shadow-sm p-4 flex flex-col relative group">
+                    <button @click="removeCoupon(coupon.id)" class="absolute top-2 right-2 w-6 h-6 bg-[#FFF0F0] text-[#F2A6A6] rounded-full flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity"><i class="fa-solid fa-trash"></i></button>
+                    <p class="font-extrabold text-[15px] text-ac-text mb-1 pr-6">{{ coupon.name }}</p>
+                    <p class="text-[11px] text-ac-earth font-bold mb-3"><i class="fa-solid fa-circle-info mr-1"></i>{{ coupon.desc }}</p>
+                    <a :href="coupon.url" target="_blank" class="block w-full py-2 bg-[#F9F6F0] border border-[#E0E5D5] rounded-xl text-center font-extrabold text-ac-green text-sm hover:bg-[#E8F2EC] hover:border-ac-green transition-colors">
+                        <i class="fa-solid fa-arrow-up-right-from-square mr-1"></i> 開啟優惠條碼網頁
+                    </a>
+                </div>
+                
+                <div v-if="coupons.length === 0" class="text-center py-10 text-ac-earth font-bold">
+                    <i class="fa-solid fa-ticket-simple text-4xl mb-3 text-[#F2C879] opacity-50"></i>
+                    <p class="text-sm">尚未收錄優惠券</p>
+                </div>
+            </div>
         </div>
 
         <!-- ================= 記帳 ================= -->
@@ -500,7 +513,7 @@
 
             <div class="bg-[#F9F6F0] rounded-3xl border-2 border-ac-shadow shadow-soft p-5 mb-6">
                 <h3 class="font-extrabold text-ac-text mb-3 flex items-center border-b-2 border-dashed border-[#E0E5D5] pb-2">
-                    <i class="fa-solid fa-scale-balanced text-ac-earth mr-2"></i> 結算小管家 (即時計算)
+                    <i class="fa-solid fa-scale-balanced text-ac-earth mr-2"></i> 結算小管家
                 </h3>
                 <div class="space-y-3">
                     <div v-for="(balance, person) in memberBalances" :key="person" class="flex justify-between items-center bg-white p-3 rounded-2xl border border-[#E0E5D5]">
@@ -516,7 +529,7 @@
 
             <div class="bg-white rounded-3xl border-2 border-ac-shadow shadow-soft p-6">
                 <h3 class="font-extrabold text-ac-text mb-4 flex items-center border-b-2 border-dashed border-ac-shadow pb-3">
-                    <i class="fa-solid fa-receipt text-ac-earth mr-2"></i> 雲端支出紀錄 (即時同步)
+                    <i class="fa-solid fa-receipt text-ac-earth mr-2"></i> 雲端支出紀錄
                 </h3>
                 <div class="space-y-4">
                     <div v-for="(exp) in expenses" :key="exp.id" class="bg-[#F9F6F0] rounded-2xl border border-[#E0E5D5] overflow-hidden transition-all">
@@ -658,7 +671,23 @@
 
     <!-- ================= 彈出視窗 Modals ================= -->
     
-    <!-- ★ 新增：購物清單 AI 媒合結果彈窗 -->
+    <!-- ★ 新增：優惠券 Modal -->
+    <div v-if="showCouponModal" class="fixed inset-0 bg-[#5A4E45]/60 z-50 flex items-center justify-center p-5 backdrop-blur-sm animate-fade-in">
+        <div class="bg-white rounded-[32px] border-2 border-ac-shadow shadow-soft w-full max-w-sm p-6 relative">
+            <h3 class="font-extrabold text-lg mb-5 text-center text-ac-text">新增優惠券連結</h3>
+            
+            <input v-model="newCoupon.name" type="text" placeholder="店家名稱 (例: 阪急百貨)" class="ac-input font-bold mb-3">
+            <input v-model="newCoupon.url" type="url" placeholder="官方優惠券網址 (URL)" class="ac-input font-bold mb-3 text-xs">
+            <textarea v-model="newCoupon.desc" placeholder="優惠說明 (例: 免稅10% + 折扣5%)" rows="2" class="ac-input mb-5"></textarea>
+            
+            <div class="flex space-x-3">
+                <button @click="showCouponModal = false" class="flex-1 py-3 rounded-2xl bg-[#F9F6F0] text-ac-earth font-bold text-sm border-2 border-ac-shadow">取消</button>
+                <button @click="saveCoupon" class="flex-1 py-3 rounded-2xl bg-[#F2C879] text-white font-bold text-sm shadow-sm border-2 border-[#FDEBBA]">儲存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ★ 購物清單 AI 媒合結果彈窗 -->
     <div v-if="showMatchedShoppingModal" class="fixed inset-0 bg-[#5A4E45]/60 z-50 flex items-end justify-center backdrop-blur-sm sm:items-center p-0 sm:p-5">
         <div class="bg-white rounded-t-[32px] sm:rounded-[32px] border-t-2 sm:border-2 border-ac-shadow shadow-soft w-full max-w-md p-6 max-h-[85vh] overflow-y-auto relative animate-slide-up pb-10">
             <button @click="showMatchedShoppingModal = false" class="absolute top-4 right-4 w-8 h-8 bg-[#F9F6F0] rounded-full text-ac-earth flex items-center justify-center hover:bg-[#E0E5D5] transition-colors"><i class="fa-solid fa-xmark"></i></button>
@@ -676,9 +705,13 @@
                     </div>
                     <div class="flex-1 pt-1">
                         <p class="font-extrabold text-sm text-ac-text leading-tight mb-1">{{ item.name }}</p>
-                        <div class="flex flex-wrap gap-1 mb-2">
-                            <span v-for="tag in item.tags" :key="tag" class="bg-[#FFF9E6] text-[#F2C879] text-[9px] px-1.5 py-0.5 rounded font-bold border border-[#FDEBBA]">{{ tag }}</span>
+                        
+                        <!-- 負責人與數量 -->
+                        <div class="flex items-center space-x-2 mt-1 mb-2">
+                            <span class="bg-[#E8F2EC] text-ac-green text-[9px] px-1.5 py-0.5 rounded font-bold">{{ item.buyer || '大家一起買' }}</span>
+                            <span class="bg-white text-ac-earth text-[9px] px-1.5 py-0.5 rounded border border-[#E0E5D5] font-bold">數量: {{ item.quantity || 1 }}</span>
                         </div>
+
                         <p class="text-[10px] text-[#8C7A6B] font-bold leading-relaxed line-clamp-2"><i class="fa-regular fa-comment-dots mr-1"></i>{{ item.advice }}</p>
                     </div>
                 </div>
@@ -773,6 +806,11 @@
                     <button @click="openMap(newAreaNote.name)" class="bg-[#E3F2FD] text-[#2196F3] p-3 rounded-xl border border-[#2196F3]/30 hover:bg-[#BBDEFB] transition-colors shadow-sm" title="在 Google Map 搜尋">
                         <i class="fa-solid fa-map-location-dot"></i>
                     </button>
+                </div>
+
+                <div v-if="newAreaNote.type === 'shopping'" class="flex items-center space-x-2 bg-white border border-[#E0E5D5] p-3 rounded-xl">
+                    <input type="checkbox" v-model="newAreaNote.isMustBuy" class="ac-checkbox shrink-0">
+                    <span class="text-sm font-bold text-ac-text">這是「必買點」（對應購物清單）</span>
                 </div>
 
                 <div v-if="areaData[selectedAreaId]?.routeImage && !areaData[selectedAreaId]?.hideImage" class="relative w-full border-2 border-ac-shadow rounded-2xl overflow-hidden cursor-crosshair bg-[#F9F6F0]" @click="setMapPin">
@@ -914,7 +952,23 @@
                 </label>
             </div>
 
-            <input v-model="newPrepItem.name" type="text" placeholder="商品/地點名稱 (輸入後管家會自動分類)" class="ac-input font-bold mb-3 border-[#F2C879]/30">
+            <input v-model="newPrepItem.name" type="text" placeholder="商品/地點名稱" class="ac-input font-bold mb-3 border-[#F2C879]/30">
+            
+            <!-- ★ 新增：負責人與數量 -->
+            <div v-if="prepTab === 'shopping'" class="grid grid-cols-2 gap-3 mb-4">
+                <div>
+                    <label class="block text-[10px] font-extrabold text-ac-earth mb-1">負責採買人</label>
+                    <select v-model="newPrepItem.buyer" class="ac-input font-bold text-sm py-1.5">
+                        <option value="">大家一起買</option>
+                        <option v-for="m in members" :key="m.id" :value="m.name">{{ m.name }}</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-extrabold text-ac-earth mb-1">購買數量</label>
+                    <input v-model.number="newPrepItem.quantity" type="number" min="1" class="ac-input font-bold text-sm py-1.5 text-center">
+                </div>
+            </div>
+
             <textarea v-if="prepTab === 'wish'" v-model="newPrepItem.note" placeholder="筆記或備註..." rows="2" class="ac-input mb-4"></textarea>
             
             <div class="flex space-x-3 mt-4">
@@ -1005,6 +1059,7 @@
             const showAreaModal = ref(false);
             const showMemberModal = ref(false);
             const showLuggageModal = ref(false); 
+            const showCouponModal = ref(false);
             const showMatchedShoppingModal = ref(false);
             const currentSpotName = ref('');
             
@@ -1017,7 +1072,8 @@
                 payment: 'card', payer: '', splitAmong: [], taxFree: false, note: '', receipt: null,
                 items: [{name: '', price: null}] 
             });
-            const newPrepItem = ref({ id: null, name: '', note: '', image: null });
+            const newPrepItem = ref({ id: null, name: '', note: '', image: null, buyer: '', quantity: 1 });
+            const newCoupon = ref({ name: '', url: '', desc: '' });
             const newTodoText = ref('');
             const newAreaNote = ref({ type: 'food', name: '', note: '', image: null, mapUrl: '', isMustBuy: false, x: 50, y: 50 });
             const newItinerary = ref({ id: null, name: '', category: 'sightseeing', startTime: '', hours: '', address: '', price: '', note: '', transportType: 'walk', travelTime: '', isNoteExpanded: false });
@@ -1032,6 +1088,7 @@
             const expenses = ref([]);
             const shoppingList = ref([]); 
             const luggageData = ref([]);
+            const coupons = ref([]);
             const tempSelectedLuggage = ref([]);
 
             const LUGGAGE_TEMPLATE = [
@@ -1141,7 +1198,7 @@
                         { type: 'food', name: 'とんかつニューベイブ', x: 62, y: 35, note: '百名店夢幻吉列豬排', image: null, mapUrl: '', isMustBuy: false },
                         { type: 'shopping', name: '心齋橋筋商店街', x: 53.5, y: 45, note: '大創、松本清、GU、Lululemon', image: null, mapUrl: '', isMustBuy: false },
                         { type: 'food', name: '宮がみ屋 心齋橋店', x: 45, y: 55, note: '豪華A5和牛鍋', image: null, mapUrl: '', isMustBuy: false },
-                        { type: 'shopping', name: '道頓堀唐吉訶德', x: 74, y: 57, note: '摩天輪與免稅品', image: null, mapUrl: '', isMustBuy: true },
+                        { type: 'shopping', name: '道頓堀唐吉訶德', x: 74, y: 57, note: '摩天輪與免稅品', image: null, mapUrl: '', isMustBuy: false },
                         { type: 'food', name: '鶏Soba 座銀', x: 80, y: 70, note: '濃郁雞白湯拉麵', image: null, mapUrl: '', isMustBuy: false },
                         { type: 'shopping', name: 'EDION 難波本店', x: 59, y: 72, note: '電器大採購', image: null, mapUrl: '', isMustBuy: false },
                         { type: 'shopping', name: 'Super Maruhachi', x: 35, y: 85, note: '晚間特價和牛', image: null, mapUrl: '', isMustBuy: false }
@@ -1157,7 +1214,7 @@
                         { type: 'shopping', name: '大丸 & 阪神百貨', x: 50, y: 50, note: '第二站', image: null, mapUrl: '', isMustBuy: false },
                         { type: 'shopping', name: 'Yodobashi', x: 50, y: 50, note: '第三站', image: null, mapUrl: '', isMustBuy: false },
                         { type: 'shopping', name: 'GRAND FRONT OSAKA', x: 50, y: 50, note: '第四站', image: null, mapUrl: '', isMustBuy: false },
-                        { type: 'shopping', name: '阪急百貨 B1', x: 50, y: 50, note: '伴手禮：抹茶卷與芝士蛋糕', image: null, mapUrl: '', isMustBuy: true }
+                        { type: 'shopping', name: '阪急百貨 B1', x: 50, y: 50, note: '伴手禮：抹茶卷與芝士蛋糕', image: null, mapUrl: '', isMustBuy: false }
                     ]
                 },
                 'kobe': {
@@ -1282,6 +1339,25 @@
                     snapshot.forEach(d => list.push({ id: d.id, ...d.data() }));
                     luggageData.value = list;
                 });
+
+                // ★ 監聽優惠券
+                onSnapshot(collection(window.db, "coupons"), (snapshot) => {
+                    const list = [];
+                    snapshot.forEach(d => list.push({ id: d.id, ...d.data() }));
+                    if (list.length === 0) {
+                        // 初始化載入 5 大熱門優惠券
+                        const defaultCoupons = [
+                            { name: '唐吉訶德 (Don Quijote)', url: 'https://japanportal.donki-global.com/coupon/?ptcd=0026000103', desc: '免稅10% + 最高再折7% (點擊出示條碼)' },
+                            { name: 'Bic Camera 優惠券', url: 'https://www.biccamera.com.tw/bc-cmn/img/coupon/biccamera_coupon.png', desc: '免稅10% + 最高7%折扣' },
+                            { name: 'EDION 愛電王 優惠', url: 'https://www.edion.com/ito/tw/', desc: '免稅10% + 7%折扣 (家電、遊戲、吹風機)' },
+                            { name: '松本清 藥妝優惠', url: 'https://www.matsukiyo.co.jp/guide/tourist', desc: '免稅10% + 最高7%折扣 (依消費金額)' },
+                            { name: '大丸 / 松坂屋百貨', url: 'https://dmdepart.jp/coupon/', desc: '外國旅客專屬 95 折優惠' }
+                        ];
+                        defaultCoupons.forEach(async (c) => { await addDoc(collection(window.db, "coupons"), c); });
+                    } else {
+                        coupons.value = list;
+                    }
+                });
             });
 
             const currentMatchedItems = computed(() => {
@@ -1382,9 +1458,12 @@
                     } else if (prepTab.value === 'luggage') {
                         const newLug = prompt("請輸入自訂行李物品:");
                         if(newLug) addDoc(collection(window.db, "luggage"), { category: '自訂新增', text: newLug, done: false });
+                    } else if (prepTab.value === 'coupon') {
+                        newCoupon.value = { name: '', url: '', desc: '' };
+                        showCouponModal.value = true;
                     } else { 
                         isEditPrepMode.value = false;
-                        newPrepItem.value = { id: null, name: '', note: '', image: null };
+                        newPrepItem.value = { id: null, name: '', note: '', image: null, buyer: '', quantity: 1 };
                         showPrepModal.value = true;
                     }
                 } else if (currentTab.value === 'expenses') {
@@ -1460,6 +1539,17 @@
                 }
             };
 
+            const saveCoupon = async () => {
+                if (!newCoupon.value.name || !newCoupon.value.url) return alert('請填寫優惠券名稱與網址！');
+                try {
+                    await addDoc(collection(window.db, "coupons"), { ...newCoupon.value });
+                    showCouponModal.value = false;
+                } catch(err) { alert('儲存失敗'); }
+            };
+            const removeCoupon = async (id) => {
+                if(confirm('確定刪除此優惠券？')) await deleteDoc(doc(window.db, "coupons", id));
+            };
+
             const openLuggageVault = () => {
                 tempSelectedLuggage.value = luggageData.value.map(item => item.text);
                 showLuggageModal.value = true;
@@ -1491,6 +1581,10 @@
             const editPrepItem = (item) => {
                 isEditPrepMode.value = true;
                 newPrepItem.value = JSON.parse(JSON.stringify(item));
+                if (prepTab.value === 'shopping') {
+                    if(!newPrepItem.value.buyer) newPrepItem.value.buyer = '';
+                    if(!newPrepItem.value.quantity) newPrepItem.value.quantity = 1;
+                }
                 showPrepModal.value = true;
             };
 
@@ -1505,14 +1599,18 @@
                         }
                     } else if(prepTab.value === 'shopping') {
                         const rec = getShoppingRecommendation(newPrepItem.value.name);
+                        const payload = {
+                            name: newPrepItem.value.name, 
+                            image: newPrepItem.value.image, 
+                            buyer: newPrepItem.value.buyer || '',
+                            quantity: newPrepItem.value.quantity || 1,
+                            tags: rec.tags, 
+                            advice: rec.advice
+                        };
                         if (isEditPrepMode.value) {
-                            await updateDoc(doc(window.db, "shopping", newPrepItem.value.id), { 
-                                name: newPrepItem.value.name, image: newPrepItem.value.image, tags: rec.tags, advice: rec.advice
-                            });
+                            await updateDoc(doc(window.db, "shopping", newPrepItem.value.id), payload);
                         } else {
-                            await addDoc(collection(window.db, "shopping"), { 
-                                name: newPrepItem.value.name, image: newPrepItem.value.image, tags: rec.tags, advice: rec.advice
-                            });
+                            await addDoc(collection(window.db, "shopping"), payload);
                         }
                     }
                     showPrepModal.value = false;
@@ -1638,15 +1736,15 @@
 
             return {
                 EXCHANGE_RATE, currentTab, dates, selectedDateIndex, weatherData, currentItinerary, currentAreaEmbedUrl,
-                prepTab, todoList, wishList, luggageData, groupedLuggage, shoppingList, newTodoText,
+                prepTab, todoList, wishList, luggageData, groupedLuggage, shoppingList, newTodoText, coupons,
                 expenses, members, memberBalances, totalExpensesJPY, totalExpensesTWD, currencyInput, currencyResult,
-                showExpenseModal, showPrepModal, showItineraryModal, showAreaModal, showMemberModal, showLuggageModal, showMatchedShoppingModal,
+                showExpenseModal, showPrepModal, showItineraryModal, showAreaModal, showMemberModal, showLuggageModal, showCouponModal, showMatchedShoppingModal,
                 currentSpotName, currentMatchedItems, isEditMode, isEditMemberMode, isEditPrepMode,
-                newExpense, newPrepItem, newAreaNote, newItinerary, newMember, tempSelectedLuggage, LUGGAGE_TEMPLATE, sortedShoppingAreas,
+                newExpense, newPrepItem, newCoupon, newAreaNote, newItinerary, newMember, tempSelectedLuggage, LUGGAGE_TEMPLATE, sortedShoppingAreas,
                 formatNumber, calculateCurrency, getCategoryColor, getCategoryIcon, getCategoryLabel, getTransportBadgeInfo, getMatchedShoppingItems,
                 openMap, openSpecificMap, openMapDirections, openMatchedShopping, goToShoppingList, handleAddClick, handlePrepImageUpload, handleMemberAvatarUpload,
                 editItem, saveItineraryItem, removeItineraryItem, moveItineraryUp, moveItineraryDown,
-                addTodo, editPrepItem, savePrepItem, removeShoppingItem, getShoppingRecommendation,
+                addTodo, editPrepItem, savePrepItem, removeShoppingItem, saveCoupon, removeCoupon,
                 addExpense, removeExpense, handleExpenseReceiptUpload,
                 editMember, saveMember, removeMember,
                 areas, selectedAreaId, areaData, openAreaModal, saveAreaNote, removeAreaNote, moveAreaNote, handleAreaImageUpload, setMapPin, handleImageError, replaceBaseMap,
