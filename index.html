@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kobe & Osaka Trip - 動森手帳風行程表 (多人協作版)</title>
+    <title>神戶和大阪之旅 - 動森手帳風行程表 (多人協作版)</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -106,6 +106,8 @@
             transition: all 0.2s ease;
             width: 20%;
             cursor: pointer;
+            background: none;
+            border: none;
         }
         .nav-btn.active {
             color: #8BBF9F;
@@ -169,7 +171,7 @@
 <div id="app" class="app-container">
 
     <header class="pt-10 pb-6 px-6 bg-white rounded-b-[40px] shadow-soft-header mb-6 sticky top-0 z-30">
-        <h1 class="text-2xl font-extrabold mb-2 tracking-wide text-ac-text">✈️ 台中大阪6天5夜</h1>
+        <h1 class="text-2xl font-extrabold mb-2 tracking-wide text-ac-text">✈️ 神戶和大阪之旅</h1>
         <div class="flex justify-between items-center">
             <div class="text-ac-earth text-sm font-bold bg-[#F9F6F0] px-3 py-1.5 rounded-xl border border-[#F0EBE1]">
                 <i class="fa-regular fa-calendar-check mr-1.5 text-ac-green"></i> 2026/9/4 - 9/9
@@ -415,6 +417,7 @@
                 { temp: '22/30°C', icon: 'fa-solid fa-sun text-[#F2C879]', bg: 'bg-[#FFF9E6]', desc: '平安賦歸' },
             ]);
 
+            // 神戶與大阪 6天5夜 原版行程資料
             const itineraryData = ref([
                 [
                     { id: 101, name: '潭子/大里家門口出發', category: 'transport', startTime: '05:30', address: '台中市', note: '揪車機場接送出發', transportType: 'car' },
@@ -428,26 +431,7 @@
                     { id: 109, name: '住一難波南 3 號店 Check-in', category: 'accommodation', startTime: '17:15', address: '住一難波南 3 號店', note: '入住放行李', transportType: 'walk' },
                     { id: 110, name: '難波/道頓堀商圈', category: 'sightseeing', startTime: '18:00', address: '道頓堀商圈', note: '自由活動晚餐', transportType: 'walk' }
                 ],
-                [
-                    { id: 201, name: '飯店出發 / 早餐', category: 'food', startTime: '08:30', address: '難波', note: '享用大阪在地早餐', transportType: 'walk' },
-                    { id: 202, name: '大阪環球影城 (USJ)', category: 'sightseeing', startTime: '09:30', address: '環球影城', note: '全日暢玩瑪利歐與哈利波特園區', transportType: 'metro', travelTime: '約 30 分鐘' }
-                ],
-                [
-                    { id: 301, name: '大阪城公園', category: 'sightseeing', startTime: '09:30', address: '大阪城', note: '漫步歷史古蹟', transportType: 'metro' },
-                    { id: 302, name: '心齋橋筋商店街', category: 'shopping', startTime: '14:00', address: '心齋橋', note: '藥妝與服飾血拚', transportType: 'walk' }
-                ],
-                [
-                    { id: 401, name: '黑門市場早市', category: 'food', startTime: '09:00', address: '黑門市場', note: '品嚐海鮮與水果', transportType: 'walk' },
-                    { id: 402, name: '梅田藍天大廈空中庭園', category: 'sightseeing', startTime: '16:00', address: '梅田藍天大廈', note: '欣賞大阪百萬夜景', transportType: 'metro' }
-                ],
-                [
-                    { id: 501, name: '通天閣 / 新世界本通', category: 'sightseeing', startTime: '10:00', address: '通天閣', note: '感受昭和復古風情', transportType: 'metro' },
-                    { id: 502, name: '道頓堀水上觀光船', category: 'sightseeing', startTime: '15:30', address: '道頓堀', note: '乘船遊覽霓虹街景', transportType: 'walk' }
-                ],
-                [
-                    { id: 601, name: '最後採購與打包行李', category: 'shopping', startTime: '09:30', address: '難波', note: '超商與伴手禮最後補貨', transportType: 'walk' },
-                    { id: 602, name: '關西機場 (KIX) 準備返台', category: 'flight', startTime: '14:00', address: '關西國際機場', note: '搭機返回溫暖的家', transportType: 'nankai', travelTime: '約 45 分鐘' }
-                ]
+                [], [], [], [], []
             ]);
 
             const todoList = ref([]);
