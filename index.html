@@ -58,6 +58,13 @@
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        
+        /* 彈出視窗由下滑入動畫 */
+        .animate-slide-up { animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+        @keyframes slideUp {
+            from { transform: translateY(100%); opacity: 0.5; }
+            to { transform: translateY(0); opacity: 1; }
+        }
 
         .scan-line {
             position: absolute;
@@ -249,6 +256,7 @@
                 </button>
             </div>
 
+            <!-- 滿版地圖區塊 -->
             <div class="mb-8 -mx-5 bg-white border-y-2 border-ac-shadow shadow-soft relative" v-if="areaData[selectedAreaId]?.routeImage && !areaData[selectedAreaId]?.hideImage">
                 <div class="flex justify-between items-center mb-3 px-5 pt-4">
                     <h3 class="font-extrabold text-ac-text text-lg flex items-center">
@@ -276,6 +284,10 @@
                                   :class="spot.type === 'food' ? 'bg-[#F2A6A6]' : 'bg-[#F2C879]'">
                                 {{ idx + 1 }}
                             </span>
+                            <!-- ★ 地圖上的必買紅點提示 -->
+                            <span v-if="getMatchedShoppingItems(spot.name).length > 0" class="absolute -top-1 -right-1 w-3.5 h-3.5 bg-[#F2A6A6] text-white flex items-center justify-center rounded-full border border-white shadow-sm animate-pulse z-20">
+                                <i class="fa-solid fa-heart text-[6px]"></i>
+                            </span>
                         </div>
                         
                         <div class="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-white/95 backdrop-blur-sm text-ac-text text-[13px] px-3 py-1.5 rounded-xl shadow-md font-extrabold whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity border border-ac-shadow pointer-events-none">
@@ -286,6 +298,7 @@
                 </div>
             </div>
 
+            <!-- Google Map 備用地圖 -->
             <div class="bg-white rounded-3xl border-2 border-ac-shadow shadow-soft p-3 mb-8" v-if="currentAreaEmbedUrl && (!areaData[selectedAreaId]?.routeImage || areaData[selectedAreaId]?.hideImage)">
                 <div class="flex justify-between items-center px-1 mb-2">
                     <h3 class="font-extrabold text-ac-earth text-sm flex items-center">
@@ -299,6 +312,7 @@
                 <iframe :src="currentAreaEmbedUrl" width="100%" height="220" style="border:0; border-radius: 1rem;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
             </div>
 
+            <!-- 沿途吃買攻略清單 -->
             <div class="bg-white rounded-3xl border-2 border-ac-shadow shadow-soft p-5 mb-6 relative overflow-hidden">
                 <div class="flex justify-between items-center mb-4 border-b-2 border-dashed border-ac-shadow pb-3">
                     <h3 class="font-extrabold text-ac-text text-lg flex items-center">
@@ -319,11 +333,15 @@
                         </div>
 
                         <div class="ml-3 flex-1 bg-[#F9F6F0] rounded-2xl p-3 border border-[#E0E5D5] relative">
-                            <div v-if="item.type === 'shopping' && item.isMustBuy" class="absolute -top-2 -right-2 bg-[#F2A6A6] text-white text-[9px] px-2 py-0.5 rounded-full font-bold shadow-sm animate-pulse border border-white">
-                                <i class="fa-solid fa-star mr-0.5"></i>清單必買
+                            
+                            <!-- ★ AI 自動媒合顯示的「必買標籤」 -->
+                            <div v-if="getMatchedShoppingItems(item.name).length > 0" 
+                                 @click.stop="openMatchedShopping(item.name)"
+                                 class="absolute -top-2 -right-2 bg-[#F2A6A6] text-white text-[10px] px-2.5 py-0.5 rounded-full font-bold shadow-md animate-bounce border-2 border-white cursor-pointer z-20 hover:scale-105 transition-transform flex items-center">
+                                <i class="fa-solid fa-star mr-1 text-[#FFF9E6]"></i>必買 ({{ getMatchedShoppingItems(item.name).length }})
                             </div>
 
-                            <p class="font-extrabold text-[15px] text-ac-text mb-1 cursor-pointer hover:text-ac-green transition-colors" @click="openSpecificMap(item)">
+                            <p class="font-extrabold text-[15px] text-ac-text mb-1 cursor-pointer hover:text-ac-green transition-colors pr-10" @click="openSpecificMap(item)">
                                 {{ item.name }} <i class="fa-solid fa-location-dot text-[10px] ml-1 text-[#D2691E] opacity-80"></i>
                             </p>
                             
@@ -367,15 +385,14 @@
 
         <!-- ================= 準備區 ================= -->
         <div v-if="currentTab === 'prep'" class="animate-fade-in pb-10">
-            <div class="flex overflow-x-auto space-x-2 mb-6 bg-white p-2 rounded-2xl border-2 border-ac-shadow shadow-sm sticky top-[110px] z-20 scrollbar-hide">
+            <div class="flex overflow-x-auto space-x-2 mb-6 bg-white p-2 rounded-2xl border-2 border-ac-shadow shadow-sm sticky top-[110px] z-20 scrollbar-hide justify-center">
                 <button @click="prepTab = 'todo'" class="flex-shrink-0 px-4 py-2 rounded-xl text-sm font-bold transition-all" :class="prepTab === 'todo' ? 'bg-[#FFF0F0] text-[#F2A6A6]' : 'text-ac-earth hover:bg-[#F9F6F0]'">待辦</button>
                 <button @click="prepTab = 'wish'" class="flex-shrink-0 px-4 py-2 rounded-xl text-sm font-bold transition-all" :class="prepTab === 'wish' ? 'bg-[#E3F2FD] text-[#2196F3]' : 'text-ac-earth hover:bg-[#F9F6F0]'">想去</button>
                 <button @click="prepTab = 'luggage'" class="flex-shrink-0 px-4 py-2 rounded-xl text-sm font-bold transition-all" :class="prepTab === 'luggage' ? 'bg-[#E8F2EC] text-ac-green' : 'text-ac-earth hover:bg-[#F9F6F0]'">行李</button>
                 <button @click="prepTab = 'shopping'" class="flex-shrink-0 px-4 py-2 rounded-xl text-sm font-bold transition-all" :class="prepTab === 'shopping' ? 'bg-[#FFF9E6] text-[#F2C879]' : 'text-ac-earth hover:bg-[#F9F6F0]'">採購清單</button>
-                <button @click="prepTab = 'insurance'" class="flex-shrink-0 px-4 py-2 rounded-xl text-sm font-bold transition-all" :class="prepTab === 'insurance' ? 'bg-[#E3F2FD] text-[#2196F3]' : 'text-ac-earth hover:bg-[#F9F6F0]'">保險</button>
             </div>
 
-            <!-- 待辦 (雲端同步) -->
+            <!-- 待辦 -->
             <div v-if="prepTab === 'todo'" class="bg-white rounded-3xl border-2 border-ac-shadow shadow-soft p-5">
                 <h3 class="font-extrabold text-ac-text mb-4 text-lg border-b-2 border-dashed border-ac-shadow pb-3"><i class="fa-solid fa-list-check text-[#F2A6A6] mr-2"></i> 行前待辦事項</h3>
                 <div class="space-y-3 mb-4">
@@ -391,19 +408,22 @@
                 </div>
             </div>
 
-            <!-- 想去 (雲端同步) -->
+            <!-- 想去 -->
             <div v-if="prepTab === 'wish'" class="bg-white rounded-3xl border-2 border-ac-shadow shadow-soft p-5">
                 <h3 class="font-extrabold text-ac-text mb-4 text-lg border-b-2 border-dashed border-ac-shadow pb-3"><i class="fa-solid fa-heart text-[#2196F3] mr-2"></i> 想去的願望清單</h3>
                 <div class="space-y-4 mb-4">
                     <div v-for="(item) in wishList" :key="item.id" class="bg-[#F9F6F0] p-4 rounded-2xl border border-[#E0E5D5] relative group">
-                        <p class="font-extrabold text-ac-text">{{ item.name }}</p>
+                        <div class="absolute top-2 right-2 flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button @click="editPrepItem(item)" class="text-ac-earth bg-white w-7 h-7 flex items-center justify-center rounded-full shadow-sm border border-[#E0E5D5] hover:bg-[#F0EBE1]"><i class="fa-solid fa-pencil text-[10px]"></i></button>
+                            <button @click="removeWish(item.id)" class="text-[#F2A6A6] bg-[#FFF0F0] w-7 h-7 flex items-center justify-center rounded-full shadow-sm border border-[#F9DADA] hover:bg-[#F2A6A6] hover:text-white"><i class="fa-solid fa-trash text-[10px]"></i></button>
+                        </div>
+                        <p class="font-extrabold text-ac-text pr-16">{{ item.name }}</p>
                         <p v-if="item.note" class="text-xs text-ac-earth font-bold mt-1">{{ item.note }}</p>
-                        <button @click="removeWish(item.id)" class="absolute top-2 right-2 text-[#F2A6A6] w-6 h-6 flex items-center justify-center rounded-full hover:bg-white"><i class="fa-solid fa-trash"></i></button>
                     </div>
                 </div>
             </div>
 
-            <!-- ★ 行李打包 (全新向下滿版排列 + 全季節收納庫) -->
+            <!-- 行李 -->
             <div v-if="prepTab === 'luggage'" class="bg-white rounded-3xl border-2 border-ac-shadow shadow-soft p-5">
                 <div class="flex justify-between items-center mb-4 border-b-2 border-dashed border-ac-shadow pb-3">
                     <h3 class="font-extrabold text-ac-text text-lg flex items-center">
@@ -414,7 +434,6 @@
 
                 <div v-for="(group, category) in groupedLuggage" :key="category" class="mb-5">
                     <h4 class="font-extrabold text-sm text-ac-earth mb-3 bg-[#F9F6F0] px-3 py-1.5 rounded-lg inline-block border border-[#E0E5D5]">{{ category }}</h4>
-                    <!-- 改為單欄向下排列，字體自動折行防裁切 -->
                     <div class="grid grid-cols-1 gap-2.5">
                         <label v-for="item in group" :key="item.id" class="flex items-start p-3 rounded-xl border border-[#E0E5D5] cursor-pointer transition-all hover:bg-[#F9F6F0]" :class="{'opacity-50 bg-[#F9F6F0]': item.done, 'bg-white': !item.done}">
                             <input type="checkbox" v-model="item.done" @change="updateLuggageStatus(item)" class="ac-checkbox mr-3 mt-0.5 shrink-0">
@@ -430,22 +449,25 @@
                 </div>
             </div>
 
-            <!-- ★ 採購 (智慧管家版 + 依據區域自動分組排序) -->
+            <!-- 採購 -->
             <div v-if="prepTab === 'shopping'" class="space-y-6">
-                <!-- 遍歷整理好的各區域購物清單 -->
                 <div v-for="area in sortedShoppingAreas" :key="area.name" class="bg-white rounded-3xl border-2 border-ac-shadow shadow-soft p-5 relative">
                     <h4 class="font-extrabold text-[13px] text-white mb-4 bg-ac-earth px-3 py-1.5 rounded-lg inline-block shadow-sm">{{ area.name }}</h4>
                     
                     <div class="space-y-4">
                         <div v-for="(item, idx) in area.items" :key="item.id" class="bg-[#F9F6F0] rounded-2xl border border-[#E0E5D5] p-3 relative group flex flex-col">
-                            <button @click="removeShoppingItem(item.id)" class="absolute top-2 right-2 bg-white text-[#F2A6A6] rounded-full w-8 h-8 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity border border-[#F9DADA] shadow-sm"><i class="fa-solid fa-trash"></i></button>
+                            
+                            <div class="absolute top-3 right-3 flex space-x-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button @click="editPrepItem(item)" class="bg-white text-ac-earth rounded-full w-8 h-8 flex items-center justify-center text-xs border border-ac-shadow shadow-sm hover:bg-[#F0EBE1]"><i class="fa-solid fa-pencil"></i></button>
+                                <button @click="removeShoppingItem(item.id)" class="bg-[#FFF0F0] text-[#F2A6A6] rounded-full w-8 h-8 flex items-center justify-center text-xs border border-[#F9DADA] shadow-sm hover:bg-[#F2A6A6] hover:text-white"><i class="fa-solid fa-trash"></i></button>
+                            </div>
 
                             <div class="flex items-start space-x-3 mb-2">
                                 <div class="w-16 h-16 bg-white rounded-xl overflow-hidden shrink-0 border border-[#E0E5D5]">
                                     <img v-if="item.image" :src="item.image" class="w-full h-full object-cover">
                                     <div v-else class="w-full h-full flex items-center justify-center text-ac-earth opacity-50"><i class="fa-solid fa-bag-shopping text-2xl"></i></div>
                                 </div>
-                                <div class="flex-1 pt-1 pr-6">
+                                <div class="flex-1 pt-1 pr-16">
                                     <p class="font-extrabold text-[15px] text-ac-text leading-tight mb-2">{{ item.name }}</p>
                                     <div class="flex flex-wrap gap-1.5">
                                         <span v-for="tag in item.tags" :key="tag" class="bg-[#FFF9E6] text-[#F2C879] text-[10px] px-2 py-0.5 rounded-md font-bold border border-[#FDEBBA]">{{ tag }}</span>
@@ -466,41 +488,6 @@
                     <p class="text-sm">購物清單空空的<br>輸入名稱，我會自動幫你規劃購買日與分區！</p>
                 </div>
             </div>
-
-            <!-- 保險 -->
-            <div v-if="prepTab === 'insurance'" class="space-y-4">
-                <div class="bg-white rounded-3xl border-2 border-ac-shadow shadow-soft p-5">
-                    <h3 class="font-extrabold text-ac-text mb-4 text-lg border-b-2 border-dashed border-ac-shadow pb-3">
-                        <i class="fa-solid fa-shield-halved text-[#2196F3] mr-2"></i> 旅遊保險憑證
-                    </h3>
-                    
-                    <div class="relative mb-6">
-                        <input type="file" @change="handleInsuranceUpload" accept="application/pdf,image/*" class="hidden" id="insuranceFileInput">
-                        <label for="insuranceFileInput" class="w-full h-20 bg-[#F9F6F0] border-2 border-dashed border-ac-shadow rounded-2xl flex items-center justify-center cursor-pointer text-ac-earth hover:bg-[#F0EBE1] transition-all">
-                            <span class="flex flex-col items-center text-sm font-bold">
-                                <i class="fa-solid fa-file-arrow-up text-2xl mb-1"></i> 上傳保險 PDF 或圖片
-                            </span>
-                        </label>
-                    </div>
-
-                    <div v-if="insuranceFiles.length > 0" class="space-y-6">
-                        <div v-for="(file, idx) in insuranceFiles" :key="idx" class="relative group border-2 border-ac-shadow rounded-2xl overflow-hidden shadow-sm">
-                            <div class="bg-[#F9F6F0] p-2 flex justify-between items-center border-b border-ac-shadow">
-                                <span class="font-bold text-sm text-ac-text truncate pr-2">{{ file.name }}</span>
-                                <button @click="removeInsurance(idx)" class="text-[#F2A6A6] hover:text-red-500 w-6 h-6 flex items-center justify-center bg-white rounded-full shadow-sm"><i class="fa-solid fa-trash text-xs"></i></button>
-                            </div>
-                            <div class="w-full h-[400px] bg-white relative">
-                                <iframe v-if="file.type === 'pdf'" :src="file.url" class="w-full h-full border-0 absolute inset-0 z-10 bg-white"></iframe>
-                                <img v-else :src="file.url" class="w-full h-full object-contain absolute inset-0 z-10 bg-white">
-                            </div>
-                        </div>
-                    </div>
-                    <div v-else class="text-center py-10 text-ac-earth font-bold">
-                        <i class="fa-solid fa-file-shield text-4xl mb-3 text-[#A3C4D9] opacity-50"></i>
-                        <p class="text-sm">尚未上傳任何保險憑證喔！</p>
-                    </div>
-                </div>
-            </div>
         </div>
 
         <!-- ================= 記帳 ================= -->
@@ -513,7 +500,7 @@
 
             <div class="bg-[#F9F6F0] rounded-3xl border-2 border-ac-shadow shadow-soft p-5 mb-6">
                 <h3 class="font-extrabold text-ac-text mb-3 flex items-center border-b-2 border-dashed border-[#E0E5D5] pb-2">
-                    <i class="fa-solid fa-scale-balanced text-ac-earth mr-2"></i> 結算小管家
+                    <i class="fa-solid fa-scale-balanced text-ac-earth mr-2"></i> 結算小管家 (即時計算)
                 </h3>
                 <div class="space-y-3">
                     <div v-for="(balance, person) in memberBalances" :key="person" class="flex justify-between items-center bg-white p-3 rounded-2xl border border-[#E0E5D5]">
@@ -529,7 +516,7 @@
 
             <div class="bg-white rounded-3xl border-2 border-ac-shadow shadow-soft p-6">
                 <h3 class="font-extrabold text-ac-text mb-4 flex items-center border-b-2 border-dashed border-ac-shadow pb-3">
-                    <i class="fa-solid fa-receipt text-ac-earth mr-2"></i> 雲端支出紀錄
+                    <i class="fa-solid fa-receipt text-ac-earth mr-2"></i> 雲端支出紀錄 (即時同步)
                 </h3>
                 <div class="space-y-4">
                     <div v-for="(exp) in expenses" :key="exp.id" class="bg-[#F9F6F0] rounded-2xl border border-[#E0E5D5] overflow-hidden transition-all">
@@ -539,6 +526,7 @@
                                 <div>
                                     <div class="flex items-center">
                                         <p class="font-extrabold text-ac-text text-[13px] mr-2">{{ exp.name }}</p>
+                                        <span v-if="exp.taxFree" class="bg-[#E3F2FD] text-[#2196F3] text-[9px] px-1.5 py-0.5 rounded font-bold border border-[#BBDEFB]">免稅/退稅</span>
                                     </div>
                                     <p class="text-[10px] text-ac-earth font-bold mt-0.5">{{ exp.date }} · 墊款: {{ exp.payer }}</p>
                                 </div>
@@ -670,7 +658,39 @@
 
     <!-- ================= 彈出視窗 Modals ================= -->
     
-    <!-- ★ 1. 新增：全季節行李收納庫 Modal -->
+    <!-- ★ 新增：購物清單 AI 媒合結果彈窗 -->
+    <div v-if="showMatchedShoppingModal" class="fixed inset-0 bg-[#5A4E45]/60 z-50 flex items-end justify-center backdrop-blur-sm sm:items-center p-0 sm:p-5">
+        <div class="bg-white rounded-t-[32px] sm:rounded-[32px] border-t-2 sm:border-2 border-ac-shadow shadow-soft w-full max-w-md p-6 max-h-[85vh] overflow-y-auto relative animate-slide-up pb-10">
+            <button @click="showMatchedShoppingModal = false" class="absolute top-4 right-4 w-8 h-8 bg-[#F9F6F0] rounded-full text-ac-earth flex items-center justify-center hover:bg-[#E0E5D5] transition-colors"><i class="fa-solid fa-xmark"></i></button>
+            
+            <h3 class="font-extrabold text-lg mb-1 text-ac-text pr-8"><i class="fa-solid fa-basket-shopping text-[#F2C879] mr-2"></i> {{ currentSpotName }}</h3>
+            <p class="text-[12px] font-bold text-ac-green bg-[#E8F2EC] inline-block px-2.5 py-1 rounded-lg mb-5 border border-[#D5E8DD]">
+                <i class="fa-solid fa-wand-magic-sparkles mr-1"></i> 系統媒合了 {{ currentMatchedItems.length }} 項清單物品
+            </p>
+            
+            <div class="space-y-3 mb-6">
+                <div v-for="item in currentMatchedItems" :key="item.id" class="flex items-start space-x-3 bg-[#F9F6F0] p-3 rounded-2xl border border-[#E0E5D5]">
+                    <div class="w-14 h-14 bg-white rounded-xl overflow-hidden shrink-0 border border-[#E0E5D5]">
+                        <img v-if="item.image" :src="item.image" class="w-full h-full object-cover">
+                        <div v-else class="w-full h-full flex items-center justify-center text-ac-earth opacity-50"><i class="fa-solid fa-bag-shopping"></i></div>
+                    </div>
+                    <div class="flex-1 pt-1">
+                        <p class="font-extrabold text-sm text-ac-text leading-tight mb-1">{{ item.name }}</p>
+                        <div class="flex flex-wrap gap-1 mb-2">
+                            <span v-for="tag in item.tags" :key="tag" class="bg-[#FFF9E6] text-[#F2C879] text-[9px] px-1.5 py-0.5 rounded font-bold border border-[#FDEBBA]">{{ tag }}</span>
+                        </div>
+                        <p class="text-[10px] text-[#8C7A6B] font-bold leading-relaxed line-clamp-2"><i class="fa-regular fa-comment-dots mr-1"></i>{{ item.advice }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <button @click="goToShoppingList" class="w-full py-3.5 rounded-2xl bg-ac-earth text-white font-bold text-sm shadow-sm border-2 border-ac-earth hover:bg-[#8C7A6B] transition-colors">
+                <i class="fa-solid fa-clipboard-list mr-1"></i> 前往採購清單完整管理
+            </button>
+        </div>
+    </div>
+
+    <!-- 1. 全季節行李收納庫 Modal -->
     <div v-if="showLuggageModal" class="fixed inset-0 bg-[#5A4E45]/60 z-50 flex items-center justify-center p-5 backdrop-blur-sm animate-fade-in">
         <div class="bg-white rounded-[32px] border-2 border-ac-shadow shadow-soft w-full max-w-md p-6 max-h-[90vh] flex flex-col relative">
             <h3 class="font-extrabold text-xl mb-1 text-center text-ac-text"><i class="fa-solid fa-box-archive text-ac-green mr-2"></i> 行李收納庫</h3>
@@ -755,11 +775,6 @@
                     </button>
                 </div>
 
-                <div v-if="newAreaNote.type === 'shopping'" class="flex items-center space-x-2 bg-white border border-[#E0E5D5] p-3 rounded-xl">
-                    <input type="checkbox" v-model="newAreaNote.isMustBuy" class="ac-checkbox shrink-0">
-                    <span class="text-sm font-bold text-ac-text">這是「必買點」（對應購物清單）</span>
-                </div>
-
                 <div v-if="areaData[selectedAreaId]?.routeImage && !areaData[selectedAreaId]?.hideImage" class="relative w-full border-2 border-ac-shadow rounded-2xl overflow-hidden cursor-crosshair bg-[#F9F6F0]" @click="setMapPin">
                     <div class="absolute top-2 left-2 bg-black/60 text-white text-[10px] px-2 py-1 rounded-full z-10 pointer-events-none">
                         <i class="fa-solid fa-hand-pointer mr-1"></i> 點擊下方地圖設定位置
@@ -775,6 +790,14 @@
 
                 <input v-model="newAreaNote.mapUrl" type="text" placeholder="Google Maps 連結 (選填)" class="ac-input text-xs">
                 <textarea v-model="newAreaNote.note" placeholder="寫點筆記..." rows="2" class="ac-input"></textarea>
+                
+                <div class="relative">
+                    <input type="file" @change="handleAreaImageUpload" class="hidden" id="areaFileInput">
+                    <label for="areaFileInput" class="w-full h-24 bg-[#F9F6F0] border-2 border-dashed border-ac-shadow rounded-2xl flex items-center justify-center cursor-pointer text-ac-earth hover:bg-[#F0EBE1] transition-all overflow-hidden">
+                        <span v-if="!newAreaNote.image" class="flex flex-col items-center text-xs font-bold"><i class="fa-solid fa-image text-2xl mb-2"></i> 上傳店家照片</span>
+                        <img v-else :src="newAreaNote.image" class="h-full w-full object-cover">
+                    </label>
+                </div>
             </div>
             <div class="flex space-x-3 mt-6">
                 <button @click="showAreaModal = false" class="flex-1 py-3 rounded-2xl bg-[#F9F6F0] text-ac-earth font-bold text-sm border-2 border-ac-shadow">取消</button>
@@ -866,16 +889,18 @@
         </div>
     </div>
 
-    <!-- 5. 準備區 Modal -->
+    <!-- 5. 準備區 Modal (支援編輯) -->
     <div v-if="showPrepModal" class="fixed inset-0 bg-[#5A4E45]/60 z-50 flex items-center justify-center p-5 backdrop-blur-sm animate-fade-in">
         <div class="bg-white rounded-[32px] border-2 border-ac-shadow shadow-soft w-full max-w-sm p-6 relative">
-            <h3 class="font-extrabold text-lg mb-5 text-center text-ac-text">{{ prepTab === 'wish' ? '新增想去願望' : '新增想買清單' }}</h3>
+            <h3 class="font-extrabold text-lg mb-5 text-center text-ac-text">
+                {{ isEditPrepMode ? (prepTab === 'wish' ? '編輯想去願望' : '編輯想買清單') : (prepTab === 'wish' ? '新增想去願望' : '新增想買清單') }}
+            </h3>
             
             <div v-if="prepTab === 'shopping'" class="relative mb-5">
                 <input type="file" @change="handlePrepImageUpload" accept="image/*" class="hidden" id="prepFileInput">
                 <label for="prepFileInput" class="w-full h-32 bg-[#F9F6F0] border-2 border-dashed border-[#F2C879] rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:bg-[#FFF9E6] transition-all overflow-hidden relative shadow-sm">
-                    <span v-if="!newPrepItem.image" class="flex flex-col items-center text-xs font-bold text-[#F2C879]">
-                        <i class="fa-solid fa-camera-retro text-3xl mb-2"></i> 上傳圖片參考
+                    <span v-if="!newPrepItem.image" class="flex flex-col items-center text-xs font-bold text-ac-earth">
+                        <i class="fa-solid fa-camera text-3xl mb-2"></i> 加上參考圖片
                     </span>
                     <img v-else :src="newPrepItem.image" class="h-full w-full object-cover">
                 </label>
@@ -894,7 +919,7 @@
             
             <div class="flex space-x-3 mt-4">
                 <button @click="showPrepModal = false" class="flex-1 py-3 rounded-2xl bg-[#F9F6F0] text-ac-earth font-bold text-sm border-2 border-ac-shadow">取消</button>
-                <button @click="savePrepItem" class="flex-1 py-3 rounded-2xl bg-ac-green text-white font-bold text-sm shadow-sm border-2 border-ac-green">儲存至清單</button>
+                <button @click="savePrepItem" class="flex-1 py-3 rounded-2xl bg-ac-green text-white font-bold text-sm shadow-sm border-2 border-ac-green">{{ isEditPrepMode ? '更新至清單' : '儲存至清單' }}</button>
             </div>
         </div>
     </div>
@@ -980,16 +1005,19 @@
             const showAreaModal = ref(false);
             const showMemberModal = ref(false);
             const showLuggageModal = ref(false); 
+            const showMatchedShoppingModal = ref(false);
+            const currentSpotName = ref('');
             
             const isEditMode = ref(false);
             const isEditMemberMode = ref(false);
+            const isEditPrepMode = ref(false);
 
             const newExpense = ref({ 
                 name: '', amount: null, category: 'shopping', date: new Date().toISOString().substring(0, 10), 
                 payment: 'card', payer: '', splitAmong: [], taxFree: false, note: '', receipt: null,
                 items: [{name: '', price: null}] 
             });
-            const newPrepItem = ref({ name: '', note: '', image: null });
+            const newPrepItem = ref({ id: null, name: '', note: '', image: null });
             const newTodoText = ref('');
             const newAreaNote = ref({ type: 'food', name: '', note: '', image: null, mapUrl: '', isMustBuy: false, x: 50, y: 50 });
             const newItinerary = ref({ id: null, name: '', category: 'sightseeing', startTime: '', hours: '', address: '', price: '', note: '', transportType: 'walk', travelTime: '', isNoteExpanded: false });
@@ -997,7 +1025,6 @@
 
             const currencyInput = ref(10000);
             const currencyResult = ref(0);
-            const insuranceFiles = ref([]);
 
             const members = ref([]);
             const todoList = ref([]);
@@ -1007,9 +1034,8 @@
             const luggageData = ref([]);
             const tempSelectedLuggage = ref([]);
 
-            // ★ 新增：全季節對應的完整行李收納庫
             const LUGGAGE_TEMPLATE = [
-                { cat: '證件與錢財', items: ['護照 (效期大於半年)', '日幣現金', '信用卡 (JCB/Visa)', '交通卡 (ICOCA/Suica)', '機票/住宿/保險紙本憑證'] },
+                { cat: '證件與錢財', items: ['護照 (效期大於半年)', '日幣現金', '信用卡 (JCB/Visa)', '交通卡 (ICOCA/Suica)', '機票/住宿憑證'] },
                 { cat: '電子產品', items: ['手機', '行動電源 (不可托運)', '充電線與充電頭', '萬用轉接頭', '相機與備用電池', '耳機', '筆電/平板'] },
                 { cat: '衣物與配件 (通用)', items: ['內衣褲', '襪子', '好走耐走的運動鞋', '睡衣', '輕便隨身小包/環保袋', '拖鞋'] },
                 { cat: '衣物與配件 (夏季)', items: ['短袖上衣', '短褲/裙子', '涼感衣', '遮陽帽', '墨鏡', '防曬乳', '晴雨傘', '涼感濕紙巾', '止汗劑'] },
@@ -1154,19 +1180,38 @@
                 }
             });
 
-            // ================= 智慧採購管家邏輯 =================
+            // ================= ★ 智慧採購媒合核心演算法 =================
             const getShoppingRecommendation = (itemName) => {
                 const text = itemName.toLowerCase();
-                if (text.includes('uniqlo') || text.includes('優衣庫') || text.includes('衣服')) return { tags: ['服飾', '大阪多區'], advice: '📌 Day 1：LUCUA 1100 (B1F)\n📌 Day 2：心齋橋筋商店街店\n📌 Day 3：難波 CITY 本館 (B2F)\n📌 Day 5：梅田 LINKS UMEDA (旗艦店，款式最齊)' };
-                if (text.includes('無印') || text.includes('muji')) return { tags: ['雜貨服飾', '梅田/難波'], advice: '📌 Day 1/5：梅田 GRAND FRONT (關西旗艦店)\n📌 Day 3：難波無印良品旗艦店' };
-                if (text.includes('電器') || text.includes('吹風機') || text.includes('美容') || text.includes('耳機') || text.includes('相機') || text.includes('switch') || text.includes('遊戲')) return { tags: ['3C家電', '難波/梅田'], advice: '📌 Day 3：EDION 難波本店 (近飯店)\n📌 Day 5：Yodobashi 梅田 (貨最齊)' };
-                if (text.includes('藥妝') || text.includes('藥') || text.includes('面膜') || text.includes('化妝水') || text.includes('保養') || text.includes('休足時間')) return { tags: ['藥妝', '心齋橋/道頓堀'], advice: '📌 Day 2 下午：心齋橋大國/松本清比價\n📌 Day 2 晚上：道頓堀唐吉訶德免稅' };
-                if (text.includes('伴手禮') || text.includes('蛋糕') || text.includes('零食') || text.includes('甜點')) return { tags: ['食品伴手禮', '梅田/機場'], advice: '📌 Day 5 晚上：梅田阪急百貨 B1\n📌 Day 6：關西機場免稅店最後掃貨' };
-                if (text.includes('風扇') || text.includes('3coins') || text.includes('雜貨') || text.includes('百元')) return { tags: ['生活雜貨', '梅田/心齋橋'], advice: '📌 Day 1：LUCUA 大阪內的 3COINS+plus 或大創\n📌 Day 2：心齋橋筋商店街沿路' };
+                if (text.includes('uniqlo') || text.includes('優衣庫') || text.includes('衣服')) return { tags: ['服飾', '大阪多區'], advice: '📌 Day 1：LUCUA 大阪\n📌 Day 2：心齋橋筋商店街\n📌 Day 3：難波 CITY\n📌 Day 5：Yodobashi 梅田' };
+                if (text.includes('無印') || text.includes('muji')) return { tags: ['雜貨服飾', '梅田/難波'], advice: '📌 Day 1/5：GRAND FRONT OSAKA\n📌 Day 3：難波 CITY 周邊' };
+                if (text.includes('電器') || text.includes('吹風機') || text.includes('美容') || text.includes('耳機') || text.includes('相機') || text.includes('switch') || text.includes('遊戲')) return { tags: ['3C家電', '難波/梅田'], advice: '📌 Day 3：EDION 難波本店\n📌 Day 5：Yodobashi 梅田' };
+                if (text.includes('藥妝') || text.includes('藥') || text.includes('面膜') || text.includes('化妝水') || text.includes('保養') || text.includes('休足時間')) return { tags: ['藥妝', '心齋橋/道頓堀'], advice: '📌 Day 2 下午：心齋橋筋商店街\n📌 Day 2 晚上：道頓堀唐吉訶德' };
+                if (text.includes('伴手禮') || text.includes('蛋糕') || text.includes('零食') || text.includes('甜點')) return { tags: ['食品伴手禮', '梅田/機場'], advice: '📌 Day 5 晚上：阪急百貨 B1\n📌 Day 6：關西機場' };
+                if (text.includes('風扇') || text.includes('3coins') || text.includes('雜貨') || text.includes('百元')) return { tags: ['生活雜貨', '梅田/心齋橋'], advice: '📌 Day 1：LUCUA 大阪\n📌 Day 2：心齋橋 PARCO 或 商店街' };
                 return { tags: ['自由安排', '隨逛隨買'], advice: '建議可於 Day 2 心齋橋 或 Day 5 梅田商圈逛街時購買。' };
             };
 
-            // ★ 新增：依據行程天數排序與分組的採購清單
+            const getMatchedShoppingItems = (spotName) => {
+                if (!spotName) return [];
+                const spotNameLower = spotName.toLowerCase().replace(/大阪|本店|店|商圈|百貨/g, '').trim();
+                
+                return shoppingList.value.filter(item => {
+                    const advice = (item.advice || '').toLowerCase();
+                    const name = (item.name || '').toLowerCase();
+                    
+                    if (advice.includes(spotNameLower) || spotNameLower.includes(name) || name.includes(spotNameLower)) return true;
+                    
+                    const keywords = ['lucua', '心齋橋', '唐吉訶德', 'edion', '阪急', 'yodobashi', 'grand front', '無印', '大國', '松本清', '3coins', '大創'];
+                    for (let kw of keywords) {
+                        if (spotNameLower.includes(kw) && (advice.includes(kw) || name.includes(kw))) {
+                            return true;
+                        }
+                    }
+                    return false;
+                });
+            };
+
             const sortedShoppingAreas = computed(() => {
                 const areasMap = {
                     1: { name: '📍 Day 1 / 5：梅田商圈 (LUCUA / 阪急 / Yodobashi)', items: [] },
@@ -1232,7 +1277,6 @@
                     shoppingList.value = list;
                 });
 
-                // ★ 行李清單也加入雲端同步
                 onSnapshot(collection(window.db, "luggage"), (snapshot) => {
                     const list = [];
                     snapshot.forEach(d => list.push({ id: d.id, ...d.data() }));
@@ -1240,7 +1284,21 @@
                 });
             });
 
-            // 計算屬性
+            const currentMatchedItems = computed(() => {
+                return getMatchedShoppingItems(currentSpotName.value);
+            });
+
+            const openMatchedShopping = (spotName) => {
+                currentSpotName.value = spotName;
+                showMatchedShoppingModal.value = true;
+            };
+
+            const goToShoppingList = () => {
+                showMatchedShoppingModal.value = false;
+                currentTab.value = 'prep';
+                prepTab.value = 'shopping';
+            };
+
             const groupedLuggage = computed(() => {
                 const groups = {};
                 luggageData.value.forEach(item => {
@@ -1324,10 +1382,9 @@
                     } else if (prepTab.value === 'luggage') {
                         const newLug = prompt("請輸入自訂行李物品:");
                         if(newLug) addDoc(collection(window.db, "luggage"), { category: '自訂新增', text: newLug, done: false });
-                    } else if (prepTab.value === 'insurance') {
-                        alert('請點擊畫面中的「上傳保險 PDF 或圖片」按鈕喔！');
-                    } else {
-                        newPrepItem.value = { name: '', note: '', image: null };
+                    } else { 
+                        isEditPrepMode.value = false;
+                        newPrepItem.value = { id: null, name: '', note: '', image: null };
                         showPrepModal.value = true;
                     }
                 } else if (currentTab.value === 'expenses') {
@@ -1362,15 +1419,6 @@
                 }
             };
 
-            const handleInsuranceUpload = (event) => {
-                const file = event.target.files[0];
-                if (!file) return;
-                const isPdf = file.type === 'application/pdf';
-                const url = URL.createObjectURL(file);
-                insuranceFiles.value.push({ name: file.name, url: url, type: isPdf ? 'pdf' : 'image' });
-                event.target.value = '';
-            };
-
             const handleMemberAvatarUpload = (event) => {
                 const file = event.target.files[0];
                 if (file) {
@@ -1402,32 +1450,26 @@
                 try { await deleteDoc(doc(window.db, "todos", id)); } catch (err) {}
             };
             const removeWish = async (id) => {
-                try { await deleteDoc(doc(window.db, "wishes", id)); } catch (err) {}
+                if(confirm('確定要刪除這項願望清單嗎？')) {
+                    try { await deleteDoc(doc(window.db, "wishes", id)); } catch (err) {}
+                }
             };
             const removeShoppingItem = async (id) => {
-                if(confirm('確定要刪除這項採購清單嗎？')) await deleteDoc(doc(window.db, "shopping", id));
-            };
-            const removeInsurance = (idx) => {
-                if (confirm('確定要移除這份保險文件嗎？')) {
-                    URL.revokeObjectURL(insuranceFiles.value[idx].url);
-                    insuranceFiles.value.splice(idx, 1);
+                if(confirm('確定要刪除這項採購清單嗎？')) {
+                    try { await deleteDoc(doc(window.db, "shopping", id)); } catch (err) {}
                 }
             };
 
-            // ★ 行李收納庫相關邏輯
             const openLuggageVault = () => {
                 tempSelectedLuggage.value = luggageData.value.map(item => item.text);
                 showLuggageModal.value = true;
             };
-
             const updateLuggageStatus = async (item) => {
                 try { await updateDoc(doc(window.db, "luggage", item.id), { done: item.done }); } catch (err) {}
             };
-
             const removeLuggageItem = async (id) => {
                 if(confirm('確定從清單移除這項物品嗎？')) await deleteDoc(doc(window.db, "luggage", id));
             };
-
             const saveLuggageVault = async () => {
                 if (!window.db) return;
                 try {
@@ -1435,7 +1477,6 @@
                         for (const text of cat.items) {
                             const isSelected = tempSelectedLuggage.value.includes(text);
                             const existingItem = luggageData.value.find(l => l.text === text);
-                            
                             if (isSelected && !existingItem) {
                                 await addDoc(collection(window.db, "luggage"), { category: cat.cat, text: text, done: false });
                             } else if (!isSelected && existingItem) {
@@ -1447,16 +1488,32 @@
                 } catch (err) { alert("同步失敗: " + err.message); }
             };
 
+            const editPrepItem = (item) => {
+                isEditPrepMode.value = true;
+                newPrepItem.value = JSON.parse(JSON.stringify(item));
+                showPrepModal.value = true;
+            };
+
             const savePrepItem = async () => {
                 if(!newPrepItem.value.name.trim()) return alert('請填寫名稱');
                 try {
                     if(prepTab.value === 'wish') {
-                        await addDoc(collection(window.db, "wishes"), { name: newPrepItem.value.name, note: newPrepItem.value.note || '', image: newPrepItem.value.image });
+                        if (isEditPrepMode.value) {
+                            await updateDoc(doc(window.db, "wishes", newPrepItem.value.id), { name: newPrepItem.value.name, note: newPrepItem.value.note || '', image: newPrepItem.value.image });
+                        } else {
+                            await addDoc(collection(window.db, "wishes"), { name: newPrepItem.value.name, note: newPrepItem.value.note || '', image: newPrepItem.value.image });
+                        }
                     } else if(prepTab.value === 'shopping') {
                         const rec = getShoppingRecommendation(newPrepItem.value.name);
-                        await addDoc(collection(window.db, "shopping"), { 
-                            name: newPrepItem.value.name, image: newPrepItem.value.image, tags: rec.tags, advice: rec.advice
-                        });
+                        if (isEditPrepMode.value) {
+                            await updateDoc(doc(window.db, "shopping", newPrepItem.value.id), { 
+                                name: newPrepItem.value.name, image: newPrepItem.value.image, tags: rec.tags, advice: rec.advice
+                            });
+                        } else {
+                            await addDoc(collection(window.db, "shopping"), { 
+                                name: newPrepItem.value.name, image: newPrepItem.value.image, tags: rec.tags, advice: rec.advice
+                            });
+                        }
                     }
                     showPrepModal.value = false;
                 } catch (err) { alert("儲存失敗: " + err.message); }
@@ -1581,15 +1638,15 @@
 
             return {
                 EXCHANGE_RATE, currentTab, dates, selectedDateIndex, weatherData, currentItinerary, currentAreaEmbedUrl,
-                prepTab, todoList, wishList, luggageData, groupedLuggage, shoppingList, newTodoText, insuranceFiles,
+                prepTab, todoList, wishList, luggageData, groupedLuggage, shoppingList, newTodoText,
                 expenses, members, memberBalances, totalExpensesJPY, totalExpensesTWD, currencyInput, currencyResult,
-                showExpenseModal, showPrepModal, showItineraryModal, showAreaModal, showMemberModal, showLuggageModal, isEditMode, isEditMemberMode,
+                showExpenseModal, showPrepModal, showItineraryModal, showAreaModal, showMemberModal, showLuggageModal, showMatchedShoppingModal,
+                currentSpotName, currentMatchedItems, isEditMode, isEditMemberMode, isEditPrepMode,
                 newExpense, newPrepItem, newAreaNote, newItinerary, newMember, tempSelectedLuggage, LUGGAGE_TEMPLATE, sortedShoppingAreas,
-                formatNumber, calculateCurrency, getCategoryColor, getCategoryIcon, getCategoryLabel, getTransportBadgeInfo,
-                openMap, openSpecificMap, openMapDirections, handleAddClick, handlePrepImageUpload, handleMemberAvatarUpload,
+                formatNumber, calculateCurrency, getCategoryColor, getCategoryIcon, getCategoryLabel, getTransportBadgeInfo, getMatchedShoppingItems,
+                openMap, openSpecificMap, openMapDirections, openMatchedShopping, goToShoppingList, handleAddClick, handlePrepImageUpload, handleMemberAvatarUpload,
                 editItem, saveItineraryItem, removeItineraryItem, moveItineraryUp, moveItineraryDown,
-                addTodo, savePrepItem, removeShoppingItem, getShoppingRecommendation,
-                handleInsuranceUpload, removeInsurance,
+                addTodo, editPrepItem, savePrepItem, removeShoppingItem, getShoppingRecommendation,
                 addExpense, removeExpense, handleExpenseReceiptUpload,
                 editMember, saveMember, removeMember,
                 areas, selectedAreaId, areaData, openAreaModal, saveAreaNote, removeAreaNote, moveAreaNote, handleAreaImageUpload, setMapPin, handleImageError, replaceBaseMap,
