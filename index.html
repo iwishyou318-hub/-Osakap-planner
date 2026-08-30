@@ -65,6 +65,24 @@
             to { transform: translateY(0); opacity: 1; }
         }
 
+        .scan-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: rgba(139, 191, 159, 0.8);
+            box-shadow: 0 0 10px rgba(139, 191, 159, 1);
+            animation: scan 2s infinite linear;
+            z-index: 10;
+        }
+        @keyframes scan {
+            0% { top: 0%; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+
         .bottom-nav {
             position: fixed;
             bottom: 0;
@@ -1266,6 +1284,7 @@
                 }
             });
 
+            // ================= ★ 強大的前端圖片壓縮引擎 =================
             const compressImage = (file, maxWidth, callback) => {
                 const reader = new FileReader();
                 reader.readAsDataURL(file);
@@ -1284,21 +1303,46 @@
                         canvas.height = height;
                         const ctx = canvas.getContext('2d');
                         ctx.drawImage(img, 0, 0, width, height);
-                        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7); 
+                        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7); // 畫質設為 70% 大幅瘦身
                         callback(compressedDataUrl);
                     }
                 }
             };
 
+            // ================= ★ 智慧採購媒合核心演算法 =================
             const getShoppingRecommendation = (itemName) => {
                 const text = itemName.toLowerCase();
-                if (text.includes('uniqlo') || text.includes('優衣庫') || text.includes('衣服')) return { tags: ['服飾', '大阪多區'], advice: '📌 Day 1：LUCUA 大阪\n📌 Day 2：心齋橋筋商店街\n📌 Day 3：難波 CITY\n📌 Day 5：Yodobashi 梅田' };
-                if (text.includes('無印') || text.includes('muji')) return { tags: ['雜貨服飾', '梅田/難波'], advice: '📌 Day 1/5：GRAND FRONT OSAKA\n📌 Day 3：難波 CITY 周邊' };
-                if (text.includes('電器') || text.includes('吹風機') || text.includes('美容') || text.includes('耳機') || text.includes('相機') || text.includes('switch') || text.includes('遊戲')) return { tags: ['3C家電', '難波/梅田'], advice: '📌 Day 3：EDION 難波本店\n📌 Day 5：Yodobashi 梅田' };
-                if (text.includes('藥妝') || text.includes('藥') || text.includes('面膜') || text.includes('化妝水') || text.includes('保養') || text.includes('休足時間')) return { tags: ['藥妝', '心齋橋/道頓堀'], advice: '📌 Day 2 下午：心齋橋筋商店街\n📌 Day 2 晚上：道頓堀唐吉訶德' };
-                if (text.includes('伴手禮') || text.includes('蛋糕') || text.includes('零食') || text.includes('甜點')) return { tags: ['食品伴手禮', '梅田/機場'], advice: '📌 Day 5 晚上：阪急百貨 B1\n📌 Day 6：關西機場' };
-                if (text.includes('風扇') || text.includes('3coins') || text.includes('雜貨') || text.includes('百元')) return { tags: ['生活雜貨', '梅田/心齋橋'], advice: '📌 Day 1：LUCUA 大阪\n📌 Day 2：心齋橋 PARCO 或 商店街' };
-                return { tags: ['自由安排', '隨逛隨買'], advice: '建議可於 Day 2 心齋橋 或 Day 5 梅田商圈逛街時購買。' };
+                
+                // 服飾與鞋包
+                if (text.includes('uniqlo') || text.includes('優衣庫') || text.includes('gu')) return { tags: ['服飾', '心齋橋/梅田'], advice: '🏬 建議商店：UNIQLO / GU\n📌 Day 1：梅田 LUCUA 1100 (B1F)\n📌 Day 2：心齋橋筋商店街店\n📌 Day 5：梅田 LINKS UMEDA (超大旗艦店)' };
+                if (text.includes('鞋') || text.includes('球鞋') || text.includes('abc') || text.includes('nike') || text.includes('adidas')) return { tags: ['鞋包', '心齋橋/梅田'], advice: '🏬 建議商店：ABC-Mart Grand Stage 或 品牌直營店\n📌 Day 2：心齋橋筋商店街 或 心齋橋 PARCO\n📌 Day 5：梅田 GRAND FRONT 或 LUCUA' };
+                if (text.includes('衣服') || text.includes('服飾') || text.includes('外套')) return { tags: ['服飾', '多區皆可'], advice: '🏬 建議商店：LUCUA、心齋橋 PARCO、梅田各大百貨\n📌 Day 1：梅田 LUCUA (年輕流行品牌)\n📌 Day 2：心齋橋筋商店街 (街邊品牌店)' };
+
+                // 生活雜貨
+                if (text.includes('無印') || text.includes('muji')) return { tags: ['雜貨服飾', '梅田/難波'], advice: '🏬 建議商店：無印良品 (MUJI)\n📌 Day 1/5：梅田 GRAND FRONT (關西最大旗艦店)\n📌 Day 3：難波無印良品旗艦店' };
+                if (text.includes('風扇') || text.includes('3coins') || text.includes('大創') || text.includes('daiso') || text.includes('百元') || text.includes('雜貨') || text.includes('文具') || text.includes('loft')) return { tags: ['生活雜貨', '梅田/心齋橋'], advice: '🏬 建議商店：3COINS+plus, DAISO, Loft\n📌 Day 1：梅田 LUCUA (有 3COINS)\n📌 Day 2：心齋橋筋商店街 (有大型 DAISO)\n📌 Day 5：梅田商圈周邊' };
+
+                // 藥妝保健
+                if (text.includes('藥') || text.includes('妝') || text.includes('面膜') || text.includes('化妝水') || text.includes('保養') || text.includes('休足時間') || text.includes('合利他命') || text.includes('eve') || text.includes('wakamoto') || text.includes('腸胃')) return { tags: ['藥妝', '心齋橋/道頓堀'], advice: '🏬 建議商店：大國藥妝、松本清、唐吉訶德\n📌 Day 2 下午：心齋橋筋商店街 (大國/松本清，建議比價)\n📌 Day 2 晚上：道頓堀唐吉訶德 (可開到深夜，一次買齊免稅品)' };
+
+                // 3C 電器遊戲
+                if (text.includes('電器') || text.includes('吹風機') || text.includes('美容') || text.includes('耳機') || text.includes('相機') || text.includes('apple') || text.includes('蘋果')) return { tags: ['3C家電', '難波/梅田'], advice: '🏬 建議商店：EDION (愛電王)、Yodobashi (友都八喜)\n📌 Day 3：EDION 難波本店 (近難波飯店，買完直接放回房間)\n📌 Day 5：Yodobashi 梅田 (貨源最齊全的3C天堂)' };
+                
+                // 動漫玩具
+                if (text.includes('任天堂') || text.includes('nintendo') || text.includes('switch') || text.includes('遊戲') || text.includes('寶可夢') || text.includes('pokemon') || text.includes('公仔') || text.includes('jump') || text.includes('動漫') || text.includes('吉卜力') || text.includes('玩具')) return { tags: ['動漫玩具', '心齋橋/梅田'], advice: '🏬 建議商店：JUMP SHOP, 任天堂旗艦店, 寶可夢中心\n📌 Day 2：心齋橋 PARCO 6F (動漫周邊大本營，有 JUMP/吉卜力/哥吉拉)\n📌 Day 5：大丸梅田店 13F (任天堂大阪旗艦店 & 寶可夢中心)' };
+
+                // 食品伴手禮
+                if (text.includes('伴手禮') || text.includes('蛋糕') || text.includes('零食') || text.includes('甜點') || text.includes('巧克力') || text.includes('抹茶') || text.includes('餅乾') || text.includes('特產')) return { tags: ['食品伴手禮', '梅田/機場'], advice: '🏬 建議商店：各大百貨地下街 (Depachika)、機場免稅店\n📌 Day 5 晚上：梅田 阪急百貨 B1 (精緻排隊名店甜點)\n📌 Day 6 中午：關西機場免稅店 (回程最後掃貨免稅零食)' };
+                if (text.includes('超市') || text.includes('水果') || text.includes('和牛') || text.includes('泡麵') || text.includes('味噌')) return { tags: ['生鮮食品', '難波'], advice: '🏬 建議商店：在地大型超市 (如 Super Maruhachi)\n📌 Day 3 晚上：Super Maruhachi 難波店 (採買和牛、在地泡麵配料，體驗在地超市折扣)' };
+
+                // 專櫃精品
+                if (text.includes('精品') || text.includes('名牌') || text.includes('專櫃') || text.includes('lv') || text.includes('chanel') || text.includes('香水') || text.includes('celine')) return { tags: ['專櫃精品', '心齋橋/梅田'], advice: '🏬 建議商店：大丸百貨、高島屋、阪急百貨\n📌 Day 2：心齋橋 大丸百貨\n📌 Day 3：難波 高島屋\n📌 Day 5：梅田 阪急百貨 或 大丸百貨' };
+
+                // 預設 Fallback
+                return { 
+                    tags: ['綜合商場', '依行程順路買'], 
+                    advice: '🏬 建議商店：唐吉訶德 (綜合雜貨/零食)、各區百貨公司 (專櫃/服飾) 或 商店街\n📌 系統未能精準分類此商品，建議您可於【Day 2 心齋橋/道頓堀】的大型商場或唐吉訶德，或是【Day 5 梅田商圈】的各大百貨中尋找喔！' 
+                };
             };
 
             const getMatchedShoppingItems = (spotName) => {
@@ -1337,8 +1381,9 @@
                     else if (text.includes('電器') || text.includes('吹風機') || text.includes('美容') || text.includes('相機') || text.includes('耳機') || text.includes('switch') || text.includes('遊戲')) order = 3;
                     else if (text.includes('免稅店') || text.includes('機場')) order = 5;
                     else if (text.includes('伴手禮') || text.includes('蛋糕') || text.includes('零食') || text.includes('甜點')) order = 1; 
-                    else if (text.includes('uniqlo') || text.includes('優衣庫') || text.includes('無印') || text.includes('muji') || text.includes('衣服')) order = 4;
-                    else if (text.includes('風扇') || text.includes('3coins') || text.includes('百元') || text.includes('雜貨')) order = 1;
+                    else if (text.includes('uniqlo') || text.includes('優衣庫') || text.includes('無印') || text.includes('muji') || text.includes('衣服') || text.includes('鞋') || text.includes('包')) order = 4;
+                    else if (text.includes('風扇') || text.includes('3coins') || text.includes('百元') || text.includes('雜貨') || text.includes('大創')) order = 1;
+                    else if (text.includes('和牛') || text.includes('超市')) order = 3;
                     
                     areasMap[order].items.push(item);
                 });
@@ -1346,6 +1391,7 @@
                 return Object.values(areasMap).filter(a => a.items.length > 0);
             });
 
+            // ================= 雲端即時同步核心監聽 =================
             onMounted(() => {
                 calculateCurrency();
 
@@ -1435,18 +1481,32 @@
                 members.value.forEach(m => balances[m.name] = 0);
                 expenses.value.forEach(exp => {
                     if(!exp.payer || !exp.splitAmong || exp.splitAmong.length === 0) return;
-                    if(balances[exp.payer] !== undefined) balances[exp.payer] += exp.amount;
-                    const splitAmount = exp.amount / exp.splitAmong.length;
-                    exp.splitAmong.forEach(person => {
-                        if(balances[person] !== undefined) balances[person] -= splitAmount;
-                    });
+                    
+                    // 若這筆花費是「還款/結清」類別，邏輯反轉：
+                    // 墊付人(還錢的人)的應收增加(或應付減少)，分攤對象(收錢的人)的應收減少。
+                    if (exp.category === 'repayment') {
+                        balances[exp.payer] += exp.amount; // 還錢的人給出錢了，所以他的帳戶增加
+                        const splitAmount = exp.amount / exp.splitAmong.length;
+                        exp.splitAmong.forEach(person => {
+                            if(balances[person] !== undefined) balances[person] -= splitAmount; // 收到錢的人，他的應收款減少
+                        });
+                    } else {
+                        // 正常花費邏輯
+                        balances[exp.payer] += exp.amount;
+                        const splitAmount = exp.amount / exp.splitAmong.length;
+                        exp.splitAmong.forEach(person => {
+                            if(balances[person] !== undefined) balances[person] -= splitAmount;
+                        });
+                    }
                 });
                 return balances;
             });
 
             const currentItinerary = computed(() => itineraryData.value[selectedDateIndex.value] || []);
             const currentAreaEmbedUrl = computed(() => areas.value.find(a => a.id === selectedAreaId.value)?.embedUrl || '');
-            const totalExpensesJPY = computed(() => expenses.value.reduce((sum, exp) => sum + (exp.amount || 0), 0));
+            
+            // 計算總花費時，扣除「還款/結清」的金額，避免總支出虛增
+            const totalExpensesJPY = computed(() => expenses.value.reduce((sum, exp) => exp.category === 'repayment' ? sum : sum + (exp.amount || 0), 0));
             const totalExpensesTWD = computed(() => Math.round(totalExpensesJPY.value * EXCHANGE_RATE));
 
             const formatNumber = (num) => num ? num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") : '0';
@@ -1514,7 +1574,7 @@
                 } else if (currentTab.value === 'expenses') {
                     isEditExpenseMode.value = false;
                     newExpense.value = { 
-                        id: null, name: '', amount: null, category: 'food', date: new Date().toISOString().substring(0, 10), 
+                        id: null, name: '', amount: null, category: 'shopping', date: new Date().toISOString().substring(0, 10), 
                         payment: 'card', payer: members.value[0]?.name || '', splitAmong: members.value.map(m=>m.name), 
                         taxFree: false, note: '', receipt: null, items: [{name: '', price: null}]
                     };
