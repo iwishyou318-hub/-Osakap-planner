@@ -59,7 +59,6 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* 掃描線動畫 */
         .scan-line {
             position: absolute;
             top: 0;
@@ -250,7 +249,6 @@
                 </button>
             </div>
 
-            <!-- 滿版地圖區塊 -->
             <div class="mb-8 -mx-5 bg-white border-y-2 border-ac-shadow shadow-soft relative" v-if="areaData[selectedAreaId]?.routeImage && !areaData[selectedAreaId]?.hideImage">
                 <div class="flex justify-between items-center mb-3 px-5 pt-4">
                     <h3 class="font-extrabold text-ac-text text-lg flex items-center">
@@ -264,37 +262,30 @@
                 </div>
                 
                 <div class="relative w-full overflow-hidden bg-[#F9F6F0]">
-                    <!-- 背景地圖圖片 -->
                     <img :src="areaData[selectedAreaId].routeImage" @error="handleImageError(selectedAreaId)" class="w-full h-auto block" alt="區域地圖">
                     
-                    <!-- 加大版閃爍圓點與數字 -->
                     <div v-for="(spot, idx) in areaData[selectedAreaId]?.routeSpots" :key="idx"
                          class="absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer group z-10 hover:z-30"
                          :style="{ top: spot.y + '%', left: spot.x + '%' }"
                          @click="openSpecificMap(spot)">
                         
                         <div class="relative flex h-8 w-8">
-                            <!-- 呼吸燈閃爍外圈 -->
                             <span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
                                   :class="spot.type === 'food' ? 'bg-[#F2A6A6]' : 'bg-[#F2C879]'"></span>
-                            <!-- 實體圓點與對應數字 -->
                             <span class="relative inline-flex rounded-full h-8 w-8 border-2 border-white shadow-md flex items-center justify-center text-white text-[14px] font-black"
                                   :class="spot.type === 'food' ? 'bg-[#F2A6A6]' : 'bg-[#F2C879]'">
                                 {{ idx + 1 }}
                             </span>
                         </div>
                         
-                        <!-- Hover 地標名稱提示框 -->
                         <div class="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-white/95 backdrop-blur-sm text-ac-text text-[13px] px-3 py-1.5 rounded-xl shadow-md font-extrabold whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity border border-ac-shadow pointer-events-none">
                             {{ spot.name }}
-                            <!-- 底部小三角形 -->
                             <div class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-white"></div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Google Map 備用地圖 -->
             <div class="bg-white rounded-3xl border-2 border-ac-shadow shadow-soft p-3 mb-8" v-if="currentAreaEmbedUrl && (!areaData[selectedAreaId]?.routeImage || areaData[selectedAreaId]?.hideImage)">
                 <div class="flex justify-between items-center px-1 mb-2">
                     <h3 class="font-extrabold text-ac-earth text-sm flex items-center">
@@ -308,7 +299,6 @@
                 <iframe :src="currentAreaEmbedUrl" width="100%" height="220" style="border:0; border-radius: 1rem;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
             </div>
 
-            <!-- 沿途吃買攻略清單 -->
             <div class="bg-white rounded-3xl border-2 border-ac-shadow shadow-soft p-5 mb-6 relative overflow-hidden">
                 <div class="flex justify-between items-center mb-4 border-b-2 border-dashed border-ac-shadow pb-3">
                     <h3 class="font-extrabold text-ac-text text-lg flex items-center">
@@ -354,7 +344,6 @@
                 </div>
             </div>
 
-            <!-- 交通資訊紀錄 -->
             <div class="bg-white rounded-3xl border-2 border-ac-shadow shadow-soft p-5 mb-5 relative overflow-hidden">
                 <div class="flex justify-between items-center mb-4 border-b-2 border-dashed border-ac-shadow pb-3">
                     <h3 class="font-extrabold text-ac-text text-lg flex items-center"><div class="w-8 h-8 rounded-full bg-[#E3F2FD] text-[#2196F3] flex items-center justify-center mr-2"><i class="fa-solid fa-train-subway"></i></div>交通轉乘紀錄</h3>
@@ -382,13 +371,13 @@
                 <button @click="prepTab = 'todo'" class="flex-shrink-0 px-4 py-2 rounded-xl text-sm font-bold transition-all" :class="prepTab === 'todo' ? 'bg-[#FFF0F0] text-[#F2A6A6]' : 'text-ac-earth hover:bg-[#F9F6F0]'">待辦</button>
                 <button @click="prepTab = 'wish'" class="flex-shrink-0 px-4 py-2 rounded-xl text-sm font-bold transition-all" :class="prepTab === 'wish' ? 'bg-[#E3F2FD] text-[#2196F3]' : 'text-ac-earth hover:bg-[#F9F6F0]'">想去</button>
                 <button @click="prepTab = 'luggage'" class="flex-shrink-0 px-4 py-2 rounded-xl text-sm font-bold transition-all" :class="prepTab === 'luggage' ? 'bg-[#E8F2EC] text-ac-green' : 'text-ac-earth hover:bg-[#F9F6F0]'">行李</button>
-                <button @click="prepTab = 'shopping'" class="flex-shrink-0 px-4 py-2 rounded-xl text-sm font-bold transition-all" :class="prepTab === 'shopping' ? 'bg-[#FFF9E6] text-[#F2C879]' : 'text-ac-earth hover:bg-[#F9F6F0]'">採購</button>
+                <button @click="prepTab = 'shopping'" class="flex-shrink-0 px-4 py-2 rounded-xl text-sm font-bold transition-all" :class="prepTab === 'shopping' ? 'bg-[#FFF9E6] text-[#F2C879]' : 'text-ac-earth hover:bg-[#F9F6F0]'">採購清單</button>
                 <button @click="prepTab = 'insurance'" class="flex-shrink-0 px-4 py-2 rounded-xl text-sm font-bold transition-all" :class="prepTab === 'insurance' ? 'bg-[#E3F2FD] text-[#2196F3]' : 'text-ac-earth hover:bg-[#F9F6F0]'">保險</button>
             </div>
 
             <!-- 待辦 (雲端同步) -->
             <div v-if="prepTab === 'todo'" class="bg-white rounded-3xl border-2 border-ac-shadow shadow-soft p-5">
-                <h3 class="font-extrabold text-ac-text mb-4 text-lg border-b-2 border-dashed border-ac-shadow pb-3"><i class="fa-solid fa-list-check text-[#F2A6A6] mr-2"></i> 行前待辦事項 (即時同步)</h3>
+                <h3 class="font-extrabold text-ac-text mb-4 text-lg border-b-2 border-dashed border-ac-shadow pb-3"><i class="fa-solid fa-list-check text-[#F2A6A6] mr-2"></i> 行前待辦事項</h3>
                 <div class="space-y-3 mb-4">
                     <div v-for="(item) in todoList" :key="item.id" class="flex items-center bg-[#F9F6F0] p-3 rounded-2xl border border-[#E0E5D5] transition-all" :class="{'opacity-50': item.done}">
                         <input type="checkbox" v-model="item.done" @change="updateTodoStatus(item)" class="ac-checkbox mr-3">
@@ -404,7 +393,7 @@
 
             <!-- 想去 (雲端同步) -->
             <div v-if="prepTab === 'wish'" class="bg-white rounded-3xl border-2 border-ac-shadow shadow-soft p-5">
-                <h3 class="font-extrabold text-ac-text mb-4 text-lg border-b-2 border-dashed border-ac-shadow pb-3"><i class="fa-solid fa-heart text-[#2196F3] mr-2"></i> 想去的願望清單 (即時同步)</h3>
+                <h3 class="font-extrabold text-ac-text mb-4 text-lg border-b-2 border-dashed border-ac-shadow pb-3"><i class="fa-solid fa-heart text-[#2196F3] mr-2"></i> 想去的願望清單</h3>
                 <div class="space-y-4 mb-4">
                     <div v-for="(item) in wishList" :key="item.id" class="bg-[#F9F6F0] p-4 rounded-2xl border border-[#E0E5D5] relative group">
                         <p class="font-extrabold text-ac-text">{{ item.name }}</p>
@@ -414,47 +403,67 @@
                 </div>
             </div>
 
-            <!-- 行李 -->
+            <!-- ★ 行李打包 (全新向下滿版排列 + 全季節收納庫) -->
             <div v-if="prepTab === 'luggage'" class="bg-white rounded-3xl border-2 border-ac-shadow shadow-soft p-5">
-                <h3 class="font-extrabold text-ac-text mb-4 text-lg border-b-2 border-dashed border-ac-shadow pb-3"><i class="fa-solid fa-suitcase-rolling text-ac-green mr-2"></i> 行李打包確認</h3>
+                <div class="flex justify-between items-center mb-4 border-b-2 border-dashed border-ac-shadow pb-3">
+                    <h3 class="font-extrabold text-ac-text text-lg flex items-center">
+                        <i class="fa-solid fa-suitcase-rolling text-ac-green mr-2"></i> 行李打包確認
+                    </h3>
+                    <button @click="openLuggageVault" class="text-xs text-white bg-ac-earth px-3 py-1.5 rounded-xl font-bold shadow-sm hover:scale-105 transition-transform"><i class="fa-solid fa-box-archive mr-1"></i> 收納庫</button>
+                </div>
+
                 <div v-for="(group, category) in groupedLuggage" :key="category" class="mb-5">
-                    <h4 class="font-extrabold text-sm text-ac-earth mb-2 bg-[#F9F6F0] px-3 py-1 rounded-lg inline-block">{{ category }}</h4>
-                    <div class="grid grid-cols-2 gap-2">
-                        <label v-for="item in group" :key="item.id" class="flex items-center p-2 rounded-xl border border-transparent hover:border-ac-shadow cursor-pointer transition-all" :class="{'opacity-50': item.done}">
-                            <input type="checkbox" v-model="item.done" @change="updateLuggageStatus(item)" class="ac-checkbox mr-2 shrink-0">
-                            <span class="font-bold text-sm text-ac-text truncate" :class="{'line-through': item.done}">{{ item.text }}</span>
+                    <h4 class="font-extrabold text-sm text-ac-earth mb-3 bg-[#F9F6F0] px-3 py-1.5 rounded-lg inline-block border border-[#E0E5D5]">{{ category }}</h4>
+                    <!-- 改為單欄向下排列，字體自動折行防裁切 -->
+                    <div class="grid grid-cols-1 gap-2.5">
+                        <label v-for="item in group" :key="item.id" class="flex items-start p-3 rounded-xl border border-[#E0E5D5] cursor-pointer transition-all hover:bg-[#F9F6F0]" :class="{'opacity-50 bg-[#F9F6F0]': item.done, 'bg-white': !item.done}">
+                            <input type="checkbox" v-model="item.done" @change="updateLuggageStatus(item)" class="ac-checkbox mr-3 mt-0.5 shrink-0">
+                            <span class="font-bold text-sm text-ac-text whitespace-normal break-words leading-snug flex-1" :class="{'line-through': item.done}">{{ item.text }}</span>
+                            <button @click.stop="removeLuggageItem(item.id)" class="text-[#F2A6A6] w-6 h-6 flex items-center justify-center shrink-0 ml-2 hover:bg-[#FFF0F0] rounded-full"><i class="fa-solid fa-trash text-xs"></i></button>
                         </label>
                     </div>
                 </div>
+
+                <div v-if="luggageData.length === 0" class="text-center py-10 text-ac-earth font-bold">
+                    <i class="fa-solid fa-box-open text-4xl mb-3 text-ac-green opacity-50"></i>
+                    <p class="text-sm">行李箱空空的<br>點擊右上角「收納庫」挑選物品吧！</p>
+                </div>
             </div>
 
-            <!-- 採購 (智慧管家版) -->
-            <div v-if="prepTab === 'shopping'" class="space-y-4">
-                <div v-for="(item, idx) in shoppingList" :key="item.id" class="bg-white rounded-3xl border-2 border-ac-shadow shadow-soft p-4 relative group flex flex-col">
-                    <button @click="removeShoppingItem(item.id)" class="absolute top-3 right-3 bg-[#FFF0F0] text-[#F2A6A6] rounded-full w-8 h-8 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity border border-[#F9DADA]"><i class="fa-solid fa-trash"></i></button>
+            <!-- ★ 採購 (智慧管家版 + 依據區域自動分組排序) -->
+            <div v-if="prepTab === 'shopping'" class="space-y-6">
+                <!-- 遍歷整理好的各區域購物清單 -->
+                <div v-for="area in sortedShoppingAreas" :key="area.name" class="bg-white rounded-3xl border-2 border-ac-shadow shadow-soft p-5 relative">
+                    <h4 class="font-extrabold text-[13px] text-white mb-4 bg-ac-earth px-3 py-1.5 rounded-lg inline-block shadow-sm">{{ area.name }}</h4>
+                    
+                    <div class="space-y-4">
+                        <div v-for="(item, idx) in area.items" :key="item.id" class="bg-[#F9F6F0] rounded-2xl border border-[#E0E5D5] p-3 relative group flex flex-col">
+                            <button @click="removeShoppingItem(item.id)" class="absolute top-2 right-2 bg-white text-[#F2A6A6] rounded-full w-8 h-8 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity border border-[#F9DADA] shadow-sm"><i class="fa-solid fa-trash"></i></button>
 
-                    <div class="flex items-start space-x-4 mb-3">
-                        <div class="w-16 h-16 bg-[#F9F6F0] rounded-2xl overflow-hidden shrink-0 border border-[#E0E5D5]">
-                            <img v-if="item.image" :src="item.image" class="w-full h-full object-cover">
-                            <div v-else class="w-full h-full flex items-center justify-center text-ac-earth opacity-50"><i class="fa-solid fa-bag-shopping text-2xl"></i></div>
-                        </div>
-                        <div class="flex-1 pt-1 pr-6">
-                            <p class="font-extrabold text-[15px] text-ac-text leading-tight mb-2">{{ item.name }}</p>
-                            <div class="flex flex-wrap gap-1.5">
-                                <span v-for="tag in item.tags" :key="tag" class="bg-[#FFF9E6] text-[#F2C879] text-[10px] px-2 py-0.5 rounded-md font-bold border border-[#FDEBBA]">{{ tag }}</span>
+                            <div class="flex items-start space-x-3 mb-2">
+                                <div class="w-16 h-16 bg-white rounded-xl overflow-hidden shrink-0 border border-[#E0E5D5]">
+                                    <img v-if="item.image" :src="item.image" class="w-full h-full object-cover">
+                                    <div v-else class="w-full h-full flex items-center justify-center text-ac-earth opacity-50"><i class="fa-solid fa-bag-shopping text-2xl"></i></div>
+                                </div>
+                                <div class="flex-1 pt-1 pr-6">
+                                    <p class="font-extrabold text-[15px] text-ac-text leading-tight mb-2">{{ item.name }}</p>
+                                    <div class="flex flex-wrap gap-1.5">
+                                        <span v-for="tag in item.tags" :key="tag" class="bg-[#FFF9E6] text-[#F2C879] text-[10px] px-2 py-0.5 rounded-md font-bold border border-[#FDEBBA]">{{ tag }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white rounded-lg p-2 border border-[#E0E5D5]">
+                                <p class="text-[11px] text-ac-green font-extrabold mb-1"><i class="fa-solid fa-wand-magic-sparkles mr-1"></i> AI 建議地點</p>
+                                <p class="text-[11px] text-ac-text font-bold whitespace-pre-line leading-relaxed">{{ item.advice }}</p>
                             </div>
                         </div>
                     </div>
-                    
-                    <div class="bg-[#F9F6F0] rounded-xl p-3 border border-[#E0E5D5]">
-                        <p class="text-[12px] text-ac-green font-extrabold mb-1"><i class="fa-solid fa-wand-magic-sparkles mr-1"></i> AI 智慧購買建議</p>
-                        <p class="text-[12px] text-ac-text font-bold whitespace-pre-line leading-relaxed">{{ item.advice }}</p>
-                    </div>
                 </div>
                 
-                <div v-if="shoppingList.length === 0" class="text-center py-16 text-ac-earth font-bold">
+                <div v-if="shoppingList.length === 0" class="text-center py-16 bg-white rounded-3xl border-2 border-ac-shadow shadow-soft text-ac-earth font-bold">
                     <i class="fa-solid fa-basket-shopping text-4xl mb-3 text-[#F2C879] opacity-50"></i>
-                    <p class="text-sm">購物清單空空的<br>輸入名稱，我會自動幫你規劃購買日與地點喔！</p>
+                    <p class="text-sm">購物清單空空的<br>輸入名稱，我會自動幫你規劃購買日與分區！</p>
                 </div>
             </div>
 
@@ -504,7 +513,7 @@
 
             <div class="bg-[#F9F6F0] rounded-3xl border-2 border-ac-shadow shadow-soft p-5 mb-6">
                 <h3 class="font-extrabold text-ac-text mb-3 flex items-center border-b-2 border-dashed border-[#E0E5D5] pb-2">
-                    <i class="fa-solid fa-scale-balanced text-ac-earth mr-2"></i> 結算小管家 (即時計算)
+                    <i class="fa-solid fa-scale-balanced text-ac-earth mr-2"></i> 結算小管家
                 </h3>
                 <div class="space-y-3">
                     <div v-for="(balance, person) in memberBalances" :key="person" class="flex justify-between items-center bg-white p-3 rounded-2xl border border-[#E0E5D5]">
@@ -520,7 +529,7 @@
 
             <div class="bg-white rounded-3xl border-2 border-ac-shadow shadow-soft p-6">
                 <h3 class="font-extrabold text-ac-text mb-4 flex items-center border-b-2 border-dashed border-ac-shadow pb-3">
-                    <i class="fa-solid fa-receipt text-ac-earth mr-2"></i> 雲端支出紀錄 (即時同步)
+                    <i class="fa-solid fa-receipt text-ac-earth mr-2"></i> 雲端支出紀錄
                 </h3>
                 <div class="space-y-4">
                     <div v-for="(exp) in expenses" :key="exp.id" class="bg-[#F9F6F0] rounded-2xl border border-[#E0E5D5] overflow-hidden transition-all">
@@ -530,7 +539,6 @@
                                 <div>
                                     <div class="flex items-center">
                                         <p class="font-extrabold text-ac-text text-[13px] mr-2">{{ exp.name }}</p>
-                                        <span v-if="exp.taxFree" class="bg-[#E3F2FD] text-[#2196F3] text-[9px] px-1.5 py-0.5 rounded font-bold border border-[#BBDEFB]">免稅/退稅</span>
                                     </div>
                                     <p class="text-[10px] text-ac-earth font-bold mt-0.5">{{ exp.date }} · 墊款: {{ exp.payer }}</p>
                                 </div>
@@ -542,7 +550,6 @@
                             </div>
                         </div>
 
-                        <!-- 展開的帳單詳細與購買明細清單 -->
                         <div class="expense-detail bg-white px-4" :class="{'expanded': exp.isExpanded}">
                             <div class="pb-4 pt-1">
                                 <div class="grid grid-cols-2 gap-y-2 text-xs text-ac-text font-bold mb-3">
@@ -551,7 +558,6 @@
                                     <p class="col-span-2"><span class="text-ac-earth opacity-80">分攤者：</span>{{ exp.splitAmong ? exp.splitAmong.join(', ') : '' }}</p>
                                 </div>
                                 
-                                <!-- ★ 商品明細清單展示 -->
                                 <div v-if="exp.items && exp.items.length > 0" class="mb-4 bg-[#F9F6F0] border border-[#E0E5D5] rounded-xl p-3">
                                     <p class="text-[11px] font-extrabold text-ac-earth mb-2 border-b border-dashed border-[#E0E5D5] pb-1"><i class="fa-solid fa-list-ul mr-1"></i> 購買明細</p>
                                     <div v-for="(item, i) in exp.items" :key="i" class="flex justify-between text-xs font-bold text-ac-text mb-1.5">
@@ -664,7 +670,32 @@
 
     <!-- ================= 彈出視窗 Modals ================= -->
     
-    <!-- 1. 行程 Modal -->
+    <!-- ★ 1. 新增：全季節行李收納庫 Modal -->
+    <div v-if="showLuggageModal" class="fixed inset-0 bg-[#5A4E45]/60 z-50 flex items-center justify-center p-5 backdrop-blur-sm animate-fade-in">
+        <div class="bg-white rounded-[32px] border-2 border-ac-shadow shadow-soft w-full max-w-md p-6 max-h-[90vh] flex flex-col relative">
+            <h3 class="font-extrabold text-xl mb-1 text-center text-ac-text"><i class="fa-solid fa-box-archive text-ac-green mr-2"></i> 行李收納庫</h3>
+            <p class="text-[11px] font-bold text-ac-earth text-center mb-4">請根據本次旅遊季節勾選需要的物品</p>
+            
+            <div class="flex-1 overflow-y-auto pr-1 space-y-5 scrollbar-hide">
+                <div v-for="cat in LUGGAGE_TEMPLATE" :key="cat.cat">
+                    <h4 class="font-extrabold text-[13px] text-ac-text mb-2 bg-[#F9F6F0] px-3 py-1 rounded-lg border border-[#E0E5D5] inline-block shadow-sm">{{ cat.cat }}</h4>
+                    <div class="grid grid-cols-2 gap-x-2 gap-y-3">
+                        <label v-for="text in cat.items" :key="text" class="flex items-start space-x-2 cursor-pointer p-1">
+                            <input type="checkbox" :value="text" v-model="tempSelectedLuggage" class="ac-checkbox w-4 h-4 mt-0.5 shrink-0 rounded-md">
+                            <span class="text-[13px] font-bold text-ac-text leading-tight">{{ text }}</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex space-x-3 mt-5 pt-4 border-t-2 border-dashed border-ac-shadow">
+                <button @click="showLuggageModal = false" class="flex-1 py-3 rounded-2xl bg-[#F9F6F0] text-ac-earth font-bold text-sm border-2 border-ac-shadow">取消</button>
+                <button @click="saveLuggageVault" class="flex-1 py-3 rounded-2xl bg-ac-green text-white font-bold text-sm shadow-sm border-2 border-ac-green">同步至清單</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. 行程 Modal -->
     <div v-if="showItineraryModal" class="fixed inset-0 bg-[#5A4E45]/40 z-50 flex items-center justify-center p-5 backdrop-blur-sm animate-fade-in">
         <div class="bg-white rounded-[32px] border-2 border-ac-shadow shadow-soft w-full max-w-sm p-6 max-h-[85vh] overflow-y-auto scrollbar-hide">
             <h3 class="font-extrabold text-lg mb-5 text-center text-ac-text">{{ isEditMode ? '編輯行程筆記' : '新增行程筆記' }}</h3>
@@ -707,7 +738,7 @@
         </div>
     </div>
 
-    <!-- 2. 區域地圖點 Modal -->
+    <!-- 3. 區域地圖點 Modal -->
     <div v-if="showAreaModal" class="fixed inset-0 bg-[#5A4E45]/40 z-50 flex items-center justify-center p-5 backdrop-blur-sm animate-fade-in">
         <div class="bg-white rounded-[32px] border-2 border-ac-shadow shadow-soft w-full max-w-sm p-6 max-h-[95vh] overflow-y-auto scrollbar-hide">
             <h3 class="font-extrabold text-lg mb-5 text-center text-ac-text">新增沿途吃買點</h3>
@@ -744,14 +775,6 @@
 
                 <input v-model="newAreaNote.mapUrl" type="text" placeholder="Google Maps 連結 (選填)" class="ac-input text-xs">
                 <textarea v-model="newAreaNote.note" placeholder="寫點筆記..." rows="2" class="ac-input"></textarea>
-                
-                <div class="relative">
-                    <input type="file" @change="handleAreaImageUpload" class="hidden" id="areaFileInput">
-                    <label for="areaFileInput" class="w-full h-24 bg-[#F9F6F0] border-2 border-dashed border-ac-shadow rounded-2xl flex items-center justify-center cursor-pointer text-ac-earth hover:bg-[#F0EBE1] transition-all overflow-hidden">
-                        <span v-if="!newAreaNote.image" class="flex flex-col items-center text-xs font-bold"><i class="fa-solid fa-image text-2xl mb-2"></i> 上傳店家照片</span>
-                        <img v-else :src="newAreaNote.image" class="h-full w-full object-cover">
-                    </label>
-                </div>
             </div>
             <div class="flex space-x-3 mt-6">
                 <button @click="showAreaModal = false" class="flex-1 py-3 rounded-2xl bg-[#F9F6F0] text-ac-earth font-bold text-sm border-2 border-ac-shadow">取消</button>
@@ -760,38 +783,23 @@
         </div>
     </div>
 
-    <!-- 3. 記帳 Modal (升級包含 AI 辨識與動態明細) -->
+    <!-- 4. 記帳 Modal -->
     <div v-if="showExpenseModal" class="fixed inset-0 bg-[#5A4E45]/60 z-50 flex items-center justify-center p-5 backdrop-blur-sm animate-fade-in">
         <div class="bg-white rounded-[32px] border-2 border-ac-shadow shadow-soft w-full max-w-sm p-6 max-h-[90vh] overflow-y-auto scrollbar-hide relative">
-            
-            <!-- AI 辨識 Loading 遮罩 -->
-            <div v-if="isOcrLoading" class="absolute inset-0 bg-white/90 backdrop-blur-sm z-50 flex flex-col items-center justify-center rounded-[30px]">
-                <i class="fa-solid fa-wand-magic-sparkles text-4xl text-ac-green mb-4 animate-bounce"></i>
-                <h3 class="font-extrabold text-xl text-ac-text mb-2">AI 視覺掃描中...</h3>
-                <p class="text-sm font-bold text-ac-earth mb-4">正在分析收據明細與總金額</p>
-                <div class="w-48 h-2 bg-[#F9F6F0] rounded-full overflow-hidden relative">
-                    <div class="h-full bg-ac-green w-1/2 absolute left-0 animate-ping"></div>
-                </div>
-            </div>
-
             <h3 class="font-extrabold text-lg mb-5 text-center text-ac-text">新增花費紀錄</h3>
             
-            <!-- 上傳收據自動辨識區塊 -->
             <div class="relative mb-5">
                 <input type="file" @change="handleExpenseReceiptUpload" accept="image/*" class="hidden" id="receiptFileInput">
                 <label for="receiptFileInput" class="w-full h-24 bg-[#F9F6F0] border-2 border-dashed border-ac-green/50 rounded-2xl flex items-center justify-center cursor-pointer hover:bg-[#E8F2EC] transition-all overflow-hidden relative shadow-sm">
                     <div v-if="!newExpense.receipt" class="flex flex-col items-center text-xs font-bold text-ac-green">
-                        <i class="fa-solid fa-camera-viewfinder text-2xl mb-1"></i> 
-                        上傳收據，AI 自動幫你填寫！
+                        <i class="fa-solid fa-receipt text-2xl mb-1"></i> 上傳收據/明細照片
                     </div>
                     <template v-else>
-                        <img :src="newExpense.receipt" class="h-full w-full object-cover opacity-30">
-                        <div class="absolute inset-0 flex flex-col items-center justify-center text-ac-text font-black text-sm bg-white/50 backdrop-blur-sm">
+                        <img :src="newExpense.receipt" class="h-full w-full object-cover opacity-50">
+                        <div class="absolute inset-0 flex flex-col items-center justify-center text-ac-text font-black text-sm bg-white/30 backdrop-blur-[2px]">
                             <i class="fa-solid fa-check-circle text-ac-green text-xl mb-1"></i> 收據已上傳
-                            <span class="text-[10px] mt-1 bg-white px-2 py-0.5 rounded-full shadow-sm">點擊可重新上傳</span>
                         </div>
                     </template>
-                    <div v-if="isOcrLoading" class="scan-line"></div>
                 </label>
             </div>
 
@@ -801,18 +809,19 @@
                     <option value="food">飲食</option>
                     <option value="shopping">購物</option>
                     <option value="transport">交通</option>
+                    <option value="ticket">門票</option>
+                    <option value="stay">住宿</option>
                     <option value="other">其他</option>
                 </select>
             </div>
             
-            <input v-model="newExpense.name" placeholder="項目名稱 (可手填或AI帶入)" class="ac-input font-bold mb-3">
+            <input v-model="newExpense.name" placeholder="項目名稱" class="ac-input font-bold mb-3">
             
             <div class="relative mb-4">
                 <span class="absolute left-4 top-3 text-ac-earth font-extrabold">¥</span>
                 <input v-model.number="newExpense.amount" type="number" placeholder="總金額" class="ac-input font-extrabold text-lg pl-8 border-ac-green/30 bg-[#F0F8FF]/30">
             </div>
 
-            <!-- ★ 動態明細清單填寫區 -->
             <div class="bg-[#F9F6F0] p-3 rounded-xl border border-[#E0E5D5] mb-4">
                 <div class="flex justify-between items-center mb-2">
                     <label class="text-[11px] font-extrabold text-ac-earth"><i class="fa-solid fa-list mr-1"></i> 商品明細 (選填)</label>
@@ -828,6 +837,11 @@
                         <button @click="newExpense.items.splice(i, 1)" class="text-[#F2A6A6] text-xs"><i class="fa-solid fa-circle-minus"></i></button>
                     </div>
                 </div>
+            </div>
+
+            <div class="flex items-center space-x-2 bg-[#F9F6F0] p-3 rounded-xl border border-[#E0E5D5] mb-4 cursor-pointer" @click="newExpense.taxFree = !newExpense.taxFree">
+                <input type="checkbox" v-model="newExpense.taxFree" class="ac-checkbox shrink-0 pointer-events-none">
+                <span class="text-sm font-bold text-ac-text">包含免稅 / 需辦理退稅</span>
             </div>
 
             <div class="mb-4">
@@ -852,26 +866,18 @@
         </div>
     </div>
 
-    <!-- 4. 準備區 Modal (想去/採購 AI 自動辨識) -->
+    <!-- 5. 準備區 Modal -->
     <div v-if="showPrepModal" class="fixed inset-0 bg-[#5A4E45]/60 z-50 flex items-center justify-center p-5 backdrop-blur-sm animate-fade-in">
         <div class="bg-white rounded-[32px] border-2 border-ac-shadow shadow-soft w-full max-w-sm p-6 relative">
-            
-            <div v-if="isOcrLoading" class="absolute inset-0 bg-white/90 backdrop-blur-sm z-50 flex flex-col items-center justify-center rounded-[30px]">
-                <i class="fa-solid fa-wand-magic-sparkles text-4xl text-[#F2C879] mb-4 animate-bounce"></i>
-                <h3 class="font-extrabold text-xl text-ac-text mb-2">分析商品圖片中...</h3>
-                <p class="text-sm font-bold text-ac-earth mb-4">正在擷取名稱並規劃最佳購買地點</p>
-            </div>
-
             <h3 class="font-extrabold text-lg mb-5 text-center text-ac-text">{{ prepTab === 'wish' ? '新增想去願望' : '新增想買清單' }}</h3>
             
-            <!-- 上傳圖片觸發 AI -->
             <div v-if="prepTab === 'shopping'" class="relative mb-5">
                 <input type="file" @change="handlePrepImageUpload" accept="image/*" class="hidden" id="prepFileInput">
                 <label for="prepFileInput" class="w-full h-32 bg-[#F9F6F0] border-2 border-dashed border-[#F2C879] rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:bg-[#FFF9E6] transition-all overflow-hidden relative shadow-sm">
                     <span v-if="!newPrepItem.image" class="flex flex-col items-center text-xs font-bold text-[#F2C879]">
-                        <i class="fa-solid fa-camera-retro text-3xl mb-2"></i> 上傳網購截圖，AI 自動辨識名稱！
+                        <i class="fa-solid fa-camera-retro text-3xl mb-2"></i> 上傳圖片參考
                     </span>
-                    <img v-else :src="newPrepItem.image" class="h-full w-full object-cover opacity-40">
+                    <img v-else :src="newPrepItem.image" class="h-full w-full object-cover">
                 </label>
             </div>
             
@@ -883,12 +889,33 @@
                 </label>
             </div>
 
-            <input v-model="newPrepItem.name" type="text" placeholder="名稱 (可手填或AI自動帶入)" class="ac-input font-bold mb-3 border-[#F2C879]/30">
+            <input v-model="newPrepItem.name" type="text" placeholder="商品/地點名稱 (輸入後管家會自動分類)" class="ac-input font-bold mb-3 border-[#F2C879]/30">
             <textarea v-if="prepTab === 'wish'" v-model="newPrepItem.note" placeholder="筆記或備註..." rows="2" class="ac-input mb-4"></textarea>
             
             <div class="flex space-x-3 mt-4">
                 <button @click="showPrepModal = false" class="flex-1 py-3 rounded-2xl bg-[#F9F6F0] text-ac-earth font-bold text-sm border-2 border-ac-shadow">取消</button>
                 <button @click="savePrepItem" class="flex-1 py-3 rounded-2xl bg-ac-green text-white font-bold text-sm shadow-sm border-2 border-ac-green">儲存至清單</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 6. 旅伴 Modal -->
+    <div v-if="showMemberModal" class="fixed inset-0 bg-[#5A4E45]/40 z-50 flex items-center justify-center p-5 backdrop-blur-sm animate-fade-in">
+        <div class="bg-white rounded-[32px] border-2 border-ac-shadow shadow-soft w-full max-w-sm p-6">
+            <h3 class="font-extrabold text-lg mb-5 text-center text-ac-text">{{ isEditMemberMode ? '編輯旅伴資料' : '新增同行旅伴' }}</h3>
+            <div class="relative mb-6">
+                <input type="file" @change="handleMemberAvatarUpload" class="hidden" id="avatarFileInput">
+                <label for="avatarFileInput" class="w-24 h-24 mx-auto bg-[#F9F6F0] border-2 border-dashed border-ac-shadow rounded-full flex flex-col items-center justify-center cursor-pointer text-ac-earth hover:bg-[#F0EBE1] transition-all overflow-hidden shadow-sm">
+                    <img v-if="newMember.avatar" :src="newMember.avatar" class="w-full h-full object-cover">
+                    <span v-else class="flex flex-col items-center text-[10px] font-bold"><i class="fa-solid fa-camera text-xl mb-1"></i>上傳照片</span>
+                </label>
+            </div>
+            <input v-model="newMember.name" type="text" placeholder="旅伴姓名或暱稱" class="ac-input font-bold mb-4 text-center">
+            <input v-model="newMember.role" type="text" placeholder="角色/分工 (例: 攝影/財務)" class="ac-input font-bold mb-6 text-center">
+            
+            <div class="flex space-x-3">
+                <button @click="showMemberModal = false" class="flex-1 py-3 rounded-2xl bg-[#F9F6F0] text-ac-earth font-bold text-sm border-2 border-ac-shadow">取消</button>
+                <button @click="saveMember" class="flex-1 py-3 rounded-2xl bg-ac-green text-white font-bold text-sm shadow-sm border-2 border-ac-green">儲存</button>
             </div>
         </div>
     </div>
@@ -952,9 +979,10 @@
             const showItineraryModal = ref(false);
             const showAreaModal = ref(false);
             const showMemberModal = ref(false);
+            const showLuggageModal = ref(false); 
+            
             const isEditMode = ref(false);
             const isEditMemberMode = ref(false);
-            const isOcrLoading = ref(false);
 
             const newExpense = ref({ 
                 name: '', amount: null, category: 'shopping', date: new Date().toISOString().substring(0, 10), 
@@ -976,6 +1004,19 @@
             const wishList = ref([]);
             const expenses = ref([]);
             const shoppingList = ref([]); 
+            const luggageData = ref([]);
+            const tempSelectedLuggage = ref([]);
+
+            // ★ 新增：全季節對應的完整行李收納庫
+            const LUGGAGE_TEMPLATE = [
+                { cat: '證件與錢財', items: ['護照 (效期大於半年)', '日幣現金', '信用卡 (JCB/Visa)', '交通卡 (ICOCA/Suica)', '機票/住宿/保險紙本憑證'] },
+                { cat: '電子產品', items: ['手機', '行動電源 (不可托運)', '充電線與充電頭', '萬用轉接頭', '相機與備用電池', '耳機', '筆電/平板'] },
+                { cat: '衣物與配件 (通用)', items: ['內衣褲', '襪子', '好走耐走的運動鞋', '睡衣', '輕便隨身小包/環保袋', '拖鞋'] },
+                { cat: '衣物與配件 (夏季)', items: ['短袖上衣', '短褲/裙子', '涼感衣', '遮陽帽', '墨鏡', '防曬乳', '晴雨傘', '涼感濕紙巾', '止汗劑'] },
+                { cat: '衣物與配件 (冬季)', items: ['發熱衣', '羽絨外套', '防風/大衣外套', '毛帽', '保暖手套', '圍巾', '暖暖包', '保暖厚襪'] },
+                { cat: '盥洗與保養', items: ['牙刷/牙膏', '洗面乳', '保養品 (化妝水/乳液)', '化妝品', '卸妝用品', '隱形眼鏡/保養液', '護唇膏/護手霜'] },
+                { cat: '個人藥品/其他', items: ['腸胃藥', '止痛藥', '感冒藥', '暈車藥', '個人處方藥', 'OK繃/外傷藥膏', '面紙/濕紙巾', '生理用品'] }
+            ];
 
             const dates = ref([
                 { day: 'Day 1', date: '9/4 (五)' }, { day: 'Day 2', date: '9/5 (六)' },
@@ -1113,26 +1154,44 @@
                 }
             });
 
-            const luggageData = ref([
-                { id: 'l1', category: '證件與錢財', text: '護照 (效期須大於半年)', done: false },
-                { id: 'l2', category: '證件與錢財', text: '日幣現金與信用卡', done: false },
-                { id: 'l3', category: '電子產品', text: '行動電源與充電線', done: false },
-                { id: 'l4', category: '電子產品', text: '萬用轉接頭', done: false },
-                { id: 'l5', category: '衣物與配件', text: '好走的鞋子 (極重要)', done: false },
-                { id: 'l6', category: '衣物與配件', text: '防風薄外套', done: false },
-            ]);
-
             // ================= 智慧採購管家邏輯 =================
             const getShoppingRecommendation = (itemName) => {
                 const text = itemName.toLowerCase();
-                if (text.includes('uniqlo') || text.includes('優衣庫')) return { tags: ['服飾', '大阪多區'], advice: '📌 Day 1：LUCUA 1100 (B1F)\n📌 Day 2：心齋橋筋商店街店\n📌 Day 3：難波 CITY 本館 (B2F)\n📌 Day 5：梅田 LINKS UMEDA (旗艦店，款式最齊)' };
+                if (text.includes('uniqlo') || text.includes('優衣庫') || text.includes('衣服')) return { tags: ['服飾', '大阪多區'], advice: '📌 Day 1：LUCUA 1100 (B1F)\n📌 Day 2：心齋橋筋商店街店\n📌 Day 3：難波 CITY 本館 (B2F)\n📌 Day 5：梅田 LINKS UMEDA (旗艦店，款式最齊)' };
                 if (text.includes('無印') || text.includes('muji')) return { tags: ['雜貨服飾', '梅田/難波'], advice: '📌 Day 1/5：梅田 GRAND FRONT (關西旗艦店)\n📌 Day 3：難波無印良品旗艦店' };
-                if (text.includes('電器') || text.includes('吹風機') || text.includes('美容') || text.includes('耳機') || text.includes('任天堂') || text.includes('switch') || text.includes('遊戲')) return { tags: ['3C家電', '難波/梅田'], advice: '📌 Day 3：EDION 難波本店 (近飯店)\n📌 Day 5：Yodobashi 梅田 (貨最齊)' };
-                if (text.includes('藥妝') || text.includes('藥') || text.includes('面膜') || text.includes('休足時間')) return { tags: ['藥妝', '心齋橋/道頓堀'], advice: '📌 Day 2 下午：心齋橋大國/松本清比價\n📌 Day 2 晚上：道頓堀唐吉訶德免稅' };
-                if (text.includes('伴手禮') || text.includes('蛋糕') || text.includes('零食')) return { tags: ['食品伴手禮', '梅田/機場'], advice: '📌 Day 5 晚上：梅田阪急百貨 B1\n📌 Day 6：關西機場免稅店最後掃貨' };
+                if (text.includes('電器') || text.includes('吹風機') || text.includes('美容') || text.includes('耳機') || text.includes('相機') || text.includes('switch') || text.includes('遊戲')) return { tags: ['3C家電', '難波/梅田'], advice: '📌 Day 3：EDION 難波本店 (近飯店)\n📌 Day 5：Yodobashi 梅田 (貨最齊)' };
+                if (text.includes('藥妝') || text.includes('藥') || text.includes('面膜') || text.includes('化妝水') || text.includes('保養') || text.includes('休足時間')) return { tags: ['藥妝', '心齋橋/道頓堀'], advice: '📌 Day 2 下午：心齋橋大國/松本清比價\n📌 Day 2 晚上：道頓堀唐吉訶德免稅' };
+                if (text.includes('伴手禮') || text.includes('蛋糕') || text.includes('零食') || text.includes('甜點')) return { tags: ['食品伴手禮', '梅田/機場'], advice: '📌 Day 5 晚上：梅田阪急百貨 B1\n📌 Day 6：關西機場免稅店最後掃貨' };
                 if (text.includes('風扇') || text.includes('3coins') || text.includes('雜貨') || text.includes('百元')) return { tags: ['生活雜貨', '梅田/心齋橋'], advice: '📌 Day 1：LUCUA 大阪內的 3COINS+plus 或大創\n📌 Day 2：心齋橋筋商店街沿路' };
                 return { tags: ['自由安排', '隨逛隨買'], advice: '建議可於 Day 2 心齋橋 或 Day 5 梅田商圈逛街時購買。' };
             };
+
+            // ★ 新增：依據行程天數排序與分組的採購清單
+            const sortedShoppingAreas = computed(() => {
+                const areasMap = {
+                    1: { name: '📍 Day 1 / 5：梅田商圈 (LUCUA / 阪急 / Yodobashi)', items: [] },
+                    2: { name: '📍 Day 2：心齋橋 / 道頓堀 (藥妝 / 旗艦店)', items: [] },
+                    3: { name: '📍 Day 3：難波周邊 (EDION / 難波 CITY)', items: [] },
+                    4: { name: '📍 大阪多區皆可 (隨時可買)', items: [] },
+                    5: { name: '📍 Day 6：機場免稅 / 伴手禮', items: [] },
+                    6: { name: '📍 其他未分類', items: [] }
+                };
+
+                shoppingList.value.forEach(item => {
+                    const text = item.name.toLowerCase();
+                    let order = 6;
+                    if (text.includes('藥妝') || text.includes('藥') || text.includes('面膜') || text.includes('化妝水') || text.includes('保養') || text.includes('休足時間')) order = 2;
+                    else if (text.includes('電器') || text.includes('吹風機') || text.includes('美容') || text.includes('相機') || text.includes('耳機') || text.includes('switch') || text.includes('遊戲')) order = 3;
+                    else if (text.includes('免稅店') || text.includes('機場')) order = 5;
+                    else if (text.includes('伴手禮') || text.includes('蛋糕') || text.includes('零食') || text.includes('甜點')) order = 1; 
+                    else if (text.includes('uniqlo') || text.includes('優衣庫') || text.includes('無印') || text.includes('muji') || text.includes('衣服')) order = 4;
+                    else if (text.includes('風扇') || text.includes('3coins') || text.includes('百元') || text.includes('雜貨')) order = 1;
+                    
+                    areasMap[order].items.push(item);
+                });
+
+                return Object.values(areasMap).filter(a => a.items.length > 0);
+            });
 
             // ================= 雲端即時同步核心監聽 =================
             onMounted(() => {
@@ -1142,7 +1201,6 @@
                     const list = [];
                     snapshot.forEach(d => list.push({ id: d.id, ...d.data() }));
                     if (list.length === 0) {
-                        // 初始化加入黃一傑
                         addDoc(collection(window.db, "members"), { name: '黃一傑', role: '總召 / 導遊', avatar: null });
                         addDoc(collection(window.db, "members"), { name: '旅伴A', role: '財務', avatar: null });
                     } else {
@@ -1172,6 +1230,13 @@
                     const list = [];
                     snapshot.forEach(d => list.push({ id: d.id, ...d.data() }));
                     shoppingList.value = list;
+                });
+
+                // ★ 行李清單也加入雲端同步
+                onSnapshot(collection(window.db, "luggage"), (snapshot) => {
+                    const list = [];
+                    snapshot.forEach(d => list.push({ id: d.id, ...d.data() }));
+                    luggageData.value = list;
                 });
             });
 
@@ -1257,8 +1322,8 @@
                         const text = prompt("請輸入新增的待辦事項:");
                         if(text) addTodoToCloud(text);
                     } else if (prepTab.value === 'luggage') {
-                        const newLug = prompt("請輸入行李物品:");
-                        if(newLug) luggageData.value.push({id: Date.now(), category:'自訂新增', text: newLug, done: false});
+                        const newLug = prompt("請輸入自訂行李物品:");
+                        if(newLug) addDoc(collection(window.db, "luggage"), { category: '自訂新增', text: newLug, done: false });
                     } else if (prepTab.value === 'insurance') {
                         alert('請點擊畫面中的「上傳保險 PDF 或圖片」按鈕喔！');
                     } else {
@@ -1279,39 +1344,11 @@
                 }
             };
 
-            // AI 特效模擬
-            const simulateAIReceiptParsing = () => {
-                isOcrLoading.value = true;
-                setTimeout(() => {
-                    newExpense.value.name = '唐吉訶德道頓堀店 (藥妝)';
-                    newExpense.value.amount = 14500;
-                    newExpense.value.taxFree = true;
-                    newExpense.value.items = [
-                        { name: '休足時間 18枚入', price: 1800 },
-                        { name: 'EVE A錠 白盒', price: 2500 },
-                        { name: '合利他命 EX PLUS', price: 5800 },
-                        { name: '雪肌精化妝水', price: 4400 }
-                    ];
-                    isOcrLoading.value = false;
-                }, 2500);
-            };
-
-            const simulateAIShoppingParsing = () => {
-                isOcrLoading.value = true;
-                setTimeout(() => {
-                    newPrepItem.value.name = 'UNIQLO 發熱衣與輕羽絨';
-                    isOcrLoading.value = false;
-                }, 2000);
-            };
-
             const handleExpenseReceiptUpload = (event) => {
                 const file = event.target.files[0];
                 if (file) {
                     const reader = new FileReader();
-                    reader.onload = (e) => {
-                        newExpense.value.receipt = e.target.result;
-                        simulateAIReceiptParsing();
-                    };
+                    reader.onload = (e) => newExpense.value.receipt = e.target.result;
                     reader.readAsDataURL(file);
                 }
             };
@@ -1320,10 +1357,7 @@
                 const file = event.target.files[0];
                 if (file) {
                     const reader = new FileReader();
-                    reader.onload = (e) => {
-                        newPrepItem.value.image = e.target.result;
-                        if(prepTab.value === 'shopping') simulateAIShoppingParsing();
-                    };
+                    reader.onload = (e) => newPrepItem.value.image = e.target.result;
                     reader.readAsDataURL(file);
                 }
             };
@@ -1378,6 +1412,39 @@
                     URL.revokeObjectURL(insuranceFiles.value[idx].url);
                     insuranceFiles.value.splice(idx, 1);
                 }
+            };
+
+            // ★ 行李收納庫相關邏輯
+            const openLuggageVault = () => {
+                tempSelectedLuggage.value = luggageData.value.map(item => item.text);
+                showLuggageModal.value = true;
+            };
+
+            const updateLuggageStatus = async (item) => {
+                try { await updateDoc(doc(window.db, "luggage", item.id), { done: item.done }); } catch (err) {}
+            };
+
+            const removeLuggageItem = async (id) => {
+                if(confirm('確定從清單移除這項物品嗎？')) await deleteDoc(doc(window.db, "luggage", id));
+            };
+
+            const saveLuggageVault = async () => {
+                if (!window.db) return;
+                try {
+                    for (const cat of LUGGAGE_TEMPLATE) {
+                        for (const text of cat.items) {
+                            const isSelected = tempSelectedLuggage.value.includes(text);
+                            const existingItem = luggageData.value.find(l => l.text === text);
+                            
+                            if (isSelected && !existingItem) {
+                                await addDoc(collection(window.db, "luggage"), { category: cat.cat, text: text, done: false });
+                            } else if (!isSelected && existingItem) {
+                                await deleteDoc(doc(window.db, "luggage", existingItem.id));
+                            }
+                        }
+                    }
+                    showLuggageModal.value = false;
+                } catch (err) { alert("同步失敗: " + err.message); }
             };
 
             const savePrepItem = async () => {
@@ -1516,13 +1583,17 @@
                 EXCHANGE_RATE, currentTab, dates, selectedDateIndex, weatherData, currentItinerary, currentAreaEmbedUrl,
                 prepTab, todoList, wishList, luggageData, groupedLuggage, shoppingList, newTodoText, insuranceFiles,
                 expenses, members, memberBalances, totalExpensesJPY, totalExpensesTWD, currencyInput, currencyResult,
-                showExpenseModal, showPrepModal, showItineraryModal, showAreaModal, showMemberModal, isEditMode, isEditMemberMode, isOcrLoading,
-                newExpense, newPrepItem, newAreaNote, newItinerary, newMember,
+                showExpenseModal, showPrepModal, showItineraryModal, showAreaModal, showMemberModal, showLuggageModal, isEditMode, isEditMemberMode,
+                newExpense, newPrepItem, newAreaNote, newItinerary, newMember, tempSelectedLuggage, LUGGAGE_TEMPLATE, sortedShoppingAreas,
                 formatNumber, calculateCurrency, getCategoryColor, getCategoryIcon, getCategoryLabel, getTransportBadgeInfo,
-                openMap, openSpecificMap, openMapDirections, handleAddClick, handleExpenseReceiptUpload, handlePrepImageUpload, handleInsuranceUpload, handleMemberAvatarUpload, handleAreaImageUpload,
+                openMap, openSpecificMap, openMapDirections, handleAddClick, handlePrepImageUpload, handleMemberAvatarUpload,
                 editItem, saveItineraryItem, removeItineraryItem, moveItineraryUp, moveItineraryDown,
-                addTodo, savePrepItem, removeShoppingItem, addExpense, removeExpense, editMember, saveMember, removeMember,
-                areas, selectedAreaId, areaData, openAreaModal, saveAreaNote, removeAreaNote, moveAreaNote, setMapPin, handleImageError, replaceBaseMap, updateTodoStatus, removeTodo, removeWish, removeInsurance
+                addTodo, savePrepItem, removeShoppingItem, getShoppingRecommendation,
+                handleInsuranceUpload, removeInsurance,
+                addExpense, removeExpense, handleExpenseReceiptUpload,
+                editMember, saveMember, removeMember,
+                areas, selectedAreaId, areaData, openAreaModal, saveAreaNote, removeAreaNote, moveAreaNote, handleAreaImageUpload, setMapPin, handleImageError, replaceBaseMap,
+                updateTodoStatus, removeTodo, removeWish, openLuggageVault, saveLuggageVault, updateLuggageStatus, removeLuggageItem
             };
         }
     }).mount('#app');
