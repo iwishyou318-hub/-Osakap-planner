@@ -3,36 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>神戶和大阪之旅 - 動森手帳風行程表 (多人協作雲端版)</title>
+    <title>神戶和大阪之旅 - 動森手帳風行程表 (雲端多人協作版)</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&family=Varela+Round&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
     
-    <!-- Firebase SDK (Modular v10) -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getFirestore, collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyD_Ivq8hdwSNOxogB8QuedFEn5nB_kVYvI",
-            authDomain: "osakap-b4c68.firebaseapp.com",
-            projectId: "osakap-b4c68",
-            storageBucket: "osakap-b4c68.firebasestorage.app",
-            messagingSenderId: "520160530827",
-            appId: "1:520160530827:web:28492385441ddad4581f8e",
-            measurementId: "G-SPG57Z5DBZ"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-
-        // 掛載到 window 供 Vue 使用
-        window.db = db;
-        window.fb = { collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc };
-    </script>
-
     <script>
         tailwind.config = {
             theme: {
@@ -178,7 +155,7 @@
                 <i class="fa-regular fa-calendar-check mr-1.5 text-ac-green"></i> 2026/9/4 - 9/9
             </div>
             <div class="text-ac-green text-sm font-bold flex items-center">
-                <i class="fa-solid fa-plane-departure mr-1.5"></i> 6天5夜 (雲端同步版)
+                <i class="fa-solid fa-cloud-bolt mr-1.5"></i> 即時多人同步中
             </div>
         </div>
     </header>
@@ -379,7 +356,7 @@
                 <button @click="prepTab = 'insurance'" class="flex-shrink-0 px-4 py-2 rounded-xl text-sm font-bold transition-all" :class="prepTab === 'insurance' ? 'bg-[#E3F2FD] text-[#2196F3]' : 'text-ac-earth hover:bg-[#F9F6F0]'">保險</button>
             </div>
 
-            <!-- 待辦 -->
+            <!-- 待辦 (雲端同步) -->
             <div v-if="prepTab === 'todo'" class="bg-white rounded-3xl border-2 border-ac-shadow shadow-soft p-5">
                 <h3 class="font-extrabold text-ac-text mb-4 text-lg border-b-2 border-dashed border-ac-shadow pb-3"><i class="fa-solid fa-list-check text-[#F2A6A6] mr-2"></i> 行前待辦事項 (即時同步)</h3>
                 <div class="space-y-3 mb-4">
@@ -395,9 +372,9 @@
                 </div>
             </div>
 
-            <!-- 想去 -->
+            <!-- 想去 (雲端同步) -->
             <div v-if="prepTab === 'wish'" class="bg-white rounded-3xl border-2 border-ac-shadow shadow-soft p-5">
-                <h3 class="font-extrabold text-ac-text mb-4 text-lg border-b-2 border-dashed border-ac-shadow pb-3"><i class="fa-solid fa-heart text-[#2196F3] mr-2"></i> 想去的願望清單</h3>
+                <h3 class="font-extrabold text-ac-text mb-4 text-lg border-b-2 border-dashed border-ac-shadow pb-3"><i class="fa-solid fa-heart text-[#2196F3] mr-2"></i> 想去的願望清單 (即時同步)</h3>
                 <div class="space-y-4 mb-4">
                     <div v-for="(item) in wishList" :key="item.id" class="bg-[#F9F6F0] p-4 rounded-2xl border border-[#E0E5D5] relative group">
                         <p class="font-extrabold text-ac-text">{{ item.name }}</p>
@@ -414,7 +391,7 @@
                     <h4 class="font-extrabold text-sm text-ac-earth mb-2 bg-[#F9F6F0] px-3 py-1 rounded-lg inline-block">{{ category }}</h4>
                     <div class="grid grid-cols-2 gap-2">
                         <label v-for="item in group" :key="item.id" class="flex items-center p-2 rounded-xl border border-transparent hover:border-ac-shadow cursor-pointer transition-all" :class="{'opacity-50': item.done}">
-                            <input type="checkbox" v-model="item.done" @change="updateLuggageStatus(item)" class="ac-checkbox mr-2 shrink-0">
+                            <input type="checkbox" v-model="item.done" class="ac-checkbox mr-2 shrink-0">
                             <span class="font-bold text-sm text-ac-text truncate" :class="{'line-through': item.done}">{{ item.text }}</span>
                         </label>
                     </div>
@@ -482,7 +459,7 @@
 
             <div class="bg-[#F9F6F0] rounded-3xl border-2 border-ac-shadow shadow-soft p-5 mb-6">
                 <h3 class="font-extrabold text-ac-text mb-3 flex items-center border-b-2 border-dashed border-[#E0E5D5] pb-2">
-                    <i class="fa-solid fa-scale-balanced text-ac-earth mr-2"></i> 結算小管家 (即時同步)
+                    <i class="fa-solid fa-scale-balanced text-ac-earth mr-2"></i> 結算小管家 (即時計算)
                 </h3>
                 <div class="space-y-3">
                     <div v-for="(balance, person) in memberBalances" :key="person" class="flex justify-between items-center bg-white p-3 rounded-2xl border border-[#E0E5D5]">
@@ -498,7 +475,7 @@
 
             <div class="bg-white rounded-3xl border-2 border-ac-shadow shadow-soft p-6">
                 <h3 class="font-extrabold text-ac-text mb-4 flex items-center border-b-2 border-dashed border-ac-shadow pb-3">
-                    <i class="fa-solid fa-receipt text-ac-earth mr-2"></i> 雲端支出紀錄
+                    <i class="fa-solid fa-receipt text-ac-earth mr-2"></i> 雲端支出紀錄 (即時同步)
                 </h3>
                 <div class="space-y-4">
                     <div v-for="(exp) in expenses" :key="exp.id" class="bg-[#F9F6F0] rounded-2xl border border-[#E0E5D5] overflow-hidden transition-all">
@@ -527,7 +504,7 @@
                                     <p><span class="text-ac-earth opacity-80">分類：</span>{{ getCategoryLabel(exp.category) }}</p>
                                     <p class="col-span-2"><span class="text-ac-earth opacity-80">分攤者：</span>{{ exp.splitAmong ? exp.splitAmong.join(', ') : '' }}</p>
                                     <p class="col-span-2 bg-[#E8F2EC] p-2 rounded-lg text-ac-green mt-1">
-                                        👉 平均每人需分攤 <b>¥{{ formatNumber(Math.round(exp.amount / (exp.splitAmong ? exp.splitAmong.length : 1))) }}</b>
+                                        👉 平均每人需分攤 <b>¥{{ formatNumber(Math.round(exp.amount / (exp.splitAmong && exp.splitAmong.length ? exp.splitAmong.length : 1))) }}</b>
                                     </p>
                                 </div>
                                 <p v-if="exp.note" class="text-xs text-[#8C7A6B] bg-[#F9F6F0] p-2 rounded-lg mb-4 whitespace-pre-line border border-[#E0E5D5]"><i class="fa-solid fa-pen mr-1"></i> {{ exp.note }}</p>
@@ -628,7 +605,7 @@
 
     <!-- ================= 彈出視窗 Modals ================= -->
     
-    <!-- 1. 新增/編輯行程 Modal -->
+    <!-- 1. 行程 Modal -->
     <div v-if="showItineraryModal" class="fixed inset-0 bg-[#5A4E45]/40 z-50 flex items-center justify-center p-5 backdrop-blur-sm animate-fade-in">
         <div class="bg-white rounded-[32px] border-2 border-ac-shadow shadow-soft w-full max-w-sm p-6 max-h-[85vh] overflow-y-auto scrollbar-hide">
             <h3 class="font-extrabold text-lg mb-5 text-center text-ac-text">{{ isEditMode ? '編輯行程筆記' : '新增行程筆記' }}</h3>
@@ -671,7 +648,7 @@
         </div>
     </div>
 
-    <!-- 2. 區域攻略專屬 Modal (設定地圖點) -->
+    <!-- 2. 區域地圖點 Modal -->
     <div v-if="showAreaModal" class="fixed inset-0 bg-[#5A4E45]/40 z-50 flex items-center justify-center p-5 backdrop-blur-sm animate-fade-in">
         <div class="bg-white rounded-[32px] border-2 border-ac-shadow shadow-soft w-full max-w-sm p-6 max-h-[95vh] overflow-y-auto scrollbar-hide">
             <h3 class="font-extrabold text-lg mb-5 text-center text-ac-text">新增沿途吃買點</h3>
@@ -727,7 +704,7 @@
     <!-- 3. 記帳 Modal -->
     <div v-if="showExpenseModal" class="fixed inset-0 bg-[#5A4E45]/40 z-50 flex items-center justify-center p-5 backdrop-blur-sm animate-fade-in">
         <div class="bg-white rounded-[32px] border-2 border-ac-shadow shadow-soft w-full max-w-sm p-6 max-h-[90vh] overflow-y-auto scrollbar-hide">
-            <h3 class="font-extrabold text-lg mb-5 text-center text-ac-text">新增公費 / 記一筆</h3>
+            <h3 class="font-extrabold text-lg mb-5 text-center text-ac-text">新增公費 / 記一筆 (雲端)</h3>
             
             <div class="grid grid-cols-2 gap-3 mb-4">
                 <input v-model="newExpense.date" type="date" class="ac-input font-bold">
@@ -786,7 +763,7 @@
         </div>
     </div>
 
-    <!-- 4. 準備區專用 Modal (想去/採購 共用) -->
+    <!-- 4. 準備區 Modal (想去/採購) -->
     <div v-if="showPrepModal" class="fixed inset-0 bg-[#5A4E45]/40 z-50 flex items-center justify-center p-5 backdrop-blur-sm animate-fade-in">
         <div class="bg-white rounded-[32px] border-2 border-ac-shadow shadow-soft w-full max-w-sm p-6">
             <h3 class="font-extrabold text-lg mb-5 text-center text-ac-text">{{ prepTab === 'wish' ? '新增想去願望' : '新增想買清單' }}</h3>
@@ -807,7 +784,7 @@
         </div>
     </div>
 
-    <!-- 5. 新增/編輯旅伴 Modal -->
+    <!-- 5. 旅伴 Modal -->
     <div v-if="showMemberModal" class="fixed inset-0 bg-[#5A4E45]/40 z-50 flex items-center justify-center p-5 backdrop-blur-sm animate-fade-in">
         <div class="bg-white rounded-[32px] border-2 border-ac-shadow shadow-soft w-full max-w-sm p-6">
             <h3 class="font-extrabold text-lg mb-5 text-center text-ac-text">{{ isEditMemberMode ? '編輯旅伴資料' : '新增同行旅伴' }}</h3>
@@ -840,8 +817,25 @@
 
 </div>
 
-<script>
-    const { createApp, ref, computed, onMounted } = Vue
+<!-- 直接使用 ES Module 載入 Firebase 並啟動 Vue，確保初始化順序 100% 正確 -->
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getFirestore, collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyD_Ivq8hdwSNOxogB8QuedFEn5nB_kVYvI",
+        authDomain: "osakap-b4c68.firebaseapp.com",
+        projectId: "osakap-b4c68",
+        storageBucket: "osakap-b4c68.firebasestorage.app",
+        messagingSenderId: "520160530827",
+        appId: "1:520160530827:web:28492385441ddad4581f8e",
+        measurementId: "G-SPG57Z5DBZ"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const { createApp, ref, computed, onMounted } = Vue;
 
     createApp({
         setup() {
@@ -882,10 +876,10 @@
             const currencyResult = ref(0);
             const insuranceFiles = ref([]);
 
-            const members = ref([
-                { id: '1', name: '黃一傑', role: '總召 / 導遊', avatar: null },
-                { id: '2', name: '旅伴A', role: '財務', avatar: null }
-            ]);
+            const members = ref([]);
+            const todoList = ref([]);
+            const wishList = ref([]);
+            const expenses = ref([]);
 
             const dates = ref([
                 { day: 'Day 1', date: '9/4 (五)' }, { day: 'Day 2', date: '9/5 (六)' },
@@ -1023,8 +1017,6 @@
                 }
             });
 
-            const todoList = ref([]);
-            const wishList = ref([]);
             const luggageData = ref([
                 { id: 'l1', category: '證件與錢財', text: '護照 (效期須大於半年)', done: false },
                 { id: 'l2', category: '證件與錢財', text: '日幣現金與信用卡', done: false },
@@ -1041,43 +1033,51 @@
                 { name: '唐吉訶德 免稅藥妝', image: null },
             ]);
 
-            const expenses = ref([]);
-
-            // Firebase 即時雲端同步初始化
+            // ================= 雲端即時同步核心監聽 =================
             onMounted(() => {
                 calculateCurrency();
-                const checkDbInterval = setInterval(() => {
-                    if (window.db && window.fb) {
-                        clearInterval(checkDbInterval);
-                        const { collection, onSnapshot } = window.fb;
 
-                        // 1. 即時監聽待辦
-                        onSnapshot(collection(window.db, "todos"), (snapshot) => {
-                            const list = [];
-                            snapshot.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
-                            todoList.value = list.length > 0 ? list : [
-                                { text: '確認網卡/eSIM 設定', done: false },
-                                { text: '下載 USJ 官方 App', done: true }
-                            ];
-                        });
-
-                        // 2. 即時監聽願望
-                        onSnapshot(collection(window.db, "wishes"), (snapshot) => {
-                            const list = [];
-                            snapshot.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
-                            wishList.value = list;
-                        });
-
-                        // 3. 即時監聽記帳
-                        onSnapshot(collection(window.db, "expenses"), (snapshot) => {
-                            const list = [];
-                            snapshot.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
-                            expenses.value = list.sort((a, b) => new Date(b.date) - new Date(a.date));
-                        });
+                // 1. 即時監聽成員名單
+                onSnapshot(collection(db, "members"), (snapshot) => {
+                    const list = [];
+                    snapshot.forEach(d => list.push({ id: d.id, ...d.data() }));
+                    if (list.length === 0) {
+                        // 首次建立預設成員
+                        addDoc(collection(db, "members"), { name: '黃一傑', role: '總召 / 導遊', avatar: null });
+                        addDoc(collection(db, "members"), { name: '旅伴A', role: '財務', avatar: null });
+                    } else {
+                        members.value = list;
                     }
-                }, 200);
+                });
+
+                // 2. 即時監聽待辦清單
+                onSnapshot(collection(db, "todos"), (snapshot) => {
+                    const list = [];
+                    snapshot.forEach(d => list.push({ id: d.id, ...d.data() }));
+                    if (list.length === 0 && todoList.value.length === 0) {
+                        addDoc(collection(db, "todos"), { text: '確認網卡/eSIM 設定', done: false });
+                        addDoc(collection(db, "todos"), { text: '下載 USJ 官方 App', done: true });
+                    } else {
+                        todoList.value = list;
+                    }
+                });
+
+                // 3. 即時監聽願望清單
+                onSnapshot(collection(db, "wishes"), (snapshot) => {
+                    const list = [];
+                    snapshot.forEach(d => list.push({ id: d.id, ...d.data() }));
+                    wishList.value = list;
+                });
+
+                // 4. 即時監聽記帳紀錄
+                onSnapshot(collection(db, "expenses"), (snapshot) => {
+                    const list = [];
+                    snapshot.forEach(d => list.push({ id: d.id, ...d.data() }));
+                    expenses.value = list.sort((a, b) => new Date(b.date) - new Date(a.date));
+                });
             });
 
+            // 計算屬性
             const groupedLuggage = computed(() => {
                 const groups = {};
                 luggageData.value.forEach(item => {
@@ -1133,9 +1133,7 @@
             };
 
             const handleImageError = (areaId) => {
-                if(areaData.value[areaId]) {
-                    areaData.value[areaId].hideImage = true;
-                }
+                if(areaData.value[areaId]) areaData.value[areaId].hideImage = true;
             };
             const replaceBaseMap = (event, areaId) => {
                 const file = event.target.files[0];
@@ -1149,6 +1147,7 @@
                 }
             };
 
+            // 操作邏輯 (支援 FAB 彈出與 Firestore 雲端寫入)
             const handleAddClick = () => {
                 if (currentTab.value === 'schedule') {
                     isEditMode.value = false;
@@ -1158,8 +1157,8 @@
                     openAreaModal('routeSpots');
                 } else if (currentTab.value === 'prep') {
                     if (prepTab.value === 'todo') {
-                        const newTodo = prompt("請輸入新增的待辦事項:");
-                        if(newTodo) addTodoToCloud(newTodo);
+                        const text = prompt("請輸入新增的待辦事項:");
+                        if(text) addTodoToCloud(text);
                     } else if (prepTab.value === 'luggage') {
                         const newLug = prompt("請輸入行李物品:");
                         if(newLug) luggageData.value.push({id: Date.now(), category:'自訂新增', text: newLug, done: false});
@@ -1170,40 +1169,133 @@
                         showPrepModal.value = true;
                     }
                 } else if (currentTab.value === 'expenses') {
-                    newExpense.value = { name: '', amount: null, category: 'food', date: new Date().toISOString().substring(0, 10), payment: 'cash', payer: members.value[0]?.name, splitAmong: members.value.map(m=>m.name), taxFree: false, note: '', receipt: null };
+                    newExpense.value = { name: '', amount: null, category: 'food', date: new Date().toISOString().substring(0, 10), payment: 'cash', payer: members.value[0]?.name || '', splitAmong: members.value.map(m=>m.name), taxFree: false, note: '', receipt: null };
                     showExpenseModal.value = true;
                 } else if (currentTab.value === 'members') {
                     isEditMemberMode.value = false;
-                    newMember.value = { id: Date.now(), name: '', role: '同行旅伴', avatar: null };
+                    newMember.value = { id: null, name: '', role: '同行旅伴', avatar: null };
                     showMemberModal.value = true;
                 }
             };
 
-            // 雲端資料操作
+            // 雲端待辦 CRUD
             const addTodoToCloud = async (text) => {
-                if (!window.db) return;
-                const { collection, addDoc } = window.fb;
-                await addDoc(collection(window.db, "todos"), { text, done: false });
+                try {
+                    await addDoc(collection(db, "todos"), { text, done: false });
+                } catch (err) {
+                    alert("新增失敗: " + err.message);
+                }
+            };
+
+            const addTodo = () => {
+                if(newTodoText.value.trim()){
+                    addTodoToCloud(newTodoText.value.trim());
+                    newTodoText.value = '';
+                }
             };
 
             const updateTodoStatus = async (item) => {
-                if (!window.db) return;
-                const { doc, updateDoc } = window.fb;
-                await updateDoc(doc(window.db, "todos", item.id), { done: item.done });
+                try {
+                    await updateDoc(doc(db, "todos", item.id), { done: item.done });
+                } catch (err) {
+                    console.error("更新失敗:", err);
+                }
             };
 
             const removeTodo = async (id) => {
-                if (!window.db) return;
-                const { doc, deleteDoc } = window.fb;
-                await deleteDoc(doc(window.db, "todos", id));
+                try {
+                    await deleteDoc(doc(db, "todos", id));
+                } catch (err) {
+                    console.error("刪除失敗:", err);
+                }
             };
 
+            // 雲端願望清單 CRUD
             const removeWish = async (id) => {
-                if (!window.db) return;
-                const { doc, deleteDoc } = window.fb;
-                await deleteDoc(doc(window.db, "wishes", id));
+                try {
+                    await deleteDoc(doc(db, "wishes", id));
+                } catch (err) {
+                    console.error("刪除失敗:", err);
+                }
             };
 
+            const savePrepItem = async () => {
+                if(!newPrepItem.value.name.trim()) return alert('請填寫名稱');
+                try {
+                    if(prepTab.value === 'wish') {
+                        await addDoc(collection(db, "wishes"), { name: newPrepItem.value.name, note: newPrepItem.value.note || '' });
+                    } else if(prepTab.value === 'shopping') {
+                        shoppingList.value.push({ name: newPrepItem.value.name, image: newPrepItem.value.image });
+                    }
+                    showPrepModal.value = false;
+                } catch (err) {
+                    alert("儲存失敗: " + err.message);
+                }
+            };
+
+            // 雲端記帳 CRUD
+            const addExpense = async () => {
+                if (!newExpense.value.name.trim() || !newExpense.value.amount || !newExpense.value.payer) return alert('請填寫完整資訊 (包含墊付人)');
+                if (newExpense.value.splitAmong.length === 0) return alert('請至少選擇一位分攤對象');
+                
+                try {
+                    await addDoc(collection(db, "expenses"), { ...newExpense.value, isExpanded: false });
+                    showExpenseModal.value = false;
+                } catch (err) {
+                    alert("儲存花費失敗: " + err.message);
+                }
+            };
+
+            const removeExpense = async (id) => {
+                if(confirm('確定刪除這筆花費？')) {
+                    try {
+                        await deleteDoc(doc(db, "expenses", id));
+                    } catch (err) {
+                        console.error("刪除花費失敗:", err);
+                    }
+                }
+            };
+
+            // 雲端旅伴 CRUD
+            const editMember = (member) => {
+                isEditMemberMode.value = true;
+                newMember.value = JSON.parse(JSON.stringify(member));
+                showMemberModal.value = true;
+            };
+
+            const saveMember = async () => {
+                if (!newMember.value.name.trim()) return alert('請輸入旅伴姓名！');
+                try {
+                    if (isEditMemberMode.value) {
+                        await updateDoc(doc(db, "members", newMember.value.id), {
+                            name: newMember.value.name,
+                            role: newMember.value.role,
+                            avatar: newMember.value.avatar || null
+                        });
+                    } else {
+                        await addDoc(collection(db, "members"), {
+                            name: newMember.value.name,
+                            role: newMember.value.role || '同行旅伴',
+                            avatar: newMember.value.avatar || null
+                        });
+                    }
+                    showMemberModal.value = false;
+                } catch (err) {
+                    alert("儲存旅伴失敗: " + err.message);
+                }
+            };
+
+            const removeMember = async (id) => {
+                if(confirm('確定要移除這位旅伴嗎？')) {
+                    try {
+                        await deleteDoc(doc(db, "members", id));
+                    } catch (err) {
+                        console.error("移除旅伴失敗:", err);
+                    }
+                }
+            };
+
+            // 行程 CRUD
             const editItem = (item) => {
                 isEditMode.value = true;
                 newItinerary.value = JSON.parse(JSON.stringify(item));
@@ -1218,7 +1310,7 @@
                 } else {
                     itineraryData.value[selectedDateIndex.value].push({ ...newItinerary.value, id: Date.now() });
                 }
-                itineraryData.value[selectedDateIndex.value].sort((a, b) => a.startTime.localeCompare(b.startTime));
+                itineraryData.value[selectedDateIndex.value].sort((a, b) => (a.startTime || '').localeCompare(b.startTime || ''));
                 showItineraryModal.value = false;
             };
 
@@ -1245,6 +1337,7 @@
             const moveItineraryUp = (id) => moveItinerary(id, -1);
             const moveItineraryDown = (id) => moveItinerary(id, 1);
 
+            // 區域攻略 CRUD
             const openAreaModal = (category) => {
                 newAreaNote.value = { type: category === 'routeSpots' ? 'food' : category, name: '', note: '', image: null, mapUrl: '', isMustBuy: false, x: 50, y: 50 };
                 showAreaModal.value = true;
@@ -1290,26 +1383,6 @@
                 }
             };
 
-            const addTodo = () => {
-                if(newTodoText.value.trim()){
-                    addTodoToCloud(newTodoText.value.trim());
-                    newTodoText.value = '';
-                }
-            };
-
-            const savePrepItem = async () => {
-                if(!newPrepItem.value.name.trim()) return alert('請填寫名稱');
-                if(prepTab.value === 'wish') {
-                    if (window.db) {
-                        const { collection, addDoc } = window.fb;
-                        await addDoc(collection(window.db, "wishes"), { name: newPrepItem.value.name, note: newPrepItem.value.note });
-                    }
-                } else if(prepTab.value === 'shopping') {
-                    shoppingList.value.push({ name: newPrepItem.value.name, image: newPrepItem.value.image });
-                }
-                showPrepModal.value = false;
-            };
-
             const handlePrepImageUpload = (event) => {
                 const file = event.target.files[0];
                 if (file) {
@@ -1318,9 +1391,6 @@
                     reader.readAsDataURL(file);
                 }
             };
-            
-            const handleImageUpload = handlePrepImageUpload; 
-            const removeShoppingItem = (idx) => shoppingList.value.splice(idx, 1);
 
             const handleInsuranceUpload = (event) => {
                 const file = event.target.files[0];
@@ -1347,49 +1417,6 @@
                 }
             };
 
-            const addExpense = async () => {
-                if (!newExpense.value.name.trim() || !newExpense.value.amount || !newExpense.value.payer) return alert('請填寫完整資訊 (包含墊付人)');
-                if (newExpense.value.splitAmong.length === 0) return alert('請至少選擇一位分攤對象');
-                
-                if (window.db) {
-                    const { collection, addDoc } = window.fb;
-                    await addDoc(collection(window.db, "expenses"), { ...newExpense.value, isExpanded: false });
-                }
-                showExpenseModal.value = false;
-            };
-
-            const removeExpense = async (id) => {
-                if(confirm('確定刪除這筆花費？')) {
-                    if (window.db) {
-                        const { doc, deleteDoc } = window.fb;
-                        await deleteDoc(doc(window.db, "expenses", id));
-                    }
-                }
-            };
-
-            const editMember = (member) => {
-                isEditMemberMode.value = true;
-                newMember.value = JSON.parse(JSON.stringify(member));
-                showMemberModal.value = true;
-            };
-
-            const saveMember = () => {
-                if (!newMember.value.name.trim()) return alert('請輸入旅伴姓名！');
-                if (isEditMemberMode.value) {
-                    const idx = members.value.findIndex(m => m.id === newMember.value.id);
-                    if (idx !== -1) members.value[idx] = { ...newMember.value };
-                } else {
-                    members.value.push({ ...newMember.value, id: Date.now() });
-                }
-                showMemberModal.value = false;
-            };
-
-            const removeMember = (id) => {
-                if(confirm('確定要移除這位旅伴嗎？')) {
-                    members.value = members.value.filter(m => m.id !== id);
-                }
-            };
-
             const handleMemberAvatarUpload = (event) => {
                 const file = event.target.files[0];
                 if (file) {
@@ -1406,9 +1433,9 @@
                 showExpenseModal, showPrepModal, showItineraryModal, showAreaModal, showMemberModal, isEditMode, isEditMemberMode,
                 newExpense, newPrepItem, newAreaNote, newItinerary, newMember,
                 formatNumber, calculateCurrency, getCategoryColor, getCategoryIcon, getCategoryLabel, getTransportBadgeInfo,
-                openMap, openSpecificMap, openMapDirections, handleAddClick, handleImageUpload, handleMemberAvatarUpload,
+                openMap, openSpecificMap, openMapDirections, handleAddClick, handlePrepImageUpload, handleMemberAvatarUpload,
                 editItem, saveItineraryItem, removeItineraryItem, moveItineraryUp, moveItineraryDown,
-                addTodo, savePrepItem, handlePrepImageUpload, removeShoppingItem,
+                addTodo, savePrepItem,
                 handleInsuranceUpload, removeInsurance,
                 addExpense, removeExpense, handleExpenseReceiptUpload,
                 editMember, saveMember, removeMember,
