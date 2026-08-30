@@ -403,21 +403,6 @@
                 </div>
             </div>
 
-            <!-- 想去 -->
-            <div v-if="prepTab === 'wish'" class="bg-white rounded-3xl border-2 border-ac-shadow shadow-soft p-5">
-                <h3 class="font-extrabold text-ac-text mb-4 text-lg border-b-2 border-dashed border-ac-shadow pb-3"><i class="fa-solid fa-heart text-[#2196F3] mr-2"></i> 想去的願望清單</h3>
-                <div class="space-y-4 mb-4">
-                    <div v-for="(item) in wishList" :key="item.id" class="bg-[#F9F6F0] p-4 rounded-2xl border border-[#E0E5D5] relative group">
-                        <div class="absolute top-2 right-2 flex space-x-1 opacity-100 transition-opacity">
-                            <button @click="editPrepItem(item)" class="text-ac-earth bg-white w-7 h-7 flex items-center justify-center rounded-full shadow-sm border border-[#E0E5D5] hover:bg-[#F0EBE1]"><i class="fa-solid fa-pencil text-[10px]"></i></button>
-                            <button @click="removeWish(item.id)" class="text-[#F2A6A6] bg-[#FFF0F0] w-7 h-7 flex items-center justify-center rounded-full shadow-sm border border-[#F9DADA] hover:bg-[#F2A6A6] hover:text-white"><i class="fa-solid fa-trash text-[10px]"></i></button>
-                        </div>
-                        <p class="font-extrabold text-ac-text pr-16">{{ item.name }}</p>
-                        <p v-if="item.note" class="text-xs text-ac-earth font-bold mt-1">{{ item.note }}</p>
-                    </div>
-                </div>
-            </div>
-
             <!-- 行李 -->
             <div v-if="prepTab === 'luggage'" class="bg-white rounded-3xl border-2 border-ac-shadow shadow-soft p-5">
                 <div class="flex justify-between items-center mb-4 border-b-2 border-dashed border-ac-shadow pb-3">
@@ -444,7 +429,7 @@
                 </div>
             </div>
 
-            <!-- ★ 採購清單 -->
+            <!-- 採購清單 -->
             <div v-if="prepTab === 'shopping'" class="space-y-6">
                 <div v-for="area in sortedShoppingAreas" :key="area.name" class="bg-white rounded-3xl border-2 border-ac-shadow shadow-soft p-5 relative">
                     <h4 class="font-extrabold text-[13px] text-white mb-4 bg-ac-earth px-3 py-1.5 rounded-lg inline-block shadow-sm">{{ area.name }}</h4>
@@ -452,6 +437,7 @@
                     <div class="space-y-4">
                         <div v-for="(item, idx) in area.items" :key="item.id" class="bg-[#F9F6F0] rounded-2xl border border-[#E0E5D5] p-3 relative group flex flex-col">
                             
+                            <!-- 編輯與刪除 -->
                             <div class="absolute top-3 right-3 flex space-x-1.5 opacity-100 transition-opacity">
                                 <button @click="editPrepItem(item)" class="bg-white text-ac-earth rounded-full w-8 h-8 flex items-center justify-center text-xs border border-ac-shadow shadow-sm hover:bg-[#F0EBE1]"><i class="fa-solid fa-pencil"></i></button>
                                 <button @click="removeShoppingItem(item.id)" class="bg-[#FFF0F0] text-[#F2A6A6] rounded-full w-8 h-8 flex items-center justify-center text-xs border border-[#F9DADA] shadow-sm hover:bg-[#F2A6A6] hover:text-white"><i class="fa-solid fa-trash"></i></button>
@@ -633,25 +619,34 @@
             </div>
         </div>
 
-        <!-- ================= 預訂/資訊 ================= -->
+        <!-- ================= ★ 全新：預訂資訊專區 (可編輯/可排序) ================= -->
         <div v-if="currentTab === 'info'" class="animate-fade-in space-y-5 pb-10">
-            <div class="bg-white rounded-3xl border-2 border-ac-shadow shadow-soft p-5">
-                <h3 class="font-extrabold text-ac-text mb-4 flex items-center border-b-2 border-dashed border-ac-shadow pb-3">
-                    <i class="fa-solid fa-ticket text-[#F2C879] mr-2 text-xl"></i> 遊樂園專區 (USJ)
+            
+            <div v-for="(item, idx) in bookings" :key="item.id" class="bg-white rounded-3xl border-2 border-ac-shadow shadow-soft p-5 relative group">
+                <div class="absolute top-3 right-3 flex space-x-1.5 opacity-100 transition-opacity z-10">
+                    <button v-if="idx > 0" @click="moveBooking(idx, -1)" class="w-7 h-7 bg-white border border-ac-shadow text-ac-earth rounded-full flex items-center justify-center text-[10px] shadow-sm hover:bg-[#F9F6F0]"><i class="fa-solid fa-arrow-up"></i></button>
+                    <button v-if="idx < bookings.length - 1" @click="moveBooking(idx, 1)" class="w-7 h-7 bg-white border border-ac-shadow text-ac-earth rounded-full flex items-center justify-center text-[10px] shadow-sm hover:bg-[#F9F6F0]"><i class="fa-solid fa-arrow-down"></i></button>
+                    <button @click="editBooking(item)" class="w-7 h-7 bg-white border border-ac-shadow text-ac-earth rounded-full flex items-center justify-center text-[10px] shadow-sm hover:bg-[#F9F6F0]"><i class="fa-solid fa-pencil"></i></button>
+                    <button @click="removeBooking(item.id)" class="w-7 h-7 bg-white border border-ac-shadow text-[#F2A6A6] rounded-full flex items-center justify-center text-[10px] shadow-sm hover:bg-[#FFF0F0]"><i class="fa-solid fa-trash"></i></button>
+                </div>
+                
+                <h3 class="font-extrabold text-ac-text mb-3 flex items-center text-lg pr-32">
+                    <div class="w-8 h-8 rounded-full flex items-center justify-center mr-2 text-white shadow-sm shrink-0" :class="getCategoryColor(item.category)">
+                        <i :class="getCategoryIcon(item.category)"></i>
+                    </div>
+                    {{ item.title }}
                 </h3>
+                
                 <div class="bg-[#F9F6F0] rounded-2xl p-4 border border-[#F0EBE1] relative overflow-hidden shadow-sm">
-                    <div class="absolute -right-4 -top-4 w-20 h-20 bg-[#FFF9E6] rounded-full opacity-60"></div>
-                    <span class="font-extrabold text-ac-text text-lg block mb-1 relative z-10">日本環球影城 VIP 管家帶遊</span>
-                    <span class="text-[11px] text-white font-bold bg-[#F2C879] px-2 py-0.5 rounded-md mb-3 inline-block relative z-10 shadow-sm">Day 4 (9/7) 專屬行程</span>
-                    <div class="text-xs text-ac-earth font-bold space-y-2.5 mt-1 relative z-10">
-                        <p class="flex items-start"><i class="fa-solid fa-location-dot w-4 text-center mr-1 mt-0.5 opacity-60 text-[#D2691E]"></i> <span class="flex-1">集合地點：園區 VIP 專屬通道</span></p>
-                        <p class="flex items-center"><i class="fa-solid fa-clock w-4 text-center mr-1 opacity-60"></i> <span class="flex-1">預約時間：07:30 抵達會合</span></p>
-                        <p class="flex items-start"><i class="fa-solid fa-wand-magic-sparkles w-4 text-center mr-1 mt-0.5 opacity-60 text-[#2196F3]"></i> <span class="flex-1 leading-relaxed">行程內容：VIP 專屬通道入園、瑪利歐園區保證入園、熱門設施快速通關、專人導覽解說。</span></p>
+                    <span v-if="item.badge" class="text-[11px] text-white font-bold px-2 py-0.5 rounded-md mb-3 inline-block shadow-sm" :class="getCategoryColor(item.category)">{{ item.badge }}</span>
+                    <div class="text-[13px] text-ac-earth font-bold whitespace-pre-line leading-relaxed">
+                        {{ item.content }}
                     </div>
                 </div>
             </div>
 
-            <div class="bg-ac-green rounded-3xl shadow-soft p-6 text-white relative overflow-hidden">
+            <!-- 常駐功能區塊放在最下方 -->
+            <div class="bg-ac-green rounded-3xl shadow-soft p-6 text-white relative overflow-hidden mt-8">
                 <div class="absolute -right-4 -top-4 w-24 h-24 bg-white/20 rounded-full blur-xl"></div>
                 <h3 class="font-extrabold text-lg mb-4 flex items-center relative z-10"><i class="fa-solid fa-calculator mr-2"></i> 快速匯率換算</h3>
                 <div class="flex items-center justify-between space-x-3 relative z-10">
@@ -670,30 +665,6 @@
                 <p class="text-[10px] text-[#D5E8DD] mt-3 text-right relative z-10">匯率基準: {{ EXCHANGE_RATE }}</p>
             </div>
 
-            <div class="bg-white rounded-3xl border-2 border-ac-shadow shadow-soft p-5">
-                <h3 class="font-extrabold text-ac-text mb-4 flex items-center border-b-2 border-dashed border-ac-shadow pb-3"><i class="fa-solid fa-plane text-[#B4A0E5] mr-2 text-xl"></i> 航班資訊</h3>
-                <div class="space-y-4">
-                    <div class="bg-[#F9F6F0] rounded-2xl p-4 border border-[#F0EBE1]">
-                        <div class="flex justify-between text-sm font-extrabold text-ac-text mb-2"><span>RMQ 台中</span><i class="fa-solid fa-plane-right text-ac-green"></i><span>UKB 神戶</span></div>
-                        <div class="flex justify-between text-xs text-ac-earth font-bold"><span>08:45</span><span>星宇航空 JX306 (9/4)</span><span>12:30</span></div>
-                    </div>
-                    <div class="bg-[#F9F6F0] rounded-2xl p-4 border border-[#F0EBE1]">
-                        <div class="flex justify-between text-sm font-extrabold text-ac-text mb-2"><span>UKB 神戶</span><i class="fa-solid fa-plane-right text-ac-earth"></i><span>RMQ 台中</span></div>
-                        <div class="flex justify-between text-xs text-ac-earth font-bold"><span>13:30</span><span>星宇航空 JX307 (9/9)</span><span>15:35</span></div>
-                    </div>
-                </div>
-            </div>
-            <div class="bg-white rounded-3xl border-2 border-ac-shadow shadow-soft p-5">
-                <h3 class="font-extrabold text-ac-text mb-4 flex items-center border-b-2 border-dashed border-ac-shadow pb-3"><i class="fa-solid fa-house-chimney text-[#B89B72] mr-2 text-xl"></i> 住宿資訊</h3>
-                <div class="bg-[#F9F6F0] rounded-2xl p-4 border border-[#F0EBE1]">
-                    <span class="font-extrabold text-ac-text text-lg block mb-1">住一難波南 3 號店</span>
-                    <span class="text-[11px] text-white font-bold bg-ac-earth px-2 py-0.5 rounded-md mb-3 inline-block">9/4 - 9/9 (5晚)</span>
-                    <div class="text-xs text-ac-earth font-bold space-y-2 mt-1">
-                        <p class="flex items-start"><i class="fa-solid fa-map-pin w-4 text-center mr-1 mt-0.5 opacity-60"></i> 大阪府大阪市西成區（難波南）</p>
-                        <p class="flex items-center"><i class="fa-solid fa-key w-4 text-center mr-1 opacity-60"></i> Check-in: 17:15</p>
-                    </div>
-                </div>
-            </div>
             <div class="bg-[#F9F6F0] rounded-3xl border-2 border-[#E0E5D5] p-5 text-center">
                 <p class="text-xs font-bold text-ac-earth mb-2"><i class="fa-solid fa-bullhorn mr-1"></i> 緊急聯絡</p>
                 <div class="flex justify-center space-x-4">
@@ -705,7 +676,7 @@
     </main>
 
     <!-- ================= FAB (懸浮新增按鈕) ================= -->
-    <button v-if="['schedule', 'prep', 'expenses', 'area', 'members'].includes(currentTab)" 
+    <button v-if="['schedule', 'prep', 'expenses', 'area', 'members', 'info'].includes(currentTab)" 
             @click="handleAddClick" 
             class="fixed bottom-24 right-6 w-14 h-14 bg-ac-green rounded-full shadow-soft text-white text-2xl flex items-center justify-center hover:scale-105 active:scale-95 active:shadow-soft-active transition-all z-40 border-2 border-white">
         <i class="fa-solid fa-plus"></i>
@@ -713,7 +684,34 @@
 
     <!-- ================= 彈出視窗 Modals ================= -->
     
-    <!-- ★ 優惠券 Modal (支援編輯) -->
+    <!-- ★ 預訂資訊 Modal -->
+    <div v-if="showBookingModal" class="fixed inset-0 bg-[#5A4E45]/60 z-50 flex items-center justify-center p-5 backdrop-blur-sm animate-fade-in">
+        <div class="bg-white rounded-[32px] border-2 border-ac-shadow shadow-soft w-full max-w-sm p-6 relative">
+            <h3 class="font-extrabold text-lg mb-5 text-center text-ac-text">{{ isEditBookingMode ? '編輯預訂資訊' : '新增預訂資訊' }}</h3>
+            
+            <div class="grid grid-cols-2 gap-3 mb-3">
+                <select v-model="newBooking.category" class="ac-input font-bold">
+                    <option value="flight">航班機票</option>
+                    <option value="stay">住宿飯店</option>
+                    <option value="ticket">門票/樂園</option>
+                    <option value="transport">包車/交通</option>
+                    <option value="food">餐廳預約</option>
+                    <option value="other">其他</option>
+                </select>
+                <input v-model="newBooking.badge" type="text" placeholder="標籤 (例: 9/4-9/9)" class="ac-input font-bold text-xs">
+            </div>
+            
+            <input v-model="newBooking.title" type="text" placeholder="標題名稱 (例: 住宿資訊)" class="ac-input font-bold mb-3">
+            <textarea v-model="newBooking.content" placeholder="詳細內容 (支援多行輸入)..." rows="5" class="ac-input mb-5 leading-relaxed"></textarea>
+            
+            <div class="flex space-x-3">
+                <button @click="showBookingModal = false" class="flex-1 py-3 rounded-2xl bg-[#F9F6F0] text-ac-earth font-bold text-sm border-2 border-ac-shadow">取消</button>
+                <button @click="saveBooking" class="flex-1 py-3 rounded-2xl bg-ac-green text-white font-bold text-sm shadow-sm border-2 border-ac-green">{{ isEditBookingMode ? '更新' : '儲存' }}</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 優惠券 Modal -->
     <div v-if="showCouponModal" class="fixed inset-0 bg-[#5A4E45]/60 z-50 flex items-center justify-center p-5 backdrop-blur-sm animate-fade-in">
         <div class="bg-white rounded-[32px] border-2 border-ac-shadow shadow-soft w-full max-w-sm p-6 relative">
             <h3 class="font-extrabold text-lg mb-5 text-center text-ac-text">{{ isEditCouponMode ? '編輯優惠券連結' : '新增優惠券連結' }}</h3>
@@ -764,7 +762,7 @@
         </div>
     </div>
 
-    <!-- 1. 全季節行李收納庫 Modal -->
+    <!-- 全季節行李收納庫 Modal -->
     <div v-if="showLuggageModal" class="fixed inset-0 bg-[#5A4E45]/60 z-50 flex items-center justify-center p-5 backdrop-blur-sm animate-fade-in">
         <div class="bg-white rounded-[32px] border-2 border-ac-shadow shadow-soft w-full max-w-md p-6 max-h-[90vh] flex flex-col relative">
             <h3 class="font-extrabold text-xl mb-1 text-center text-ac-text"><i class="fa-solid fa-box-archive text-ac-green mr-2"></i> 行李收納庫</h3>
@@ -789,7 +787,7 @@
         </div>
     </div>
 
-    <!-- 2. 行程 Modal -->
+    <!-- 行程 Modal -->
     <div v-if="showItineraryModal" class="fixed inset-0 bg-[#5A4E45]/40 z-50 flex items-center justify-center p-5 backdrop-blur-sm animate-fade-in">
         <div class="bg-white rounded-[32px] border-2 border-ac-shadow shadow-soft w-full max-w-sm p-6 max-h-[85vh] overflow-y-auto scrollbar-hide">
             <h3 class="font-extrabold text-lg mb-5 text-center text-ac-text">{{ isEditMode ? '編輯行程筆記' : '新增行程筆記' }}</h3>
@@ -832,7 +830,7 @@
         </div>
     </div>
 
-    <!-- 3. 區域地圖點 Modal -->
+    <!-- 區域地圖點 Modal -->
     <div v-if="showAreaModal" class="fixed inset-0 bg-[#5A4E45]/40 z-50 flex items-center justify-center p-5 backdrop-blur-sm animate-fade-in">
         <div class="bg-white rounded-[32px] border-2 border-ac-shadow shadow-soft w-full max-w-sm p-6 max-h-[95vh] overflow-y-auto scrollbar-hide">
             <h3 class="font-extrabold text-lg mb-5 text-center text-ac-text">新增沿途吃買點</h3>
@@ -885,7 +883,7 @@
         </div>
     </div>
 
-    <!-- 4. 記帳 Modal -->
+    <!-- 記帳 Modal -->
     <div v-if="showExpenseModal" class="fixed inset-0 bg-[#5A4E45]/60 z-50 flex items-center justify-center p-5 backdrop-blur-sm animate-fade-in">
         <div class="bg-white rounded-[32px] border-2 border-ac-shadow shadow-soft w-full max-w-sm p-6 max-h-[90vh] overflow-y-auto scrollbar-hide relative">
             <h3 class="font-extrabold text-lg mb-5 text-center text-ac-text">{{ isEditExpenseMode ? '編輯花費紀錄' : '新增花費紀錄' }}</h3>
@@ -907,7 +905,7 @@
 
             <div class="grid grid-cols-2 gap-3 mb-3">
                 <input v-model="newExpense.date" type="date" class="ac-input font-bold">
-                <!-- ★ 新增「還款/結清」類別 -->
+                <!-- 結清/轉帳類別 -->
                 <select v-model="newExpense.category" class="ac-input font-bold">
                     <option value="food">飲食</option>
                     <option value="shopping">購物</option>
@@ -915,7 +913,7 @@
                     <option value="ticket">門票</option>
                     <option value="stay">住宿</option>
                     <option value="other">其他</option>
-                    <option value="repayment">💸 還款/結清</option>
+                    <option value="repayment">💸 結清/轉帳</option>
                 </select>
             </div>
             
@@ -949,13 +947,13 @@
             </div>
 
             <div class="mb-4">
-                <label class="block text-[11px] font-extrabold text-ac-earth mb-2">墊付人 (誰先出錢的)</label>
+                <label class="block text-[11px] font-extrabold text-ac-earth mb-2">墊付人 (誰先出錢的 / <span class="text-ac-green">結清時選: 還錢的人</span>)</label>
                 <div class="flex space-x-2 mb-3">
                     <select v-model="newExpense.payer" class="ac-input font-bold text-xs py-1.5 flex-1 border-ac-green">
                         <option v-for="m in members" :key="m.id" :value="m.name">{{ m.name }} 代墊</option>
                     </select>
                 </div>
-                <label class="block text-[11px] font-extrabold text-ac-earth mb-2">分攤對象 (要分這筆錢的人)</label>
+                <label class="block text-[11px] font-extrabold text-ac-earth mb-2">分攤對象 (要分這筆錢的人 / <span class="text-[#F2A6A6]">結清時選: 收錢的人</span>)</label>
                 <div class="flex flex-wrap gap-1.5">
                     <label v-for="m in members" :key="m.id" class="flex items-center space-x-1.5 bg-white px-2 py-1 rounded-lg border border-[#E0E5D5] cursor-pointer hover:bg-[#F9F6F0]">
                         <input type="checkbox" :value="m.name" v-model="newExpense.splitAmong" class="ac-checkbox w-3 h-3 rounded shrink-0">
@@ -971,7 +969,7 @@
         </div>
     </div>
 
-    <!-- 5. 準備區 Modal (支援編輯) -->
+    <!-- 準備區 Modal (支援編輯) -->
     <div v-if="showPrepModal" class="fixed inset-0 bg-[#5A4E45]/60 z-50 flex items-center justify-center p-5 backdrop-blur-sm animate-fade-in">
         <div class="bg-white rounded-[32px] border-2 border-ac-shadow shadow-soft w-full max-w-sm p-6 relative">
             <h3 class="font-extrabold text-lg mb-5 text-center text-ac-text">
@@ -1022,7 +1020,7 @@
         </div>
     </div>
 
-    <!-- 6. 旅伴 Modal -->
+    <!-- 旅伴 Modal -->
     <div v-if="showMemberModal" class="fixed inset-0 bg-[#5A4E45]/40 z-50 flex items-center justify-center p-5 backdrop-blur-sm animate-fade-in">
         <div class="bg-white rounded-[32px] border-2 border-ac-shadow shadow-soft w-full max-w-sm p-6">
             <h3 class="font-extrabold text-lg mb-5 text-center text-ac-text">{{ isEditMemberMode ? '編輯旅伴資料' : '新增同行旅伴' }}</h3>
@@ -1042,16 +1040,6 @@
             </div>
         </div>
     </div>
-
-    <!-- ================= 底部導航 ================= -->
-    <nav class="bottom-nav">
-        <button @click="currentTab = 'schedule'" class="nav-btn" :class="{'active': currentTab === 'schedule'}"><i class="fa-solid fa-book-open text-xl mb-1"></i><span class="text-[10px] font-extrabold">手帳</span></button>
-        <button @click="currentTab = 'area'" class="nav-btn" :class="{'active': currentTab === 'area'}"><i class="fa-solid fa-map-location-dot text-xl mb-1"></i><span class="text-[10px] font-extrabold">攻略</span></button>
-        <button @click="currentTab = 'prep'" class="nav-btn" :class="{'active': currentTab === 'prep'}"><i class="fa-solid fa-suitcase-rolling text-xl mb-1"></i><span class="text-[10px] font-extrabold">準備</span></button>
-        <button @click="currentTab = 'expenses'" class="nav-btn" :class="{'active': currentTab === 'expenses'}"><i class="fa-solid fa-piggy-bank text-xl mb-1"></i><span class="text-[10px] font-extrabold">記帳</span></button>
-        <button @click="currentTab = 'members'" class="nav-btn" :class="{'active': currentTab === 'members'}"><i class="fa-solid fa-users text-xl mb-1"></i><span class="text-[10px] font-extrabold">旅伴</span></button>
-        <button @click="currentTab = 'info'" class="nav-btn" :class="{'active': currentTab === 'info'}"><i class="fa-solid fa-ticket text-xl mb-1"></i><span class="text-[10px] font-extrabold">預訂</span></button>
-    </nav>
 
 </div>
 
@@ -1106,6 +1094,8 @@
             const showLuggageModal = ref(false); 
             const showCouponModal = ref(false);
             const showMatchedShoppingModal = ref(false);
+            const showBookingModal = ref(false);
+
             const currentSpotName = ref('');
             
             const isEditMode = ref(false);
@@ -1113,6 +1103,7 @@
             const isEditPrepMode = ref(false);
             const isEditCouponMode = ref(false);
             const isEditExpenseMode = ref(false);
+            const isEditBookingMode = ref(false);
 
             const newExpense = ref({ 
                 id: null, name: '', amount: null, category: 'shopping', date: new Date().toISOString().substring(0, 10), 
@@ -1125,6 +1116,9 @@
             const newAreaNote = ref({ type: 'food', name: '', note: '', image: null, mapUrl: '', isMustBuy: false, x: 50, y: 50 });
             const newItinerary = ref({ id: null, name: '', category: 'sightseeing', startTime: '', hours: '', address: '', price: '', note: '', transportType: 'walk', travelTime: '', isNoteExpanded: false });
             const newMember = ref({ id: null, name: '', role: '同行旅伴', avatar: null });
+            
+            // ★ 新增：預訂資訊資料結構
+            const newBooking = ref({ id: null, category: 'flight', title: '', badge: '', content: '', order: 0 });
 
             const currencyInput = ref(10000);
             const currencyResult = ref(0);
@@ -1136,6 +1130,7 @@
             const shoppingList = ref([]); 
             const luggageData = ref([]);
             const coupons = ref([]);
+            const bookings = ref([]); // ★ 新增：動態預訂資訊庫
             const tempSelectedLuggage = ref([]);
 
             const LUGGAGE_TEMPLATE = [
@@ -1284,7 +1279,6 @@
                 }
             });
 
-            // ================= ★ 強大的前端圖片壓縮引擎 =================
             const compressImage = (file, maxWidth, callback) => {
                 const reader = new FileReader();
                 reader.readAsDataURL(file);
@@ -1303,46 +1297,21 @@
                         canvas.height = height;
                         const ctx = canvas.getContext('2d');
                         ctx.drawImage(img, 0, 0, width, height);
-                        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7); // 畫質設為 70% 大幅瘦身
+                        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7); 
                         callback(compressedDataUrl);
                     }
                 }
             };
 
-            // ================= ★ 智慧採購媒合核心演算法 =================
             const getShoppingRecommendation = (itemName) => {
                 const text = itemName.toLowerCase();
-                
-                // 服飾與鞋包
-                if (text.includes('uniqlo') || text.includes('優衣庫') || text.includes('gu')) return { tags: ['服飾', '心齋橋/梅田'], advice: '🏬 建議商店：UNIQLO / GU\n📌 Day 1：梅田 LUCUA 1100 (B1F)\n📌 Day 2：心齋橋筋商店街店\n📌 Day 5：梅田 LINKS UMEDA (超大旗艦店)' };
-                if (text.includes('鞋') || text.includes('球鞋') || text.includes('abc') || text.includes('nike') || text.includes('adidas')) return { tags: ['鞋包', '心齋橋/梅田'], advice: '🏬 建議商店：ABC-Mart Grand Stage 或 品牌直營店\n📌 Day 2：心齋橋筋商店街 或 心齋橋 PARCO\n📌 Day 5：梅田 GRAND FRONT 或 LUCUA' };
-                if (text.includes('衣服') || text.includes('服飾') || text.includes('外套')) return { tags: ['服飾', '多區皆可'], advice: '🏬 建議商店：LUCUA、心齋橋 PARCO、梅田各大百貨\n📌 Day 1：梅田 LUCUA (年輕流行品牌)\n📌 Day 2：心齋橋筋商店街 (街邊品牌店)' };
-
-                // 生活雜貨
-                if (text.includes('無印') || text.includes('muji')) return { tags: ['雜貨服飾', '梅田/難波'], advice: '🏬 建議商店：無印良品 (MUJI)\n📌 Day 1/5：梅田 GRAND FRONT (關西最大旗艦店)\n📌 Day 3：難波無印良品旗艦店' };
-                if (text.includes('風扇') || text.includes('3coins') || text.includes('大創') || text.includes('daiso') || text.includes('百元') || text.includes('雜貨') || text.includes('文具') || text.includes('loft')) return { tags: ['生活雜貨', '梅田/心齋橋'], advice: '🏬 建議商店：3COINS+plus, DAISO, Loft\n📌 Day 1：梅田 LUCUA (有 3COINS)\n📌 Day 2：心齋橋筋商店街 (有大型 DAISO)\n📌 Day 5：梅田商圈周邊' };
-
-                // 藥妝保健
-                if (text.includes('藥') || text.includes('妝') || text.includes('面膜') || text.includes('化妝水') || text.includes('保養') || text.includes('休足時間') || text.includes('合利他命') || text.includes('eve') || text.includes('wakamoto') || text.includes('腸胃')) return { tags: ['藥妝', '心齋橋/道頓堀'], advice: '🏬 建議商店：大國藥妝、松本清、唐吉訶德\n📌 Day 2 下午：心齋橋筋商店街 (大國/松本清，建議比價)\n📌 Day 2 晚上：道頓堀唐吉訶德 (可開到深夜，一次買齊免稅品)' };
-
-                // 3C 電器遊戲
-                if (text.includes('電器') || text.includes('吹風機') || text.includes('美容') || text.includes('耳機') || text.includes('相機') || text.includes('apple') || text.includes('蘋果')) return { tags: ['3C家電', '難波/梅田'], advice: '🏬 建議商店：EDION (愛電王)、Yodobashi (友都八喜)\n📌 Day 3：EDION 難波本店 (近難波飯店，買完直接放回房間)\n📌 Day 5：Yodobashi 梅田 (貨源最齊全的3C天堂)' };
-                
-                // 動漫玩具
-                if (text.includes('任天堂') || text.includes('nintendo') || text.includes('switch') || text.includes('遊戲') || text.includes('寶可夢') || text.includes('pokemon') || text.includes('公仔') || text.includes('jump') || text.includes('動漫') || text.includes('吉卜力') || text.includes('玩具')) return { tags: ['動漫玩具', '心齋橋/梅田'], advice: '🏬 建議商店：JUMP SHOP, 任天堂旗艦店, 寶可夢中心\n📌 Day 2：心齋橋 PARCO 6F (動漫周邊大本營，有 JUMP/吉卜力/哥吉拉)\n📌 Day 5：大丸梅田店 13F (任天堂大阪旗艦店 & 寶可夢中心)' };
-
-                // 食品伴手禮
-                if (text.includes('伴手禮') || text.includes('蛋糕') || text.includes('零食') || text.includes('甜點') || text.includes('巧克力') || text.includes('抹茶') || text.includes('餅乾') || text.includes('特產')) return { tags: ['食品伴手禮', '梅田/機場'], advice: '🏬 建議商店：各大百貨地下街 (Depachika)、機場免稅店\n📌 Day 5 晚上：梅田 阪急百貨 B1 (精緻排隊名店甜點)\n📌 Day 6 中午：關西機場免稅店 (回程最後掃貨免稅零食)' };
-                if (text.includes('超市') || text.includes('水果') || text.includes('和牛') || text.includes('泡麵') || text.includes('味噌')) return { tags: ['生鮮食品', '難波'], advice: '🏬 建議商店：在地大型超市 (如 Super Maruhachi)\n📌 Day 3 晚上：Super Maruhachi 難波店 (採買和牛、在地泡麵配料，體驗在地超市折扣)' };
-
-                // 專櫃精品
-                if (text.includes('精品') || text.includes('名牌') || text.includes('專櫃') || text.includes('lv') || text.includes('chanel') || text.includes('香水') || text.includes('celine')) return { tags: ['專櫃精品', '心齋橋/梅田'], advice: '🏬 建議商店：大丸百貨、高島屋、阪急百貨\n📌 Day 2：心齋橋 大丸百貨\n📌 Day 3：難波 高島屋\n📌 Day 5：梅田 阪急百貨 或 大丸百貨' };
-
-                // 預設 Fallback
-                return { 
-                    tags: ['綜合商場', '依行程順路買'], 
-                    advice: '🏬 建議商店：唐吉訶德 (綜合雜貨/零食)、各區百貨公司 (專櫃/服飾) 或 商店街\n📌 系統未能精準分類此商品，建議您可於【Day 2 心齋橋/道頓堀】的大型商場或唐吉訶德，或是【Day 5 梅田商圈】的各大百貨中尋找喔！' 
-                };
+                if (text.includes('uniqlo') || text.includes('優衣庫') || text.includes('衣服')) return { tags: ['服飾', '大阪多區'], advice: '📌 Day 1：LUCUA 大阪\n📌 Day 2：心齋橋筋商店街\n📌 Day 3：難波 CITY\n📌 Day 5：Yodobashi 梅田' };
+                if (text.includes('無印') || text.includes('muji')) return { tags: ['雜貨服飾', '梅田/難波'], advice: '📌 Day 1/5：GRAND FRONT OSAKA\n📌 Day 3：難波 CITY 周邊' };
+                if (text.includes('電器') || text.includes('吹風機') || text.includes('美容') || text.includes('耳機') || text.includes('相機') || text.includes('switch') || text.includes('遊戲')) return { tags: ['3C家電', '難波/梅田'], advice: '📌 Day 3：EDION 難波本店\n📌 Day 5：Yodobashi 梅田' };
+                if (text.includes('藥妝') || text.includes('藥') || text.includes('面膜') || text.includes('化妝水') || text.includes('保養') || text.includes('休足時間')) return { tags: ['藥妝', '心齋橋/道頓堀'], advice: '📌 Day 2 下午：心齋橋大國/松本清比價\n📌 Day 2 晚上：道頓堀唐吉訶德免稅' };
+                if (text.includes('伴手禮') || text.includes('蛋糕') || text.includes('零食') || text.includes('甜點')) return { tags: ['食品伴手禮', '梅田/機場'], advice: '📌 Day 5 晚上：阪急百貨 B1\n📌 Day 6：關西機場免稅店最後掃貨' };
+                if (text.includes('風扇') || text.includes('3coins') || text.includes('雜貨') || text.includes('百元')) return { tags: ['生活雜貨', '梅田/心齋橋'], advice: '📌 Day 1：LUCUA 大阪內的 3COINS+plus 或大創\n📌 Day 2：心齋橋筋商店街沿路' };
+                return { tags: ['自由安排', '隨逛隨買'], advice: '建議可於 Day 2 心齋橋 或 Day 5 梅田商圈逛街時購買。' };
             };
 
             const getMatchedShoppingItems = (spotName) => {
@@ -1391,7 +1360,6 @@
                 return Object.values(areasMap).filter(a => a.items.length > 0);
             });
 
-            // ================= 雲端即時同步核心監聽 =================
             onMounted(() => {
                 calculateCurrency();
 
@@ -1452,6 +1420,23 @@
                         coupons.value = list;
                     }
                 });
+
+                // ★ 監聽預訂資訊
+                onSnapshot(collection(window.db, "bookings"), (snapshot) => {
+                    const list = [];
+                    snapshot.forEach(d => list.push({ id: d.id, ...d.data() }));
+                    if (list.length === 0) {
+                        // 初始化載入 3 大預設資訊 (機票、住宿、USJ)
+                        const defaultBookings = [
+                            { category: 'flight', title: '航班資訊', badge: '星宇航空 (JX)', content: '🛫 去程 (9/4)：RMQ 台中 08:45 ➔ UKB 神戶 12:30\n🛬 回程 (9/9)：UKB 神戶 13:30 ➔ RMQ 台中 15:35', order: 1 },
+                            { category: 'stay', title: '住宿資訊', badge: '9/4 - 9/9 (5晚)', content: '📍 住一難波南 3 號店\n（大阪府大阪市西成區難波南）\n🔑 Check-in: 17:15', order: 2 },
+                            { category: 'ticket', title: '日本環球影城 VIP 管家帶遊', badge: 'Day 4 (9/7) 專屬行程', content: '📍 集合地點：園區 VIP 專屬通道\n🕒 預約時間：07:30 抵達會合\n✨ 行程內容：VIP 專屬通道入園、瑪利歐園區保證入園、熱門設施快速通關、專人導覽解說。', order: 3 }
+                        ];
+                        defaultBookings.forEach(async (b) => { await addDoc(collection(window.db, "bookings"), b); });
+                    } else {
+                        bookings.value = list.sort((a, b) => a.order - b.order);
+                    }
+                });
             });
 
             const currentMatchedItems = computed(() => getMatchedShoppingItems(currentSpotName.value));
@@ -1482,16 +1467,13 @@
                 expenses.value.forEach(exp => {
                     if(!exp.payer || !exp.splitAmong || exp.splitAmong.length === 0) return;
                     
-                    // 若這筆花費是「還款/結清」類別，邏輯反轉：
-                    // 墊付人(還錢的人)的應收增加(或應付減少)，分攤對象(收錢的人)的應收減少。
                     if (exp.category === 'repayment') {
-                        balances[exp.payer] += exp.amount; // 還錢的人給出錢了，所以他的帳戶增加
+                        balances[exp.payer] += exp.amount; 
                         const splitAmount = exp.amount / exp.splitAmong.length;
                         exp.splitAmong.forEach(person => {
-                            if(balances[person] !== undefined) balances[person] -= splitAmount; // 收到錢的人，他的應收款減少
+                            if(balances[person] !== undefined) balances[person] -= splitAmount; 
                         });
                     } else {
-                        // 正常花費邏輯
                         balances[exp.payer] += exp.amount;
                         const splitAmount = exp.amount / exp.splitAmong.length;
                         exp.splitAmong.forEach(person => {
@@ -1505,7 +1487,6 @@
             const currentItinerary = computed(() => itineraryData.value[selectedDateIndex.value] || []);
             const currentAreaEmbedUrl = computed(() => areas.value.find(a => a.id === selectedAreaId.value)?.embedUrl || '');
             
-            // 計算總花費時，扣除「還款/結清」的金額，避免總支出虛增
             const totalExpensesJPY = computed(() => expenses.value.reduce((sum, exp) => exp.category === 'repayment' ? sum : sum + (exp.amount || 0), 0));
             const totalExpensesTWD = computed(() => Math.round(totalExpensesJPY.value * EXCHANGE_RATE));
 
@@ -1583,6 +1564,10 @@
                     isEditMemberMode.value = false;
                     newMember.value = { id: null, name: '', role: '同行旅伴', avatar: null };
                     showMemberModal.value = true;
+                } else if (currentTab.value === 'info') {
+                    isEditBookingMode.value = false;
+                    newBooking.value = { id: null, category: 'flight', title: '', badge: '', content: '', order: 0 };
+                    showBookingModal.value = true;
                 }
             };
 
@@ -1863,13 +1848,65 @@
                 }
             };
 
+            // ★ 預訂資訊 CRUD
+            const editBooking = (item) => {
+                isEditBookingMode.value = true;
+                newBooking.value = JSON.parse(JSON.stringify(item));
+                showBookingModal.value = true;
+            };
+
+            const saveBooking = async () => {
+                if (!newBooking.value.title.trim()) return alert('請填寫標題！');
+                try {
+                    if (isEditBookingMode.value && newBooking.value.id) {
+                        await updateDoc(doc(window.db, "bookings", newBooking.value.id), {
+                            category: newBooking.value.category,
+                            title: newBooking.value.title,
+                            badge: newBooking.value.badge,
+                            content: newBooking.value.content
+                        });
+                    } else {
+                        const maxOrder = bookings.value.length > 0 ? Math.max(...bookings.value.map(b => b.order)) : 0;
+                        await addDoc(collection(window.db, "bookings"), {
+                            category: newBooking.value.category,
+                            title: newBooking.value.title,
+                            badge: newBooking.value.badge,
+                            content: newBooking.value.content,
+                            order: maxOrder + 1
+                        });
+                    }
+                    showBookingModal.value = false;
+                } catch (err) { alert('儲存預訂資訊失敗'); }
+            };
+
+            const removeBooking = async (id) => {
+                if(confirm('確定刪除此預訂資訊？')) await deleteDoc(doc(window.db, "bookings", id));
+            };
+
+            const moveBooking = async (idx, direction) => {
+                if (idx + direction < 0 || idx + direction >= bookings.value.length) return;
+                
+                const list = [...bookings.value];
+                const item = list.splice(idx, 1)[0];
+                list.splice(idx + direction, 0, item);
+                
+                list.forEach((b, i) => { b.order = i + 1; });
+                bookings.value = list;
+
+                if (window.db) {
+                    for (const b of list) {
+                        try { await updateDoc(doc(window.db, "bookings", b.id), { order: b.order }); } catch(e){}
+                    }
+                }
+            };
+
             return {
                 EXCHANGE_RATE, currentTab, dates, selectedDateIndex, weatherData, currentItinerary, currentAreaEmbedUrl,
                 prepTab, todoList, wishList, luggageData, groupedLuggage, shoppingList, newTodoText, coupons,
                 expenses, members, memberBalances, totalExpensesJPY, totalExpensesTWD, currencyInput, currencyResult,
-                showExpenseModal, showPrepModal, showItineraryModal, showAreaModal, showMemberModal, showLuggageModal, showCouponModal, showMatchedShoppingModal,
-                currentSpotName, currentMatchedItems, isEditMode, isEditMemberMode, isEditPrepMode, isEditCouponMode, isEditExpenseMode,
-                newExpense, newPrepItem, newCoupon, newAreaNote, newItinerary, newMember, tempSelectedLuggage, LUGGAGE_TEMPLATE, sortedShoppingAreas,
+                showExpenseModal, showPrepModal, showItineraryModal, showAreaModal, showMemberModal, showLuggageModal, showCouponModal, showMatchedShoppingModal, showBookingModal,
+                currentSpotName, currentMatchedItems, isEditMode, isEditMemberMode, isEditPrepMode, isEditCouponMode, isEditExpenseMode, isEditBookingMode,
+                newExpense, newPrepItem, newCoupon, newAreaNote, newItinerary, newMember, newBooking, bookings, tempSelectedLuggage, LUGGAGE_TEMPLATE, sortedShoppingAreas,
                 formatNumber, calculateCurrency, getCategoryColor, getCategoryIcon, getCategoryLabel, getTransportBadgeInfo, getMatchedShoppingItems,
                 openMap, openSpecificMap, openMapDirections, openMatchedShopping, goToShoppingList, handleAddClick, handlePrepImageUpload, handleMemberAvatarUpload, handleExpenseReceiptUpload, handleAreaImageUpload,
                 editItem, saveItineraryItem, removeItineraryItem, moveItineraryUp, moveItineraryDown,
@@ -1877,7 +1914,8 @@
                 saveExpense, removeExpense, editExpense,
                 editMember, saveMember, removeMember,
                 areas, selectedAreaId, areaData, openAreaModal, saveAreaNote, removeAreaNote, moveAreaNote, setMapPin, handleImageError, replaceBaseMap,
-                updateTodoStatus, removeTodo, removeWish, openLuggageVault, saveLuggageVault, updateLuggageStatus, removeLuggageItem
+                updateTodoStatus, removeTodo, removeWish, openLuggageVault, saveLuggageVault, updateLuggageStatus, removeLuggageItem,
+                editBooking, saveBooking, removeBooking, moveBooking
             };
         }
     }).mount('#app');
