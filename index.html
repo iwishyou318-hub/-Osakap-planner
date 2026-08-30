@@ -28,7 +28,6 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // 將 Firebase 工具與實體掛載到 window，供 Vue 使用
         window.db = db;
         window.fb = { collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc };
     </script>
@@ -105,7 +104,7 @@
             align-items: center;
             color: #B89B72;
             transition: all 0.2s ease;
-            width: 16.66%;
+            width: 20%;
         }
         .nav-btn.active {
             color: #8BBF9F;
@@ -363,11 +362,11 @@
 
     <!-- ================= 底部導航 ================= -->
     <nav class="bottom-nav">
-        <button @click="currentTab = 'schedule'" class="nav-btn" :class="{'active': currentTab === 'schedule'}"><i class="fa-solid fa-book-open text-xl mb-1"></i><span class="text-[10px] font-extrabold">手帳</span></button>
-        <button @click="currentTab = 'prep'" class="nav-btn" :class="{'active': currentTab === 'prep'}"><i class="fa-solid fa-suitcase-rolling text-xl mb-1"></i><span class="text-[10px] font-extrabold">準備</span></button>
-        <button @click="currentTab = 'expenses'" class="nav-btn" :class="{'active': currentTab === 'expenses'}"><i class="fa-solid fa-piggy-bank text-xl mb-1"></i><span class="text-[10px] font-extrabold">記帳</span></button>
-        <button @click="currentTab = 'members'" class="nav-btn" :class="{'active': currentTab === 'members'}"><i class="fa-solid fa-users text-xl mb-1"></i><span class="text-[10px] font-extrabold">旅伴</span></button>
-        <button @click="currentTab = 'info'" class="nav-btn" :class="{'active': currentTab === 'info'}"><i class="fa-solid fa-ticket text-xl mb-1"></i><span class="text-[10px] font-extrabold">預訂</span></button>
+        <button @click="currentTab = 'schedule'" class="nav-btn" :class="{'active': currentTab === 'schedule'}"><i class="fa-solid fa-book-open text-lg mb-1"></i><span class="text-[9px] font-extrabold">手帳</span></button>
+        <button @click="currentTab = 'prep'" class="nav-btn" :class="{'active': currentTab === 'prep'}"><i class="fa-solid fa-suitcase-rolling text-lg mb-1"></i><span class="text-[9px] font-extrabold">準備</span></button>
+        <button @click="currentTab = 'expenses'" class="nav-btn" :class="{'active': currentTab === 'expenses'}"><i class="fa-solid fa-piggy-bank text-lg mb-1"></i><span class="text-[9px] font-extrabold">記帳</span></button>
+        <button @click="currentTab = 'members'" class="nav-btn" :class="{'active': currentTab === 'members'}"><i class="fa-solid fa-users text-lg mb-1"></i><span class="text-[9px] font-extrabold">旅伴</span></button>
+        <button @click="currentTab = 'info'" class="nav-btn" :class="{'active': currentTab === 'info'}"><i class="fa-solid fa-ticket text-lg mb-1"></i><span class="text-[9px] font-extrabold">預訂</span></button>
     </nav>
 
 </div>
@@ -441,33 +440,25 @@
             const expenses = ref([]);
             const newTodoText = ref('');
 
-            // 雲端資料即時同步
             onMounted(() => {
                 calculateCurrency();
-                
-                // 檢查 window.db 是否就緒
                 const checkDbInterval = setInterval(() => {
                     if (window.db && window.fb) {
                         clearInterval(checkDbInterval);
                         const { collection, onSnapshot } = window.fb;
 
-                        // 1. 待辦事項監聽
                         onSnapshot(collection(window.db, "todos"), (snapshot) => {
                             const list = [];
                             snapshot.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
                             todoList.value = list;
-                        }, (error) => {
-                            console.error("待辦監聽失敗: ", error);
                         });
 
-                        // 2. 願望清單監聽
                         onSnapshot(collection(window.db, "wishes"), (snapshot) => {
                             const list = [];
                             snapshot.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
                             wishList.value = list;
                         });
 
-                        // 3. 記帳監聽
                         onSnapshot(collection(window.db, "expenses"), (snapshot) => {
                             const list = [];
                             snapshot.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
@@ -477,14 +468,9 @@
                 }, 200);
             });
 
-            // 寫入方法 (具備錯誤攔截提示)
             const addTodo = async () => {
                 if (!newTodoText.value.trim()) return;
                 try {
-                    if (!window.db) {
-                        alert("資料庫尚未初始化，請稍候再試");
-                        return;
-                    }
                     const { collection, addDoc } = window.fb;
                     await addDoc(collection(window.db, "todos"), { text: newTodoText.value.trim(), done: false });
                     newTodoText.value = '';
@@ -497,61 +483,44 @@
                 try {
                     const { doc, updateDoc } = window.fb;
                     await updateDoc(doc(window.db, "todos", item.id), { done: item.done });
-                } catch (err) {
-                    console.error(err);
-                }
+                } catch (err) { console.error(err); }
             };
 
             const removeTodo = async (id) => {
                 try {
                     const { doc, deleteDoc } = window.fb;
                     await deleteDoc(doc(window.db, "todos", id));
-                } catch (err) {
-                    console.error(err);
-                }
+                } catch (err) { console.error(err); }
             };
 
             const removeWish = async (id) => {
                 try {
                     const { doc, deleteDoc } = window.fb;
                     await deleteDoc(doc(window.db, "wishes", id));
-                } catch (err) {
-                    console.error(err);
-                }
+                } catch (err) { console.error(err); }
             };
 
             const removeExpense = async (id) => {
                 try {
                     const { doc, deleteDoc } = window.fb;
                     await deleteDoc(doc(window.db, "expenses", id));
-                } catch (err) {
-                    console.error(err);
-                }
+                } catch (err) { console.error(err); }
             };
 
             const updateLuggageStatus = (item) => {};
 
             const handleAddClick = async () => {
                 try {
-                    if (!window.db) {
-                        alert("資料庫尚未連線，請重新整理網頁");
-                        return;
-                    }
+                    if (!window.db) return;
                     const { collection, addDoc } = window.fb;
 
                     if (currentTab.value === 'prep') {
                         if (prepTab.value === 'todo') {
                             const text = prompt("請輸入新增的待辦事項:");
-                            if (text) {
-                                await addDoc(collection(window.db, "todos"), { text, done: false });
-                            }
+                            if (text) await addDoc(collection(window.db, "todos"), { text, done: false });
                         } else if (prepTab.value === 'wish') {
                             const name = prompt("請輸入想去的景點或願望:");
-                            if (name) {
-                                await addDoc(collection(window.db, "wishes"), { name, note: '' });
-                            }
-                        } else {
-                            alert("請先切換至「待辦」或「想去」分頁再點擊新增！");
+                            if (name) await addDoc(collection(window.db, "wishes"), { name, note: '' });
                         }
                     } else if (currentTab.value === 'expenses') {
                         const name = prompt("請輸入記帳項目名稱 (例: 晚餐燒肉):");
@@ -564,8 +533,6 @@
                                 payer: '黃一傑'
                             });
                         }
-                    } else {
-                        alert("目前頁面無法直接新增，請切換至「準備」或「記帳」分頁！");
                     }
                 } catch (err) {
                     alert("寫入發生錯誤: " + err.message);
