@@ -105,6 +105,7 @@
             color: #B89B72;
             transition: all 0.2s ease;
             width: 20%;
+            cursor: pointer;
         }
         .nav-btn.active {
             color: #8BBF9F;
@@ -427,7 +428,26 @@
                     { id: 109, name: '住一難波南 3 號店 Check-in', category: 'accommodation', startTime: '17:15', address: '住一難波南 3 號店', note: '入住放行李', transportType: 'walk' },
                     { id: 110, name: '難波/道頓堀商圈', category: 'sightseeing', startTime: '18:00', address: '道頓堀商圈', note: '自由活動晚餐', transportType: 'walk' }
                 ],
-                [], [], [], [], []
+                [
+                    { id: 201, name: '飯店出發 / 早餐', category: 'food', startTime: '08:30', address: '難波', note: '享用大阪在地早餐', transportType: 'walk' },
+                    { id: 202, name: '大阪環球影城 (USJ)', category: 'sightseeing', startTime: '09:30', address: '環球影城', note: '全日暢玩瑪利歐與哈利波特園區', transportType: 'metro', travelTime: '約 30 分鐘' }
+                ],
+                [
+                    { id: 301, name: '大阪城公園', category: 'sightseeing', startTime: '09:30', address: '大阪城', note: '漫步歷史古蹟', transportType: 'metro' },
+                    { id: 302, name: '心齋橋筋商店街', category: 'shopping', startTime: '14:00', address: '心齋橋', note: '藥妝與服飾血拚', transportType: 'walk' }
+                ],
+                [
+                    { id: 401, name: '黑門市場早市', category: 'food', startTime: '09:00', address: '黑門市場', note: '品嚐海鮮與水果', transportType: 'walk' },
+                    { id: 402, name: '梅田藍天大廈空中庭園', category: 'sightseeing', startTime: '16:00', address: '梅田藍天大廈', note: '欣賞大阪百萬夜景', transportType: 'metro' }
+                ],
+                [
+                    { id: 501, name: '通天閣 / 新世界本通', category: 'sightseeing', startTime: '10:00', address: '通天閣', note: '感受昭和復古風情', transportType: 'metro' },
+                    { id: 502, name: '道頓堀水上觀光船', category: 'sightseeing', startTime: '15:30', address: '道頓堀', note: '乘船遊覽霓虹街景', transportType: 'walk' }
+                ],
+                [
+                    { id: 601, name: '最後採購與打包行李', category: 'shopping', startTime: '09:30', address: '難波', note: '超商與伴手禮最後補貨', transportType: 'walk' },
+                    { id: 602, name: '關西機場 (KIX) 準備返台', category: 'flight', startTime: '14:00', address: '關西國際機場', note: '搭機返回溫暖的家', transportType: 'nankai', travelTime: '約 45 分鐘' }
+                ]
             ]);
 
             const todoList = ref([]);
