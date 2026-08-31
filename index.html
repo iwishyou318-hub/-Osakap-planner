@@ -186,11 +186,6 @@
                 <span class="text-[11px] text-ac-green font-bold bg-[#E8F2EC] px-3 py-1.5 rounded-full border border-[#D5E8DD]">{{ weatherData[selectedDateIndex].desc }}</span>
             </div>
 
-            <button v-if="currentItinerary.length > 0" @click="openDayRoute" class="w-full py-3 mb-6 bg-white text-ac-earth rounded-2xl font-extrabold border-2 border-ac-shadow shadow-sm flex items-center justify-center hover:bg-[#F9F6F0] active:scale-95 transition-all">
-                <div class="w-7 h-7 rounded-full bg-[#E3F2FD] text-[#2196F3] flex items-center justify-center mr-2"><i class="fa-solid fa-map-location-dot"></i></div>
-                將本日景點串聯至 Google 地圖路線
-            </button>
-
             <div class="space-y-5 relative pb-10">
                 <div class="absolute left-[35px] top-6 bottom-10 w-[3px] bg-ac-shadow rounded-full z-0"></div>
                 <div v-for="(item, idx) in currentItinerary" :key="item.id" class="relative z-10 flex items-stretch group">
@@ -229,14 +224,13 @@
                             </div>
                         </div>
 
-                        <!-- ★ 新增：四方向排序控制列 -->
                         <div class="mt-3 pt-3 border-t border-dashed border-ac-shadow flex items-center justify-between z-20 relative">
                             <span class="text-[10px] font-bold text-ac-earth bg-[#F9F6F0] px-2 py-1 rounded-md"><i class="fa-solid fa-sort mr-1"></i>順序調整</span>
                             <div class="flex space-x-1">
-                                <button v-if="selectedDateIndex > 0" @click.stop="moveItineraryDay(item.id, -1)" class="w-7 h-7 bg-[#F9F6F0] text-ac-earth rounded-full flex items-center justify-center text-xs hover:bg-[#E0E5D5]" title="移至前一天"><i class="fa-solid fa-chevron-left"></i></button>
-                                <button v-if="idx > 0" @click.stop="moveItineraryUp(item.id)" class="w-7 h-7 bg-[#F9F6F0] text-ac-earth rounded-full flex items-center justify-center text-xs hover:bg-[#E0E5D5]" title="上移"><i class="fa-solid fa-arrow-up"></i></button>
-                                <button v-if="idx < currentItinerary.length - 1" @click.stop="moveItineraryDown(item.id)" class="w-7 h-7 bg-[#F9F6F0] text-ac-earth rounded-full flex items-center justify-center text-xs hover:bg-[#E0E5D5]" title="下移"><i class="fa-solid fa-arrow-down"></i></button>
-                                <button v-if="selectedDateIndex < dates.length - 1" @click.stop="moveItineraryDay(item.id, 1)" class="w-7 h-7 bg-[#F9F6F0] text-ac-earth rounded-full flex items-center justify-center text-xs hover:bg-[#E0E5D5]" title="移至後一天"><i class="fa-solid fa-chevron-right"></i></button>
+                                <button v-if="selectedDateIndex > 0" @click.stop="moveItineraryDay(item.id, -1)" class="w-7 h-7 bg-white border border-ac-shadow text-ac-earth rounded-full flex items-center justify-center text-xs shadow-sm hover:bg-[#E0E5D5]" title="移至前一天"><i class="fa-solid fa-chevron-left"></i></button>
+                                <button v-if="idx > 0" @click.stop="moveItineraryUp(item.id)" class="w-7 h-7 bg-white border border-ac-shadow text-ac-earth rounded-full flex items-center justify-center text-xs shadow-sm hover:bg-[#E0E5D5]" title="上移"><i class="fa-solid fa-arrow-up"></i></button>
+                                <button v-if="idx < currentItinerary.length - 1" @click.stop="moveItineraryDown(item.id)" class="w-7 h-7 bg-white border border-ac-shadow text-ac-earth rounded-full flex items-center justify-center text-xs shadow-sm hover:bg-[#E0E5D5]" title="下移"><i class="fa-solid fa-arrow-down"></i></button>
+                                <button v-if="selectedDateIndex < dates.length - 1" @click.stop="moveItineraryDay(item.id, 1)" class="w-7 h-7 bg-white border border-ac-shadow text-ac-earth rounded-full flex items-center justify-center text-xs shadow-sm hover:bg-[#E0E5D5]" title="移至後一天"><i class="fa-solid fa-chevron-right"></i></button>
                             </div>
                         </div>
                     </div>
@@ -250,27 +244,23 @@
         <!-- ================= 2. 攻略 ================= -->
         <div v-if="currentTab === 'area'" class="animate-fade-in pb-10">
             
-            <!-- ★ 新增：攻略區域標籤，支援左右排序 -->
+            <!-- 攻略區域標籤，支援左右排序 -->
             <div class="flex overflow-x-auto space-x-3 pb-4 mb-2 -mx-5 px-5 scrollbar-hide sticky top-[110px] z-20 bg-[#F7F4EB]/90 backdrop-blur-sm pt-2">
                 <div v-for="(area, index) in areas" :key="area.id" class="flex-shrink-0 flex items-center h-[50px] rounded-2xl transition-all duration-200 font-bold border-2" :class="selectedAreaId === area.id ? 'bg-ac-earth text-white shadow-soft-active scale-95 border-ac-earth' : 'bg-white text-ac-text shadow-soft border-ac-shadow hover:bg-[#F9F6F0]'">
-                     <!-- 向左移 -->
                      <button v-if="selectedAreaId === area.id && index > 0" @click.stop="moveArea(index, -1)" class="h-full px-2 opacity-80 hover:opacity-100"><i class="fa-solid fa-chevron-left"></i></button>
-                     
                      <button @click="selectedAreaId = area.id" class="h-full px-3 flex items-center justify-center">
                          <i :class="'fa-solid ' + area.icon" class="mr-2 opacity-80"></i><span class="text-sm">{{ area.name }}</span>
                      </button>
-                     
-                     <!-- 向右移 -->
                      <button v-if="selectedAreaId === area.id && index < areas.length - 1" @click.stop="moveArea(index, 1)" class="h-full px-2 opacity-80 hover:opacity-100"><i class="fa-solid fa-chevron-right"></i></button>
                 </div>
             </div>
 
-            <!-- 滿版地圖區塊 -->
+            <!-- 地圖區塊 -->
             <div class="mb-8 -mx-5 bg-white border-y-2 border-ac-shadow shadow-soft relative" v-if="areaData[selectedAreaId]?.routeImage && !areaData[selectedAreaId]?.hideImage">
                 <div class="flex justify-between items-center mb-3 px-5 pt-4 relative z-20">
                     <h3 class="font-extrabold text-ac-text text-lg flex items-center">
                         <div class="w-8 h-8 rounded-full bg-[#FFF3E0] text-[#FF9800] flex items-center justify-center mr-2"><i class="fa-solid fa-map-location-dot"></i></div>
-                        區域吃買地圖
+                        區域地圖
                     </h3>
                     <label class="text-[11px] bg-ac-earth text-white px-3 py-1.5 rounded-xl cursor-pointer shadow-sm font-bold flex items-center active:scale-95 transition-transform">
                         <i class="fa-solid fa-image mr-1"></i> 更換底圖
@@ -290,8 +280,6 @@
                                   :class="spot.type === 'food' ? 'bg-[#F2A6A6]' : 'bg-[#F2C879]'">
                                 {{ idx + 1 }}
                             </span>
-                            
-                            <!-- 必買小紅點 -->
                             <span v-if="getMatchedShoppingItems(spot.name).length > 0" class="absolute -top-1 -right-1 w-3.5 h-3.5 bg-[#F2A6A6] text-white flex items-center justify-center rounded-full border border-white shadow-sm z-20">
                                 <i class="fa-solid fa-heart text-[6px]"></i>
                             </span>
@@ -310,15 +298,10 @@
                 <div class="flex justify-between items-center mb-4 border-b-2 border-dashed border-ac-shadow pb-3">
                     <h3 class="font-extrabold text-ac-text text-lg flex items-center">
                         <div class="w-8 h-8 rounded-full bg-[#FFF0F0] text-[#F2A6A6] flex items-center justify-center mr-2"><i class="fa-solid fa-route"></i></div>
-                        沿途吃買攻略清單
+                        沿途吃買清單
                     </h3>
                     <button @click="openAreaModal('routeSpots')" class="text-xs text-ac-green bg-[#E8F2EC] px-3 py-1.5 rounded-xl font-bold hover:bg-[#D5E8DD] transition-colors"><i class="fa-solid fa-plus mr-1"></i>新增</button>
                 </div>
-
-                <button v-if="areaData[selectedAreaId]?.routeSpots?.length > 0" @click="openAreaRoute" class="w-full py-3 mb-5 bg-white text-ac-earth rounded-2xl font-extrabold border-2 border-ac-shadow shadow-sm flex items-center justify-center hover:bg-[#F9F6F0] active:scale-95 transition-all">
-                    <div class="w-7 h-7 rounded-full bg-[#FFF0F0] text-[#F2A6A6] flex items-center justify-center mr-2"><i class="fa-solid fa-route"></i></div>
-                    將本區景點串聯至 Google 地圖路線
-                </button>
 
                 <div class="space-y-4 relative pb-4">
                     <div class="absolute left-[20px] top-4 bottom-4 w-[2px] bg-ac-shadow z-0"></div>
@@ -339,19 +322,23 @@
                                 <i class="fa-solid fa-star mr-1 text-[#FFF9E6]"></i>必買清單 ({{ getMatchedShoppingItems(item.name).length }})
                             </div>
 
-                            <p class="font-extrabold text-[15px] text-ac-text mb-1 cursor-pointer hover:text-ac-green transition-colors pr-12" @click="openSpecificMap(item)">
+                            <p class="font-extrabold text-[15px] text-ac-text mb-1 cursor-pointer pr-12" @click="openSpecificMap(item)">
                                 {{ item.name }} <i class="fa-solid fa-location-dot text-[10px] ml-1 text-[#D2691E] opacity-80"></i>
                             </p>
                             
                             <img v-if="item.image" :src="item.image" class="w-full h-28 object-cover rounded-xl mb-2 border border-[#E0E5D5]">
                             <p v-if="item.note" class="text-xs text-ac-earth font-bold whitespace-pre-line mt-1">{{ item.note }}</p>
 
+                            <!-- ★ 攻略景點編輯與跨區移動列 -->
                             <div class="mt-3 pt-3 border-t border-dashed border-ac-shadow flex items-center justify-between">
-                                <span class="text-[10px] font-bold text-ac-earth"><i class="fa-solid fa-sort mr-1"></i>調整</span>
+                                <span class="text-[10px] font-bold text-ac-earth"><i class="fa-solid fa-sort mr-1"></i>調整位置</span>
                                 <div class="flex space-x-1">
-                                    <button v-if="idx > 0" @click.stop="moveAreaNote('routeSpots', idx, -1)" class="w-7 h-7 bg-white border border-ac-shadow text-ac-earth rounded-full flex items-center justify-center text-xs shadow-sm hover:bg-[#E0E5D5]"><i class="fa-solid fa-arrow-up"></i></button>
-                                    <button v-if="idx < (areaData[selectedAreaId]?.routeSpots.length - 1)" @click.stop="moveAreaNote('routeSpots', idx, 1)" class="w-7 h-7 bg-white border border-ac-shadow text-ac-earth rounded-full flex items-center justify-center text-xs shadow-sm hover:bg-[#E0E5D5]"><i class="fa-solid fa-arrow-down"></i></button>
-                                    <button @click.stop="removeAreaNote('routeSpots', idx)" class="w-7 h-7 bg-[#FFF0F0] text-[#F2A6A6] border border-[#F9DADA] rounded-full flex items-center justify-center text-xs shadow-sm hover:bg-[#F2A6A6] hover:text-white"><i class="fa-solid fa-trash"></i></button>
+                                    <button v-if="getAreaIndex(selectedAreaId) > 0" @click.stop="moveAreaItemToOtherArea('routeSpots', idx, -1)" class="w-7 h-7 bg-white border border-ac-shadow text-ac-earth rounded-full flex items-center justify-center text-xs shadow-sm hover:bg-[#E0E5D5]" title="移至前一區"><i class="fa-solid fa-chevron-left"></i></button>
+                                    <button v-if="idx > 0" @click.stop="moveAreaNote('routeSpots', idx, -1)" class="w-7 h-7 bg-white border border-ac-shadow text-ac-earth rounded-full flex items-center justify-center text-xs shadow-sm hover:bg-[#E0E5D5]" title="上移"><i class="fa-solid fa-arrow-up"></i></button>
+                                    <button v-if="idx < (areaData[selectedAreaId]?.routeSpots.length - 1)" @click.stop="moveAreaNote('routeSpots', idx, 1)" class="w-7 h-7 bg-white border border-ac-shadow text-ac-earth rounded-full flex items-center justify-center text-xs shadow-sm hover:bg-[#E0E5D5]" title="下移"><i class="fa-solid fa-arrow-down"></i></button>
+                                    <button v-if="getAreaIndex(selectedAreaId) < areas.length - 1" @click.stop="moveAreaItemToOtherArea('routeSpots', idx, 1)" class="w-7 h-7 bg-white border border-ac-shadow text-ac-earth rounded-full flex items-center justify-center text-xs shadow-sm hover:bg-[#E0E5D5]" title="移至下一區"><i class="fa-solid fa-chevron-right"></i></button>
+                                    <button @click.stop="editAreaItem(item, 'routeSpots', idx)" class="w-7 h-7 bg-white border border-ac-shadow text-ac-earth rounded-full flex items-center justify-center text-[10px] shadow-sm hover:bg-[#E0E5D5]" title="編輯"><i class="fa-solid fa-pencil"></i></button>
+                                    <button @click.stop="removeAreaNote('routeSpots', idx)" class="w-7 h-7 bg-[#FFF0F0] text-[#F2A6A6] border border-[#F9DADA] rounded-full flex items-center justify-center text-[10px] shadow-sm hover:bg-[#F2A6A6] hover:text-white" title="刪除"><i class="fa-solid fa-trash"></i></button>
                                 </div>
                             </div>
                         </div>
@@ -386,6 +373,21 @@
                 <div class="flex items-center space-x-2">
                     <input v-model="newTodoText" @keyup.enter="addTodo" type="text" placeholder="新增待辦事項..." class="ac-input flex-1 !py-2">
                     <button @click="addTodo" class="bg-[#F2A6A6] text-white w-10 h-10 rounded-xl shadow-sm"><i class="fa-solid fa-plus"></i></button>
+                </div>
+            </div>
+
+            <!-- 想去 -->
+            <div v-if="prepTab === 'wish'" class="bg-white rounded-3xl border-2 border-ac-shadow shadow-soft p-5">
+                <h3 class="font-extrabold text-ac-text mb-4 text-lg border-b-2 border-dashed border-ac-shadow pb-3"><i class="fa-solid fa-heart text-[#2196F3] mr-2"></i> 想去的願望清單</h3>
+                <div class="space-y-4 mb-4">
+                    <div v-for="(item) in wishList" :key="item.id" class="bg-[#F9F6F0] p-4 rounded-2xl border border-[#E0E5D5] relative group">
+                        <div class="absolute top-2 right-2 flex space-x-1 opacity-100 transition-opacity">
+                            <button @click="editPrepItem(item)" class="text-ac-earth bg-white w-7 h-7 flex items-center justify-center rounded-full shadow-sm border border-[#E0E5D5] hover:bg-[#F0EBE1]"><i class="fa-solid fa-pencil text-[10px]"></i></button>
+                            <button @click="removeWish(item.id)" class="text-[#F2A6A6] bg-[#FFF0F0] w-7 h-7 flex items-center justify-center rounded-full shadow-sm border border-[#F9DADA] hover:bg-[#F2A6A6] hover:text-white"><i class="fa-solid fa-trash text-[10px]"></i></button>
+                        </div>
+                        <p class="font-extrabold text-ac-text pr-16">{{ item.name }}</p>
+                        <p v-if="item.note" class="text-xs text-ac-earth font-bold mt-1">{{ item.note }}</p>
+                    </div>
                 </div>
             </div>
 
@@ -841,10 +843,10 @@
         </div>
     </div>
 
-    <!-- 區域地圖點 Modal -->
+    <!-- ★ 區域地圖點 Modal (支援編輯) -->
     <div v-if="showAreaModal" class="fixed inset-0 bg-[#5A4E45]/40 z-50 flex items-center justify-center p-5 backdrop-blur-sm animate-fade-in">
         <div class="bg-white rounded-[32px] border-2 border-ac-shadow shadow-soft w-full max-w-sm p-6 max-h-[95vh] overflow-y-auto scrollbar-hide">
-            <h3 class="font-extrabold text-lg mb-5 text-center text-ac-text">新增沿途吃買點</h3>
+            <h3 class="font-extrabold text-lg mb-5 text-center text-ac-text">{{ isEditAreaMode ? '編輯沿途吃買點' : '新增沿途吃買點' }}</h3>
             <div class="space-y-4">
                 <div class="flex space-x-2 bg-[#F9F6F0] p-1 rounded-xl border-2 border-ac-shadow">
                     <button @click="newAreaNote.type = 'food'" class="flex-1 py-2 rounded-lg text-sm font-bold transition-colors" :class="newAreaNote.type === 'food' ? 'bg-[#FFF0F0] text-[#F2A6A6]' : 'text-ac-earth'">美食點</button>
@@ -889,7 +891,7 @@
             </div>
             <div class="flex space-x-3 mt-6">
                 <button @click="showAreaModal = false" class="flex-1 py-3 rounded-2xl bg-[#F9F6F0] text-ac-earth font-bold text-sm border-2 border-ac-shadow">取消</button>
-                <button @click="saveAreaNote" class="flex-1 py-3 rounded-2xl bg-ac-earth text-white font-bold text-sm shadow-sm border-2 border-ac-earth">新增至路線</button>
+                <button @click="saveAreaNote" class="flex-1 py-3 rounded-2xl bg-ac-earth text-white font-bold text-sm shadow-sm border-2 border-ac-earth">{{ isEditAreaMode ? '更新至路線' : '新增至路線' }}</button>
             </div>
         </div>
     </div>
@@ -1004,7 +1006,7 @@
                 </label>
             </div>
 
-            <input v-model="newPrepItem.name" type="text" placeholder="商品/地點名稱 (例: 任天堂、合利他命)" class="ac-input font-bold mb-3 border-[#F2C879]/30">
+            <input v-model="newPrepItem.name" type="text" placeholder="商品/地點名稱 (輸入後管家會自動分類)" class="ac-input font-bold mb-3 border-[#F2C879]/30">
             
             <div v-if="prepTab === 'shopping'" class="grid grid-cols-2 gap-3 mb-3">
                 <div>
@@ -1120,6 +1122,11 @@
             const isEditCouponMode = ref(false);
             const isEditExpenseMode = ref(false);
             const isEditBookingMode = ref(false);
+            
+            // ★ 新增：攻略區編輯變數
+            const isEditAreaMode = ref(false);
+            const editAreaCategory = ref('');
+            const editAreaIndex = ref(null);
 
             const newExpense = ref({ 
                 id: null, name: '', amount: null, category: 'shopping', date: new Date().toISOString().substring(0, 10), 
@@ -1132,7 +1139,6 @@
             const newAreaNote = ref({ type: 'food', name: '', note: '', image: null, mapUrl: '', isMustBuy: false, x: 50, y: 50 });
             const newItinerary = ref({ id: null, name: '', category: 'sightseeing', startTime: '', hours: '', address: '', price: '', note: '', transportType: 'walk', travelTime: '', isNoteExpanded: false });
             const newMember = ref({ id: null, name: '', role: '同行旅伴', avatar: null });
-            
             const newBooking = ref({ id: null, category: 'flight', title: '', badge: '', content: '', order: 0 });
 
             const currencyInput = ref(10000);
@@ -1588,7 +1594,9 @@
                     newItinerary.value = { id: Date.now(), name: '', category: 'sightseeing', startTime: '', hours: '', address: '', price: '', note: '', transportType: 'walk', travelTime: '', isNoteExpanded: false };
                     showItineraryModal.value = true;
                 } else if (currentTab.value === 'area') {
-                    openAreaModal('routeSpots');
+                    isEditAreaMode.value = false;
+                    newAreaNote.value = { type: 'food', name: '', note: '', image: null, mapUrl: '', isMustBuy: false, x: 50, y: 50 };
+                    showAreaModal.value = true;
                 } else if (currentTab.value === 'prep') {
                     if (prepTab.value === 'todo') {
                         const text = prompt("請輸入新增的待辦事項:");
@@ -1864,8 +1872,7 @@
             };
             const moveItineraryUp = (id) => moveItinerary(id, -1);
             const moveItineraryDown = (id) => moveItinerary(id, 1);
-
-            // ★ 新增：左右移動行程天數功能
+            
             const moveItineraryDay = (id, direction) => {
                 const currentList = itineraryData.value[selectedDateIndex.value];
                 const idx = currentList.findIndex(item => item.id === id);
@@ -1879,8 +1886,14 @@
                 }
             };
 
-            const openAreaModal = (category) => {
-                newAreaNote.value = { type: category === 'routeSpots' ? 'food' : category, name: '', note: '', image: null, mapUrl: '', isMustBuy: false, x: 50, y: 50 };
+            // ★ 攻略區編輯與跨區移動邏輯
+            const getAreaIndex = (id) => areas.value.findIndex(a => a.id === id);
+
+            const editAreaItem = (item, category, idx) => {
+                isEditAreaMode.value = true;
+                editAreaCategory.value = category;
+                editAreaIndex.value = idx;
+                newAreaNote.value = JSON.parse(JSON.stringify(item));
                 showAreaModal.value = true;
             };
 
@@ -1895,10 +1908,22 @@
             const saveAreaNote = () => {
                 if (!newAreaNote.value.name.trim()) return alert('請填寫名稱！');
                 const targetArrayName = newAreaNote.value.type === 'transport' ? 'transport' : 'routeSpots';
+                
                 if (!areaData.value[selectedAreaId.value][targetArrayName]) {
                     areaData.value[selectedAreaId.value][targetArrayName] = [];
                 }
-                areaData.value[selectedAreaId.value][targetArrayName].push({ ...newAreaNote.value });
+
+                if (isEditAreaMode.value) {
+                    const oldCat = editAreaCategory.value;
+                    if (oldCat === targetArrayName) {
+                        areaData.value[selectedAreaId.value][targetArrayName][editAreaIndex.value] = { ...newAreaNote.value };
+                    } else {
+                        areaData.value[selectedAreaId.value][oldCat].splice(editAreaIndex.value, 1);
+                        areaData.value[selectedAreaId.value][targetArrayName].push({ ...newAreaNote.value });
+                    }
+                } else {
+                    areaData.value[selectedAreaId.value][targetArrayName].push({ ...newAreaNote.value });
+                }
                 showAreaModal.value = false;
             };
 
@@ -1915,7 +1940,24 @@
                 }
             };
 
-            // ★ 新增：左右調整攻略區域標籤功能
+            const moveAreaItemToOtherArea = (category, index, direction) => {
+                const currentAreaIdx = getAreaIndex(selectedAreaId.value);
+                const targetAreaIdx = currentAreaIdx + direction;
+                
+                if (targetAreaIdx >= 0 && targetAreaIdx < areas.value.length) {
+                    const targetAreaId = areas.value[targetAreaIdx].id;
+                    const item = areaData.value[selectedAreaId.value][category].splice(index, 1)[0];
+                    
+                    if (!areaData.value[targetAreaId]) {
+                        areaData.value[targetAreaId] = { routeSpots: [], transport: [], routeImage: null, hideImage: false };
+                    }
+                    if (!areaData.value[targetAreaId][category]) {
+                        areaData.value[targetAreaId][category] = [];
+                    }
+                    areaData.value[targetAreaId][category].push(item);
+                }
+            };
+
             const moveArea = (index, direction) => {
                 const targetIndex = index + direction;
                 if (targetIndex >= 0 && targetIndex < areas.value.length) {
@@ -1976,19 +2018,19 @@
             };
 
             return {
-                EXCHANGE_RATE, currentTab, dates, selectedDateIndex, weatherData, currentItinerary,
+                EXCHANGE_RATE, currentTab, dates, selectedDateIndex, weatherData, currentItinerary, currentAreaEmbedUrl,
                 prepTab, todoList, wishList, luggageData, groupedLuggage, shoppingList, newTodoText, coupons,
                 expenses, members, memberBalances, totalExpensesJPY, totalExpensesTWD, currencyInput, currencyResult,
                 showExpenseModal, showPrepModal, showItineraryModal, showAreaModal, showMemberModal, showLuggageModal, showCouponModal, showMatchedShoppingModal, showBookingModal,
-                currentSpotName, currentMatchedItems, isEditMode, isEditMemberMode, isEditPrepMode, isEditCouponMode, isEditExpenseMode, isEditBookingMode,
+                currentSpotName, currentMatchedItems, isEditMode, isEditMemberMode, isEditPrepMode, isEditCouponMode, isEditExpenseMode, isEditBookingMode, isEditAreaMode,
                 newExpense, newPrepItem, newCoupon, newAreaNote, newItinerary, newMember, newBooking, bookings, tempSelectedLuggage, LUGGAGE_TEMPLATE, sortedShoppingAreas,
-                formatNumber, calculateCurrency, getCategoryColor, getCategoryIcon, getCategoryLabel, getTransportBadgeInfo, getMatchedShoppingItems, getItemRec,
+                formatNumber, calculateCurrency, getCategoryColor, getCategoryIcon, getCategoryLabel, getTransportBadgeInfo, getMatchedShoppingItems, getItemRec, getAreaIndex,
                 openMap, openSpecificMap, openMapDirections, openDayRoute, openAreaRoute, openMatchedShopping, goToShoppingList, handleAddClick, handlePrepImageUpload, handleMemberAvatarUpload, handleExpenseReceiptUpload, handleAreaImageUpload,
                 editItem, saveItineraryItem, removeItineraryItem, moveItineraryUp, moveItineraryDown, moveItineraryDay,
                 addTodo, editPrepItem, savePrepItem, removeShoppingItem, editCoupon, saveCoupon, removeCoupon,
                 saveExpense, removeExpense, editExpense,
                 editMember, saveMember, removeMember,
-                areas, selectedAreaId, areaData, openAreaModal, saveAreaNote, removeAreaNote, moveAreaNote, moveArea, setMapPin, handleImageError, replaceBaseMap,
+                areas, selectedAreaId, areaData, openAreaModal, editAreaItem, saveAreaNote, removeAreaNote, moveAreaNote, moveAreaItemToOtherArea, moveArea, setMapPin, handleImageError, replaceBaseMap,
                 updateTodoStatus, removeTodo, removeWish, openLuggageVault, saveLuggageVault, updateLuggageStatus, removeLuggageItem,
                 editBooking, saveBooking, removeBooking, moveBooking
             };
