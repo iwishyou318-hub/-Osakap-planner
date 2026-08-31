@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>神戶和大阪之旅 - 行程表</title>
+    <title>神戶和大阪之旅 - 行程表 (雲端版)</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -49,6 +49,7 @@
             min-height: 100vh;
             position: relative;
             padding-bottom: 90px; 
+            scroll-behavior: smooth;
         }
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
@@ -63,6 +64,15 @@
         @keyframes slideUp {
             from { transform: translateY(100%); opacity: 0.5; }
             to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* ★ 新增：流動的虛線動畫 (攻略地圖使用) */
+        .route-line-anim {
+            stroke-dasharray: 8, 8;
+            animation: flow-line 0.8s linear infinite;
+        }
+        @keyframes flow-line {
+            to { stroke-dashoffset: -16; }
         }
 
         .bottom-nav {
@@ -242,12 +252,20 @@
                 </button>
             </div>
 
-            <!-- 滿版地圖 -->
+            <!-- ★ 新增：明確的專屬場景情境框 -->
+            <div class="bg-[#FFF9E6] p-3 mx-1 mb-4 rounded-xl border border-[#FDEBBA] shadow-sm flex items-start space-x-2" v-if="areaData[selectedAreaId]?.routeImage && !areaData[selectedAreaId]?.hideImage">
+                <i class="fa-solid fa-lightbulb text-[#FF9800] mt-0.5"></i>
+                <p class="text-[11px] text-ac-text font-bold leading-relaxed">
+                    <span class="text-[#FF9800] font-extrabold">專屬室內平面圖：</span>Google Maps 無法導航地下街或百貨樓層。上傳樓層圖，系統會自動繪製「虛線逛街動線」。點擊圓點即可體驗雙向定位！
+                </p>
+            </div>
+
+            <!-- 滿版地圖區塊 -->
             <div class="mb-8 -mx-5 bg-white border-y-2 border-ac-shadow shadow-soft relative" v-if="areaData[selectedAreaId]?.routeImage && !areaData[selectedAreaId]?.hideImage">
-                <div class="flex justify-between items-center mb-3 px-5 pt-4">
+                <div class="flex justify-between items-center mb-3 px-5 pt-4 relative z-20">
                     <h3 class="font-extrabold text-ac-text text-lg flex items-center">
                         <div class="w-8 h-8 rounded-full bg-[#FFF3E0] text-[#FF9800] flex items-center justify-center mr-2"><i class="fa-solid fa-map-location-dot"></i></div>
-                        區域吃買地圖
+                        購物動線平面圖
                     </h3>
                     <label class="text-[11px] bg-ac-earth text-white px-3 py-1.5 rounded-xl cursor-pointer shadow-sm font-bold flex items-center active:scale-95 transition-transform">
                         <i class="fa-solid fa-image mr-1"></i> 更換底圖
@@ -256,26 +274,43 @@
                 </div>
                 
                 <div class="relative w-full overflow-hidden bg-[#F9F6F0]">
-                    <img :src="areaData[selectedAreaId].routeImage" @error="handleImageError(selectedAreaId)" class="w-full h-auto block" alt="區域地圖">
+                    <!-- 背景地圖圖片 -->
+                    <img :src="areaData[selectedAreaId].routeImage" @error="handleImageError(selectedAreaId)" class="w-full h-auto block relative z-10" alt="區域地圖">
                     
-                    <div v-for="(spot, idx) in areaData[selectedAreaId]?.routeSpots" :key="idx"
-                         class="absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer group z-10 hover:z-30"
+                    <!-- ★ 新增：SVG 動態虛線連線 -->
+                    <svg class="absolute inset-0 w-full h-full pointer-events-none z-10" preserveAspectRatio="none" v-if="areaData[selectedAreaId]?.routeSpots?.length > 1">
+                        <line v-for="(spot, idx) in areaData[selectedAreaId].routeSpots.slice(0, -1)" :key="'line-'+idx"
+                              :x1="spot.x + '%'" :y1="spot.y + '%'"
+                              :x2="areaData[selectedAreaId].routeSpots[idx+1].x + '%'" :y2="areaData[selectedAreaId].routeSpots[idx+1].y + '%'"
+                              stroke="#8BBF9F" stroke-width="3" class="route-line-anim" />
+                    </svg>
+
+                    <!-- 加大版閃爍圓點與數字 (支援 Hover/Click 雙向連動) -->
+                    <div v-for="(spot, idx) in areaData[selectedAreaId]?.routeSpots" :key="'spot-'+idx"
+                         class="absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer group transition-all duration-300"
+                         :class="activeSpotIndex === idx ? 'scale-150 z-40' : 'z-20 hover:z-30 hover:scale-125'"
                          :style="{ top: spot.y + '%', left: spot.x + '%' }"
-                         @click="openSpecificMap(spot)">
+                         @mouseenter="activeSpotIndex = idx"
+                         @mouseleave="activeSpotIndex = null"
+                         @click="scrollToSpot(idx)">
                         
                         <div class="relative flex h-8 w-8">
-                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
-                                  :class="spot.type === 'food' ? 'bg-[#F2A6A6]' : 'bg-[#F2C879]'"></span>
-                            <span class="relative inline-flex rounded-full h-8 w-8 border-2 border-white shadow-md flex items-center justify-center text-white text-[14px] font-black"
-                                  :class="spot.type === 'food' ? 'bg-[#F2A6A6]' : 'bg-[#F2C879]'">
+                            <span class="absolute inline-flex h-full w-full rounded-full opacity-75"
+                                  :class="[spot.type === 'food' ? 'bg-[#F2A6A6]' : 'bg-[#F2C879]', activeSpotIndex === idx ? 'animate-ping' : '']"></span>
+                            
+                            <span class="relative inline-flex rounded-full h-8 w-8 border-2 shadow-md flex items-center justify-center text-white text-[14px] font-black transition-colors"
+                                  :class="[spot.type === 'food' ? 'bg-[#F2A6A6]' : 'bg-[#F2C879]', activeSpotIndex === idx ? 'border-ac-green' : 'border-white']">
                                 {{ idx + 1 }}
                             </span>
+                            
                             <span v-if="getMatchedShoppingItems(spot.name).length > 0" class="absolute -top-1 -right-1 w-3.5 h-3.5 bg-[#F2A6A6] text-white flex items-center justify-center rounded-full border border-white shadow-sm animate-pulse z-20">
                                 <i class="fa-solid fa-heart text-[6px]"></i>
                             </span>
                         </div>
                         
-                        <div class="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-white/95 backdrop-blur-sm text-ac-text text-[13px] px-3 py-1.5 rounded-xl shadow-md font-extrabold whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity border border-ac-shadow pointer-events-none">
+                        <!-- Hover 地標名稱提示框 -->
+                        <div class="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-white/95 backdrop-blur-sm text-ac-text text-[13px] px-3 py-1.5 rounded-xl shadow-md font-extrabold whitespace-nowrap transition-opacity border border-ac-shadow pointer-events-none"
+                             :class="activeSpotIndex === idx ? 'opacity-100' : 'opacity-0'">
                             {{ spot.name }}
                             <div class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-white"></div>
                         </div>
@@ -315,27 +350,39 @@
                 <div class="space-y-4 relative pb-4">
                     <div class="absolute left-[20px] top-4 bottom-4 w-[2px] bg-ac-shadow z-0"></div>
 
-                    <div v-for="(item, idx) in areaData[selectedAreaId]?.routeSpots" :key="idx" class="relative z-10 flex items-start group">
-                        <div class="w-10 h-10 rounded-[14px] flex flex-col items-center justify-center text-white text-[10px] shadow-sm z-10 shrink-0 border-2 border-white"
-                             :class="item.type === 'food' ? 'bg-[#F2A6A6]' : 'bg-[#F2C879]'">
+                    <!-- ★ 修改：支援滑鼠 Hover 連動地圖點位 -->
+                    <div v-for="(item, idx) in areaData[selectedAreaId]?.routeSpots" :key="idx" 
+                         :id="'spot-item-' + idx"
+                         @mouseenter="activeSpotIndex = idx"
+                         @mouseleave="activeSpotIndex = null"
+                         class="relative z-10 flex items-start group transition-all duration-300"
+                         :class="{'scale-[1.02]': activeSpotIndex === idx}">
+                        
+                        <div class="w-10 h-10 rounded-[14px] flex flex-col items-center justify-center text-white text-[10px] shadow-sm z-10 shrink-0 border-2 transition-colors"
+                             :class="[item.type === 'food' ? 'bg-[#F2A6A6]' : 'bg-[#F2C879]', activeSpotIndex === idx ? 'border-ac-green' : 'border-white']">
                             <span class="font-black text-[13px] leading-none mb-0.5">{{ idx + 1 }}</span>
                             <i :class="item.type === 'food' ? 'fa-solid fa-utensils text-[9px]' : 'fa-solid fa-bag-shopping text-[9px]'"></i>
                         </div>
 
-                        <div class="ml-3 flex-1 bg-[#F9F6F0] rounded-2xl p-3 border border-[#E0E5D5] relative">
+                        <!-- 雙向連動變色亮起 -->
+                        <div class="ml-3 flex-1 rounded-2xl p-3 border relative transition-colors duration-300"
+                             :class="activeSpotIndex === idx ? 'border-ac-green bg-[#E8F2EC] shadow-md' : 'border-[#E0E5D5] bg-[#F9F6F0]'">
+                            
                             <div v-if="getMatchedShoppingItems(item.name).length > 0" 
                                  @click.stop="openMatchedShopping(item.name)"
-                                 class="absolute -top-2 -right-2 bg-[#F2A6A6] text-white text-[10px] px-2.5 py-0.5 rounded-full font-bold shadow-md animate-bounce border-2 border-white cursor-pointer z-20 hover:scale-105 transition-transform flex items-center">
+                                 class="absolute -top-2 -right-2 bg-[#F2A6A6] text-white text-[10px] px-2.5 py-0.5 rounded-full font-bold shadow-md border-2 border-white cursor-pointer z-20 hover:scale-105 transition-transform flex items-center"
+                                 :class="{'animate-bounce': activeSpotIndex === idx}">
                                 <i class="fa-solid fa-star mr-1 text-[#FFF9E6]"></i>必買清單 ({{ getMatchedShoppingItems(item.name).length }})
                             </div>
 
-                            <p class="font-extrabold text-[15px] text-ac-text mb-1 cursor-pointer hover:text-ac-green transition-colors pr-12" @click="openSpecificMap(item)">
+                            <p class="font-extrabold text-[15px] text-ac-text mb-1 cursor-pointer pr-12" @click="openSpecificMap(item)">
                                 {{ item.name }} <i class="fa-solid fa-location-dot text-[10px] ml-1 text-[#D2691E] opacity-80"></i>
                             </p>
                             
                             <img v-if="item.image" :src="item.image" class="w-full h-28 object-cover rounded-xl mb-2 border border-[#E0E5D5]">
                             <p v-if="item.note" class="text-xs text-ac-earth font-bold whitespace-pre-line mt-1">{{ item.note }}</p>
 
+                            <!-- 控制按鈕常駐顯示 -->
                             <div class="absolute bottom-2 right-2 flex space-x-1 opacity-100 transition-opacity">
                                 <button v-if="idx > 0" @click.stop="moveAreaNote('routeSpots', idx, -1)" class="w-6 h-6 bg-white border border-ac-shadow text-ac-earth rounded-full flex items-center justify-center text-[10px] shadow-sm hover:bg-[#F9F6F0]"><i class="fa-solid fa-arrow-up"></i></button>
                                 <button v-if="idx < (areaData[selectedAreaId]?.routeSpots.length - 1)" @click.stop="moveAreaNote('routeSpots', idx, 1)" class="w-6 h-6 bg-white border border-ac-shadow text-ac-earth rounded-full flex items-center justify-center text-[10px] shadow-sm hover:bg-[#F9F6F0]"><i class="fa-solid fa-arrow-down"></i></button>
@@ -380,7 +427,6 @@
                 <button @click="prepTab = 'coupon'" class="flex-shrink-0 px-3 py-2 rounded-xl text-[13px] font-bold transition-all w-1/4" :class="prepTab === 'coupon' ? 'bg-[#E3F2FD] text-[#2196F3]' : 'text-ac-earth hover:bg-[#F9F6F0]'">優惠券</button>
             </div>
 
-            <!-- 待辦 -->
             <div v-if="prepTab === 'todo'" class="bg-white rounded-3xl border-2 border-ac-shadow shadow-soft p-5">
                 <h3 class="font-extrabold text-ac-text mb-4 text-lg border-b-2 border-dashed border-ac-shadow pb-3"><i class="fa-solid fa-list-check text-[#F2A6A6] mr-2"></i> 行前待辦事項</h3>
                 <div class="space-y-3 mb-4">
@@ -396,7 +442,20 @@
                 </div>
             </div>
 
-            <!-- 行李 -->
+            <div v-if="prepTab === 'wish'" class="bg-white rounded-3xl border-2 border-ac-shadow shadow-soft p-5">
+                <h3 class="font-extrabold text-ac-text mb-4 text-lg border-b-2 border-dashed border-ac-shadow pb-3"><i class="fa-solid fa-heart text-[#2196F3] mr-2"></i> 想去的願望清單</h3>
+                <div class="space-y-4 mb-4">
+                    <div v-for="(item) in wishList" :key="item.id" class="bg-[#F9F6F0] p-4 rounded-2xl border border-[#E0E5D5] relative group">
+                        <div class="absolute top-2 right-2 flex space-x-1 opacity-100 transition-opacity">
+                            <button @click="editPrepItem(item)" class="text-ac-earth bg-white w-7 h-7 flex items-center justify-center rounded-full shadow-sm border border-[#E0E5D5] hover:bg-[#F0EBE1]"><i class="fa-solid fa-pencil text-[10px]"></i></button>
+                            <button @click="removeWish(item.id)" class="text-[#F2A6A6] bg-[#FFF0F0] w-7 h-7 flex items-center justify-center rounded-full shadow-sm border border-[#F9DADA] hover:bg-[#F2A6A6] hover:text-white"><i class="fa-solid fa-trash text-[10px]"></i></button>
+                        </div>
+                        <p class="font-extrabold text-ac-text pr-16">{{ item.name }}</p>
+                        <p v-if="item.note" class="text-xs text-ac-earth font-bold mt-1">{{ item.note }}</p>
+                    </div>
+                </div>
+            </div>
+
             <div v-if="prepTab === 'luggage'" class="bg-white rounded-3xl border-2 border-ac-shadow shadow-soft p-5">
                 <div class="flex justify-between items-center mb-4 border-b-2 border-dashed border-ac-shadow pb-3">
                     <h3 class="font-extrabold text-ac-text text-lg flex items-center">
@@ -422,7 +481,6 @@
                 </div>
             </div>
 
-            <!-- 採購清單 -->
             <div v-if="prepTab === 'shopping'" class="space-y-6">
                 <div class="bg-[#E8F2EC] rounded-3xl border-2 border-[#D5E8DD] p-4 flex items-center justify-between shadow-sm">
                     <div class="flex items-center space-x-3">
@@ -443,7 +501,7 @@
                     <h4 class="font-extrabold text-[13px] text-white mb-4 bg-ac-earth px-3 py-1.5 rounded-lg inline-block shadow-sm">{{ area.name }}</h4>
                     
                     <div class="space-y-4">
-                        <div v-for="(item) in area.items" :key="item.id" class="bg-[#F9F6F0] rounded-2xl border border-[#E0E5D5] p-3 relative group flex flex-col">
+                        <div v-for="(item, idx) in area.items" :key="item.id" class="bg-[#F9F6F0] rounded-2xl border border-[#E0E5D5] p-3 relative group flex flex-col">
                             
                             <div class="absolute top-3 right-3 flex space-x-1.5 opacity-100 transition-opacity">
                                 <button @click="editPrepItem(item)" class="bg-white text-ac-earth rounded-full w-8 h-8 flex items-center justify-center text-xs border border-ac-shadow shadow-sm hover:bg-[#F0EBE1]"><i class="fa-solid fa-pencil"></i></button>
@@ -483,7 +541,6 @@
                 </div>
             </div>
 
-            <!-- 優惠券專區 -->
             <div v-if="prepTab === 'coupon'" class="space-y-4">
                 <div class="bg-[#FFF9E6] rounded-3xl border-2 border-[#FDEBBA] shadow-soft p-5 mb-4 relative overflow-hidden">
                     <i class="fa-solid fa-ticket absolute -right-4 -bottom-4 text-6xl text-[#FDEBBA] opacity-50"></i>
@@ -768,7 +825,7 @@
                             <span class="bg-white text-ac-earth text-[9px] px-1.5 py-0.5 rounded border border-[#E0E5D5] font-bold">數量: {{ item.quantity || 1 }}</span>
                         </div>
 
-                        <p class="text-[10px] text-[#8C7A6B] font-bold leading-relaxed line-clamp-2"><i class="fa-regular fa-comment-dots mr-1"></i>{{ item.advice || getItemRec(item.name).advice }}</p>
+                        <p class="text-[10px] text-[#8C7A6B] font-bold leading-relaxed line-clamp-2"><i class="fa-regular fa-comment-dots mr-1"></i>{{ item.advice }}</p>
                     </div>
                 </div>
             </div>
@@ -985,7 +1042,7 @@
         </div>
     </div>
 
-    <!-- 8. 準備區 Modal -->
+    <!-- 8. 準備區 Modal (支援編輯) -->
     <div v-if="showPrepModal" class="fixed inset-0 bg-[#5A4E45]/60 z-50 flex items-center justify-center p-5 backdrop-blur-sm animate-fade-in">
         <div class="bg-white rounded-[32px] border-2 border-ac-shadow shadow-soft w-full max-w-sm p-6 relative max-h-[90vh] overflow-y-auto scrollbar-hide">
             <h3 class="font-extrabold text-lg mb-5 text-center text-ac-text">
@@ -1108,6 +1165,7 @@
             const selectedDateIndex = ref(0);
             const prepTab = ref('shopping'); 
             const selectedAreaId = ref('namba');
+            const activeSpotIndex = ref(null); // ★ 新增：用於視覺雙向連動
 
             const showExpenseModal = ref(false);
             const showPrepModal = ref(false);
@@ -1139,7 +1197,6 @@
             const newAreaNote = ref({ type: 'food', name: '', note: '', image: null, mapUrl: '', isMustBuy: false, x: 50, y: 50 });
             const newItinerary = ref({ id: null, name: '', category: 'sightseeing', startTime: '', hours: '', address: '', price: '', note: '', transportType: 'walk', travelTime: '', isNoteExpanded: false });
             const newMember = ref({ id: null, name: '', role: '同行旅伴', avatar: null });
-            
             const newBooking = ref({ id: null, category: 'flight', title: '', badge: '', content: '', order: 0 });
 
             const currencyInput = ref(10000);
@@ -1300,6 +1357,14 @@
                     routeSpots: []
                 }
             });
+
+            // ★ 新增：平滑滾動至特定清單項目
+            const scrollToSpot = (idx) => {
+                const el = document.getElementById('spot-item-' + idx);
+                if (el) {
+                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            };
 
             const compressImage = (file, maxWidth, callback) => {
                 const reader = new FileReader();
@@ -1970,11 +2035,11 @@
                 prepTab, todoList, wishList, luggageData, groupedLuggage, shoppingList, newTodoText, coupons,
                 expenses, members, memberBalances, totalExpensesJPY, totalExpensesTWD, currencyInput, currencyResult,
                 showExpenseModal, showPrepModal, showItineraryModal, showAreaModal, showMemberModal, showLuggageModal, showCouponModal, showMatchedShoppingModal, showBookingModal,
-                currentSpotName, currentMatchedItems, isEditMode, isEditMemberMode, isEditPrepMode, isEditCouponMode, isEditExpenseMode, isEditBookingMode,
+                currentSpotName, currentMatchedItems, isEditMode, isEditMemberMode, isEditPrepMode, isEditCouponMode, isEditExpenseMode, isEditBookingMode, activeSpotIndex,
                 newExpense, newPrepItem, newCoupon, newAreaNote, newItinerary, newMember, newBooking, bookings, tempSelectedLuggage, LUGGAGE_TEMPLATE, sortedShoppingAreas,
                 formatNumber, calculateCurrency, getCategoryColor, getCategoryIcon, getCategoryLabel, getTransportBadgeInfo, getMatchedShoppingItems, getItemRec,
                 openMap, openSpecificMap, openMapDirections, openDayRoute, openAreaRoute, openMatchedShopping, goToShoppingList, handleAddClick, handlePrepImageUpload, handleMemberAvatarUpload, handleExpenseReceiptUpload, handleAreaImageUpload,
-                editItem, saveItineraryItem, removeItineraryItem, moveItineraryUp, moveItineraryDown,
+                editItem, saveItineraryItem, removeItineraryItem, moveItineraryUp, moveItineraryDown, scrollToSpot,
                 addTodo, editPrepItem, savePrepItem, removeShoppingItem, editCoupon, saveCoupon, removeCoupon,
                 saveExpense, removeExpense, editExpense,
                 editMember, saveMember, removeMember,
